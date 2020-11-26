@@ -23,3 +23,10 @@ Install cobra dependencies: (required to generate new commands)
 ```shell script
 go get github.com/spf13/cobra/cobra
 ```
+
+Add new cobra command
+```shell script
+# add new subcommand
+cobra add <child command> -p <parent command>
+cobra add childCommand -p 'parentCommand'
+```
