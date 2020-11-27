@@ -1,0 +1,5 @@
+- implement delete.go
+- implement list.go
+- implement start.go
+- implement shell.go
+- use docker api for create.go
