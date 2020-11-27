@@ -3,7 +3,7 @@
 The goal of this project is to provide a simple shell interface and containerized environment for a C/C++ dev
 environment.
 
-## Goals 
+## Goals
 
 - [ ] `start ENVIRONMENT`: run container in background
 
@@ -48,6 +48,7 @@ support the following `docker build` flags:
 
 ```
   -f, --file string             Name of the Dockerfile (Default is 'PATH/Dockerfile')
+      --image string            Name of the Docker container to pull from Docker Hub
 ```
 
 support the following `docker run` flags:
