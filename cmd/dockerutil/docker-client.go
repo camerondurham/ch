@@ -63,8 +63,8 @@ func ContextReader(contextPath string) (contextReader *bytes.Reader, err error) 
 		// ensure header has relative file path
 		hdr.Name = relFilePath
 
-		if err := tw.WriteHeader(hdr); err != nil {
-			return err
+		if err2 := tw.WriteHeader(hdr); err2 != nil {
+			return err2
 		}
 
 		// if file is a dir, don't continue
@@ -130,7 +130,6 @@ func BuildImageWithContext(ctx context.Context, cli *client.Client, dockerfile s
 
 	_, err = io.Copy(os.Stdout, buildResponse.Body)
 	if err != nil {
-		log.Fatal("unable to read image build response: ", err)
 		return err
 	}
 

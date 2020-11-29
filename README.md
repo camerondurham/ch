@@ -46,14 +46,14 @@ ch --set-default cs104
 
 support the following `docker build` flags:
 
-```
+```shell script
   -f, --file string             Name of the Dockerfile (Default is 'PATH/Dockerfile')
       --image string            Name of the Docker container to pull from Docker Hub
 ```
 
 support the following `docker run` flags:
 
-```
+```shell script
       --cap-add list                   Add Linux capabilities
       --cap-drop list                  Drop Linux capabilities
       --name string                    Assign a name to the container
