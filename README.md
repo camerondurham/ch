@@ -3,6 +3,8 @@
 The goal of this project is to provide a simple shell interface and containerized environment for a C/C++ dev
 environment.
 
+[![GitHub Super-Linter](https://github.com/camerondurham/ch/workflows/Lint%20Code%20Base/badge.svg)](https://github.com/marketplace/actions/super-linter)
+
 ## Goals
 
 - [ ] `start ENVIRONMENT`: run container in background
