@@ -53,7 +53,7 @@ support the following `docker build` flags:
 
 support the following `docker run` flags:
 
-```
+```shell script
       --cap-add list                   Add Linux capabilities
       --cap-drop list                  Drop Linux capabilities
       --name string                    Assign a name to the container
