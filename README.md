@@ -1,4 +1,4 @@
-# container-wrapper
+# ch: container helper
 
 The goal of this project is to provide a simple shell interface and containerized environment for a C/C++ dev
 environment.

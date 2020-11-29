@@ -1,9 +1,11 @@
 package cmd
 
 import (
+	"fmt"
 	"log"
 	"os/exec"
 
+	"github.com/camerondurham/ch/cmd/util"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -21,6 +23,7 @@ var createCmd = &cobra.Command{
 	if you do not explicitly set --file.`,
 	Args: cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
+
 		/*
 			1. parse new environment name
 				1.1 get list of current environments
@@ -28,6 +31,8 @@ var createCmd = &cobra.Command{
 			2. parse file, shell, volume
 			3. save new environment in config file
 		*/
+
+		// TODO: implement with dockerutils
 
 		name := args[0]
 		queryName := viper.GetStringMapString(name)
@@ -48,9 +53,9 @@ var createCmd = &cobra.Command{
 
 		if err != nil {
 			log.Fatalf("error creating docker environment: %v", err)
-		} else if debug {
-			log.Printf("output: %s", output)
 		}
+
+		util.DebugPrint(fmt.Sprintf("output: %s", output))
 
 		opts := ContainerOpts{
 			BuildInfo: BuildOpts{
@@ -67,8 +72,6 @@ var createCmd = &cobra.Command{
 			log.Printf("Saving environment: %s", opts)
 		}
 
-		// util.UpdateConfig()
-
 		viper.Set(name, opts)
 
 		viper.WriteConfig()
@@ -80,15 +83,14 @@ func init() {
 	rootCmd.AddCommand(createCmd)
 
 	createCmd.PersistentFlags().StringP("file", "f", "Dockerfile", "path to Dockerfile")
-	// viper.BindPFlag("file", createCmd.PersistentFlags().Lookup("file"))
 
 	createCmd.PersistentFlags().StringP("volume", "v", "", "volume to mount to the working directory")
-	// viper.BindPFlag("volume", createCmd.PersistentFlags().Lookup("volume"))
 
 	createCmd.PersistentFlags().String("shell", "/bin/sh", "default shell to use when logging into environment")
-	// viper.BindPFlag("shell", createCmd.PersistentFlags().Lookup("shell"))
 
 	createCmd.PersistentFlags().String("context", ".", "context to build Dockerfile")
+
+	// Example to bind any other flags to all viper flags
 	// viper.BindPFlag("context", createCmd.PersistentFlags().Lookup("context"))
 
 	// Here you will define your flags and configuration settings.

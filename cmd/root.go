@@ -31,6 +31,8 @@ import (
 	"github.com/spf13/viper"
 )
 
+// TODO: move to types file
+
 type BuildOpts struct {
 	DockerfilePath string
 	Context        string
@@ -43,6 +45,8 @@ type ContainerOpts struct {
 }
 
 var cfgFile string
+
+// TODO: add commands: start, shell
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
