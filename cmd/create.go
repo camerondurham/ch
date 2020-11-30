@@ -1,105 +1,137 @@
 package cmd
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"log"
-	"os/exec"
 
+	"github.com/camerondurham/ch/cmd/dockerutil"
 	"github.com/camerondurham/ch/cmd/util"
+	"github.com/docker/docker/client"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
-const (
-	debug = true
-)
-
 // createCmd represents the create command
 var createCmd = &cobra.Command{
-	Use:   "create ENVIRONMENT_NAME [--file DOCKERFILE] [--volume PATH_TO_DIRECTORY] [--shell SHELL_CMD]",
+	Use:   "create ENVIRONMENT_NAME {--file DOCKERFILE|--image DOCKER_IMAGE} [--volume PATH_TO_DIRECTORY] [--shell SHELL_CMD]",
 	Short: "Create docker environment config",
 	Long: `Create docker environment config with new name. 
 	Will look for your Dockerfile in the current directory 
 	if you do not explicitly set --file.`,
 	Args: cobra.MinimumNArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
-
-		/*
-			1. parse new environment name
-				1.1 get list of current environments
-				1.2 check if "name" exists already
-			2. parse file, shell, volume
-			3. save new environment in config file
-		*/
-
-		// TODO: implement with dockerutils
-
-		name := args[0]
-		queryName := viper.GetStringMapString(name)
-		if len(queryName) > 0 {
-			log.Fatalf("environment name [%s] already exists", name)
-		}
-
-		file, err := cmd.Flags().GetString("file")
-		volume, err := cmd.Flags().GetString("volume")
-		shell, err := cmd.Flags().GetString("shell")
-		context, err := cmd.Flags().GetString("context")
-		tag := name
-
-		command := []string{"docker", "build", "--file", file, "-t", tag, context}
-		dockerCmd := exec.Command(command[0], command[1:]...)
-
-		output, err := dockerCmd.CombinedOutput()
-
-		if err != nil {
-			log.Fatalf("error creating docker environment: %v", err)
-		}
-
-		util.DebugPrint(fmt.Sprintf("output: %s", output))
-
-		opts := ContainerOpts{
-			BuildInfo: BuildOpts{
-				DockerfilePath: file,
-				Context:        context,
-				Tag:            tag,
-			},
-			Volume: volume,
-			Shell:  shell,
-		}
-
-		if debug {
-			log.Print("created docker environment")
-			log.Printf("Saving environment: %s", opts)
-		}
-
-		viper.Set(name, opts)
-
-		viper.WriteConfig()
-
-	},
+	Run:  CreateCmd,
 }
 
+// CreateCmd creates a new Docker environment
+func CreateCmd(cmd *cobra.Command, args []string) {
+
+	/*
+		-1. parse new environment name
+			-1.1 get list of current environments
+			-1.2 check if "name" exists already
+		0. parse file, shell, volume
+		1. save new environment in config file
+	*/
+
+	name := args[0]
+	queryName := viper.GetStringMapString(name)
+	if len(queryName) > 0 {
+		log.Fatalf("environment name [%s] already exists", name)
+	}
+
+	opts, err := parseContainerOpts(cmd, name)
+
+	if err != nil {
+		log.Fatal("failed to parse args: ", err)
+	}
+
+	cli, err := client.NewEnvClient()
+	ctx := context.Background()
+
+	if err != nil {
+		log.Fatal("error creating Docker client: are you sure Docker is running?")
+	}
+
+	if opts.BuildOpts != nil {
+		err = dockerutil.BuildImageWithContext(ctx,
+			cli,
+			opts.BuildOpts.DockerfilePath,
+			opts.BuildOpts.Context,
+			opts.BuildOpts.Tag)
+	} else {
+		err = dockerutil.PullImage(ctx,
+			cli,
+			opts.PullOpts.ImageName)
+	}
+
+	if err != nil {
+		log.Fatal("error creating image: ", err)
+	}
+
+	util.DebugPrint(fmt.Sprintf("Saving environment: %v", *opts))
+
+	// save new environment opts into config file
+	viper.Set(name, *opts)
+	viper.WriteConfig()
+}
 func init() {
 	rootCmd.AddCommand(createCmd)
 
-	createCmd.PersistentFlags().StringP("file", "f", "Dockerfile", "path to Dockerfile")
+	createCmd.Flags().StringP("file", "f", "Dockerfile", "path to Dockerfile")
 
-	createCmd.PersistentFlags().StringP("volume", "v", "", "volume to mount to the working directory")
+	createCmd.Flags().StringP("image", "i", "", "image name to pull from DockerHub")
 
-	createCmd.PersistentFlags().String("shell", "/bin/sh", "default shell to use when logging into environment")
+	createCmd.Flags().StringP("volume", "v", "", "volume to mount to the working directory")
 
-	createCmd.PersistentFlags().String("context", ".", "context to build Dockerfile")
+	createCmd.Flags().String("shell", "/bin/sh", "default shell to use when logging into environment")
+
+	createCmd.Flags().String("context", ".", "context to build Dockerfile")
 
 	// Example to bind any other flags to all viper flags
 	// viper.BindPFlag("context", createCmd.PersistentFlags().Lookup("context"))
+}
 
-	// Here you will define your flags and configuration settings.
+var (
+	errorCreateImageFieldsNotPresent = errors.New("file or image must be provided to create container")
+	errorBuildImageFieldsNotPresent  = errors.New("file and context must be provided to build a container")
+)
 
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// createCmd.PersistentFlags().String("foo", "", "A help for foo")
+func parseContainerOpts(cmd *cobra.Command, environmentName string) (*ContainerOpts, error) {
+	if file, _ := cmd.Flags().GetString("file"); file != "" {
+		if contextDirName, _ := cmd.Flags().GetString("context"); contextDirName != "" {
+			volumeName, shellCmd := parseOptional(cmd)
+			return &ContainerOpts{
+				BuildOpts: &BuildOpts{
+					DockerfilePath: file,
+					Context:        contextDirName,
+					Tag:            environmentName,
+				},
+				Volume: volumeName,
+				Shell:  shellCmd,
+			}, nil
+		} else {
+			return &ContainerOpts{}, errorBuildImageFieldsNotPresent
+		}
+	}
 
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// createCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	if imageName, _ := cmd.Flags().GetString("image"); imageName != "" {
+		volumeName, shellCmd := parseOptional(cmd)
+		return &ContainerOpts{
+			PullOpts: &PullOpts{
+				ImageName: imageName,
+			},
+			Volume: volumeName,
+			Shell:  shellCmd,
+		}, nil
+	}
+
+	return nil, errorCreateImageFieldsNotPresent
+}
+
+func parseOptional(cmd *cobra.Command) (volumeName string, shellCmd string) {
+	volumeName, _ = cmd.Flags().GetString("volume")
+	shellCmd, _ = cmd.Flags().GetString("shell")
+	return
 }

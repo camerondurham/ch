@@ -95,6 +95,19 @@ func ContextReader(contextPath string) (contextReader *bytes.Reader, err error) 
 	return contextTarReader, nil
 }
 
+// PullImage downloads a Docker image from Docker Hub
+func PullImage(ctx context.Context, cli *client.Client, imageName string) error {
+	out, err := cli.ImagePull(ctx, imageName, types.ImagePullOptions{})
+
+	if err != nil {
+		return err
+	}
+
+	io.Copy(os.Stdout, out)
+
+	return nil
+}
+
 // BuildImageWithContext accepts a build context path and relative Dockerfile path
 func BuildImageWithContext(ctx context.Context, cli *client.Client, dockerfile string, contextDirPath string, imageTagName string) error {
 	contextPath, err := filepath.Abs(contextDirPath)
