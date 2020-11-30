@@ -25,14 +25,16 @@ var createCmd = &cobra.Command{
 }
 
 // CreateCmd creates a new Docker environment
+// TODO: restructure for easier testing
+// https://stackoverflow.com/questions/35827147/cobra-viper-golang-how-to-test-subcommands
 func CreateCmd(cmd *cobra.Command, args []string) {
 
 	/*
-		-1. parse new environment name
-			-1.1 get list of current environments
-			-1.2 check if "name" exists already
-		0. parse file, shell, volume
-		1. save new environment in config file
+		0. parse new environment name
+			0.1 get list of current environments
+			0.2 check if "name" exists already
+		1. parse file, shell, volume
+		2. save new environment in config file
 	*/
 
 	name := args[0]
@@ -74,7 +76,10 @@ func CreateCmd(cmd *cobra.Command, args []string) {
 
 	// save new environment opts into config file
 	viper.Set(name, *opts)
-	viper.WriteConfig()
+	err = viper.WriteConfig()
+	if err != nil {
+		log.Fatal("error saving config: ", err)
+	}
 }
 func init() {
 	rootCmd.AddCommand(createCmd)
