@@ -25,8 +25,8 @@ func ListRunning(cli *client.Client) {
 		log.Fatal(err)
 	}
 
-	for _, container := range containers {
-		fmt.Printf("%s %s\n", container.ID[:10], container.Image)
+	for _, c := range containers {
+		fmt.Printf("%s %s\n", c.ID[:10], c.Image)
 	}
 }
 
@@ -34,13 +34,11 @@ func ListRunning(cli *client.Client) {
 func ContextReader(contextPath string) (contextReader *bytes.Reader, err error) {
 	buf := new(bytes.Buffer)
 	tw := tar.NewWriter(buf)
-	defer tw.Close()
+	defer func() {
+		err = tw.Close()
+	}()
 
 	path := filepath.Clean(contextPath)
-
-	if err != nil {
-		fmt.Println(err)
-	}
 
 	walker := func(file string, finfo os.FileInfo, err error) error {
 		if err != nil {
@@ -103,7 +101,10 @@ func PullImage(ctx context.Context, cli *client.Client, imageName string) error 
 		return err
 	}
 
-	io.Copy(os.Stdout, out)
+	_, err = io.Copy(os.Stdout, out)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

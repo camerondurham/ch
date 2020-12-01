@@ -10,6 +10,7 @@ cleanup:
 get-tools:
 	go get -t \
 	github.com/spf13/cobra/cobra
+	GO111MODULE=on go get github.com/golang/mock/mockgen@v1.4.4
 
 todo:
 	 git grep -EI "TODO|FIXME"
