@@ -7,6 +7,8 @@ environment.
 
 ## Goals
 
+- [x] `create ENVIRONMENT`: create new environment config
+  
 - [ ] `start ENVIRONMENT`: run container in background
 
 - [ ] `shell ENVIRONMENT`: start shell in container
@@ -19,11 +21,14 @@ environment.
 
 - [ ] `setup LOCATION`: build/pull Dockerfile, setup run script
 
+- [ ] unit test each command
 
 ## Spec
 
 ```shell script
 # create environment
+ch create ENVIRONMENT_NAME {--file DOCKERFILE|--image DOCKER_IMAGE} [--volume PATH_TO_DIRECTORY] [--shell SHELL_CMD]
+
 ch create --file ./env/Dockerfile --shell /bin/bash --volume ./project/files/ --name cs104
 
 # start container
