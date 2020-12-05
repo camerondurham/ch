@@ -2,6 +2,7 @@ package dockerutil
 
 import (
 	"archive/tar"
+	"bufio"
 	"bytes"
 	"context"
 	"fmt"
@@ -110,7 +111,7 @@ func PullImage(ctx context.Context, cli *client.Client, imageName string) error 
 }
 
 // BuildImageWithContext accepts a build context path and relative Dockerfile path
-func BuildImageWithContext(ctx context.Context, cli *client.Client, dockerfile string, contextDirPath string, imageTagName string) error {
+func BuildImageWithContext(ctx context.Context, cli *client.Client, dockerfile string, contextDirPath string, imageTagName string) (err error) {
 	contextPath, err := filepath.Abs(contextDirPath)
 	if err != nil {
 		log.Printf("error finding abs path: %v", err)
@@ -142,12 +143,26 @@ func BuildImageWithContext(ctx context.Context, cli *client.Client, dockerfile s
 
 	util.DebugPrint(buildResponse.OSType)
 
-	_, err = io.Copy(os.Stdout, buildResponse.Body)
-	if err != nil {
-		return err
+	rd := bufio.NewReader(buildResponse.Body)
+
+	for {
+		str, err := rd.ReadString('\n')
+		if err != nil {
+			log.Fatalf("error reading string: %v", err)
+		}
+		fmt.Println(str)
 	}
 
-	return nil
+	//_, err = io.Copy(pw, buildResponse.Body)
+	//if err != nil {
+	//	return err
+	//}
+
+	//values, err := cli.ImageList(ctx, types.ImageListOptions{All: false})
+	//for i,v := range values {
+	//	util.DebugPrint(fmt.Sprintf("image info: %v  %v \n\n LABEL %v", i, v, v.RepoTags))
+	//}
+	return err
 }
 
 // CreateContainer create container with name
