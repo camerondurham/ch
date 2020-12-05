@@ -1,6 +1,5 @@
 #!/bin/bash
 
-VERSION="$1"
 TESTNAME="alpine-test$1"
 
 docker image rm -f "$TESTNAME" && docker system prune -f
