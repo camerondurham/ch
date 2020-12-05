@@ -1,0 +1,2 @@
+FROM alpine:3.9
+RUN apk add --no-cache gcc=10.2.1_pre0-r3 bash=5.0.18-r0

@@ -5,6 +5,7 @@ import (
 	"bufio"
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -18,6 +19,19 @@ import (
 
 	"github.com/docker/docker/api/types"
 )
+
+// Docker Build Response
+
+type ErrorDetail struct {
+	Code    int    `json:",string"`
+	Message string `json:"message"`
+}
+
+type BuildOutput struct {
+	Stream      string       `json:"stream"`
+	ErrorDetail *ErrorDetail `json:"errorDetail"`
+	Error       string       `json:"error,omitempty"`
+}
 
 // ListRunning lists running containers like docker ps
 func ListRunning(cli *client.Client) {
@@ -145,24 +159,31 @@ func BuildImageWithContext(ctx context.Context, cli *client.Client, dockerfile s
 
 	rd := bufio.NewReader(buildResponse.Body)
 
+	var retErr error
+
 	for {
+
+		// there must be a better way than parsing the output to figure out if a build failed??
 		str, err := rd.ReadString('\n')
-		if err != nil {
-			log.Fatalf("error reading string: %v", err)
+		if err == io.EOF {
+			retErr = nil
+			break
+		} else {
+			var msg BuildOutput
+
+			err = json.Unmarshal([]byte(str), &msg)
+
+			if err != nil {
+				util.DebugPrint(fmt.Sprintf("error unmarshalling str: [%s] \n error: %v", str, err))
+			}
+
+			if msg.Error != "" {
+				retErr = fmt.Errorf("error building image:\n%v", msg.ErrorDetail.Message)
+				break
+			}
 		}
-		fmt.Println(str)
 	}
-
-	//_, err = io.Copy(pw, buildResponse.Body)
-	//if err != nil {
-	//	return err
-	//}
-
-	//values, err := cli.ImageList(ctx, types.ImageListOptions{All: false})
-	//for i,v := range values {
-	//	util.DebugPrint(fmt.Sprintf("image info: %v  %v \n\n LABEL %v", i, v, v.RepoTags))
-	//}
-	return err
+	return retErr
 }
 
 // CreateContainer create container with name

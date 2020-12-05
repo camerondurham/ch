@@ -2,7 +2,7 @@
 # env GIT_TERMINAL_PROMPT=1
 
 build:
-	go build
+	go build -v
 
 cleanup:
 	go mod tidy

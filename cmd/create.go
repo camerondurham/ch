@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/camerondurham/ch/cmd/config"
 	"github.com/camerondurham/ch/cmd/dockerutil"
 	"github.com/camerondurham/ch/cmd/util"
 	"github.com/docker/docker/client"
@@ -29,17 +30,11 @@ var createCmd = &cobra.Command{
 // https://stackoverflow.com/questions/35827147/cobra-viper-golang-how-to-test-subcommands
 func CreateCmd(cmd *cobra.Command, args []string) {
 
-	/*
-		0. parse new environment name
-			0.1 get list of current environments
-			0.2 check if "name" exists already
-		1. parse file, shell, volume
-		2. save new environment in config file
-	*/
-
 	name := args[0]
 	queryName := viper.GetStringMapString(name)
-	if len(queryName) > 0 {
+	replace := viper.GetBool("replace")
+
+	if len(queryName) > 0 && !replace {
 		log.Fatalf("environment name [%s] already exists", name)
 	}
 
@@ -69,30 +64,38 @@ func CreateCmd(cmd *cobra.Command, args []string) {
 	}
 
 	if err != nil {
-		log.Fatal("error creating image: ", err)
+		log.Fatal("cannot create new environment, error creating image: ", err)
 	}
 
 	util.DebugPrint(fmt.Sprintf("Saving environment: %v", *opts))
 
+	//var mm map[string]config.ContainerOpts
+	// TODO: read for configuring environment https://github.com/spf13/viper
+
+	newEnvironment := config.Environment{
+		Name: name,
+		Opts: opts,
+	}
+
 	// save new environment opts into config file
 	viper.Set(name, *opts)
+	viper.Set("envs", newEnvironment)
 	err = viper.WriteConfig()
 	if err != nil {
 		log.Fatal("error saving config: ", err)
 	}
+
+	util.PrintConfig(name, opts)
 }
 func init() {
 	rootCmd.AddCommand(createCmd)
 
 	createCmd.Flags().StringP("file", "f", "Dockerfile", "path to Dockerfile")
-
 	createCmd.Flags().StringP("image", "i", "", "image name to pull from DockerHub")
-
 	createCmd.Flags().StringP("volume", "v", "", "volume to mount to the working directory")
-
 	createCmd.Flags().String("shell", "/bin/sh", "default shell to use when logging into environment")
-
 	createCmd.Flags().String("context", ".", "context to build Dockerfile")
+	createCmd.Flags().Bool("replace", false, "replace environment if it already exists")
 
 	// Example to bind any other flags to all viper flags
 	// viper.BindPFlag("context", createCmd.PersistentFlags().Lookup("context"))
@@ -103,12 +106,12 @@ var (
 	errorBuildImageFieldsNotPresent  = errors.New("file and context must be provided to build a container")
 )
 
-func parseContainerOpts(cmd *cobra.Command, environmentName string) (*ContainerOpts, error) {
+func parseContainerOpts(cmd *cobra.Command, environmentName string) (*config.ContainerOpts, error) {
 	if file, _ := cmd.Flags().GetString("file"); file != "" {
 		if contextDirName, _ := cmd.Flags().GetString("context"); contextDirName != "" {
 			volumeName, shellCmd := parseOptional(cmd)
-			return &ContainerOpts{
-				BuildOpts: &BuildOpts{
+			return &config.ContainerOpts{
+				BuildOpts: &config.BuildOpts{
 					DockerfilePath: file,
 					Context:        contextDirName,
 					Tag:            environmentName,
@@ -117,14 +120,14 @@ func parseContainerOpts(cmd *cobra.Command, environmentName string) (*ContainerO
 				Shell:  shellCmd,
 			}, nil
 		} else {
-			return &ContainerOpts{}, errorBuildImageFieldsNotPresent
+			return &config.ContainerOpts{}, errorBuildImageFieldsNotPresent
 		}
 	}
 
 	if imageName, _ := cmd.Flags().GetString("image"); imageName != "" {
 		volumeName, shellCmd := parseOptional(cmd)
-		return &ContainerOpts{
-			PullOpts: &PullOpts{
+		return &config.ContainerOpts{
+			PullOpts: &config.PullOpts{
 				ImageName: imageName,
 			},
 			Volume: volumeName,
