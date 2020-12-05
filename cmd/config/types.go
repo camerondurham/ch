@@ -22,8 +22,3 @@ type Environment struct {
 	Opts *ContainerOpts
 }
 
-type config struct {
-	Envs struct {
-		Values map[string]*ContainerOpts
-	}
-}

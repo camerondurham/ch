@@ -1,6 +1,7 @@
 #!/bin/bash
 
-TESTNAME="alpine-test1"
+VERSION="$1"
+TESTNAME="alpine-test$1"
 
 docker image rm -f "$TESTNAME" && docker system prune -f
 touch ~/.ch.yaml

@@ -31,8 +31,8 @@ var createCmd = &cobra.Command{
 func CreateCmd(cmd *cobra.Command, args []string) {
 
 	name := args[0]
-	queryName := viper.GetStringMapString(name)
-	replace := viper.GetBool("replace")
+	queryName := viper.GetStringMapString(fmt.Sprintf("envs.%s", name))
+	replace, _ := cmd.Flags().GetBool("replace")
 
 	if len(queryName) > 0 && !replace {
 		log.Fatalf("environment name [%s] already exists", name)
@@ -67,19 +67,10 @@ func CreateCmd(cmd *cobra.Command, args []string) {
 		log.Fatal("cannot create new environment, error creating image: ", err)
 	}
 
-	util.DebugPrint(fmt.Sprintf("Saving environment: %v", *opts))
-
-	//var mm map[string]config.ContainerOpts
-	// TODO: read for configuring environment https://github.com/spf13/viper
-
-	newEnvironment := config.Environment{
-		Name: name,
-		Opts: opts,
-	}
+	util.DebugPrint(fmt.Sprintf("saving environment: %v", opts))
 
 	// save new environment opts into config file
-	viper.Set(name, *opts)
-	viper.Set("envs", newEnvironment)
+	viper.Set(fmt.Sprintf("envs.%s", name), opts)
 	err = viper.WriteConfig()
 	if err != nil {
 		log.Fatal("error saving config: ", err)
