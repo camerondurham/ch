@@ -1,4 +1,4 @@
-package dockerutil
+package util
 
 import (
 	"archive/tar"
@@ -13,7 +13,6 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/camerondurham/ch/cmd/util"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
 
@@ -133,8 +132,8 @@ func BuildImageWithContext(ctx context.Context, cli *client.Client, dockerfile s
 	}
 	contextTarball := fmt.Sprintf("/tmp/%s.tar", filepath.Base(contextPath))
 
-	util.DebugPrint(fmt.Sprintf("dockerfile context file: %s\n", contextPath))
-	util.DebugPrint(fmt.Sprintf("output filename: %s\n", contextTarball))
+	DebugPrint(fmt.Sprintf("dockerfile context file: %s\n", contextPath))
+	DebugPrint(fmt.Sprintf("output filename: %s\n", contextTarball))
 
 	contextTarReader, err := ContextReader(contextPath)
 	if err != nil {
@@ -155,7 +154,7 @@ func BuildImageWithContext(ctx context.Context, cli *client.Client, dockerfile s
 
 	defer buildResponse.Body.Close()
 
-	util.DebugPrint(buildResponse.OSType)
+	DebugPrint(buildResponse.OSType)
 
 	rd := bufio.NewReader(buildResponse.Body)
 
@@ -174,7 +173,7 @@ func BuildImageWithContext(ctx context.Context, cli *client.Client, dockerfile s
 			err = json.Unmarshal([]byte(str), &msg)
 
 			if err != nil {
-				util.DebugPrint(fmt.Sprintf("error unmarshalling str: [%s] \n error: %v", str, err))
+				DebugPrint(fmt.Sprintf("error unmarshalling str: [%s] \n error: %v", str, err))
 			}
 
 			if msg.Error != "" {
@@ -199,7 +198,7 @@ func CreateContainer(ctx context.Context, cli *client.Client, config *container.
 
 // RemoveContainer delete container
 func RemoveContainer(ctx context.Context, cli *client.Client, containerName string) {
-	util.DebugPrint(fmt.Sprintf("removing container[%s]...", containerName))
+	DebugPrint(fmt.Sprintf("removing container[%s]...", containerName))
 	if err := cli.ContainerRemove(context.Background(), containerName, types.ContainerRemoveOptions{}); err != nil {
 		log.Fatal("error removing container: ", err)
 	}
@@ -215,7 +214,7 @@ func StartContainer(ctx context.Context, cli *client.Client, containerID string)
 // StopContainer from running
 func StopContainer(ctx context.Context, cli *client.Client, containerID string, timeout *time.Duration) {
 
-	util.DebugPrint(fmt.Sprintf("removing container [%s]...", containerID))
+	DebugPrint(fmt.Sprintf("removing container [%s]...", containerID))
 
 	if err := cli.ContainerStop(ctx, containerID, nil); err != nil {
 		log.Fatal("error stopping container: ", err)

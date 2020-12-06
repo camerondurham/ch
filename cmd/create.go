@@ -7,7 +7,6 @@ import (
 	"log"
 
 	"github.com/camerondurham/ch/cmd/config"
-	"github.com/camerondurham/ch/cmd/dockerutil"
 	"github.com/camerondurham/ch/cmd/util"
 	"github.com/docker/docker/client"
 	"github.com/spf13/cobra"
@@ -52,13 +51,13 @@ func CreateCmd(cmd *cobra.Command, args []string) {
 	}
 
 	if opts.BuildOpts != nil {
-		err = dockerutil.BuildImageWithContext(ctx,
+		err = util.BuildImageWithContext(ctx,
 			cli,
 			opts.BuildOpts.DockerfilePath,
 			opts.BuildOpts.Context,
 			opts.BuildOpts.Tag)
 	} else {
-		err = dockerutil.PullImage(ctx,
+		err = util.PullImage(ctx,
 			cli,
 			opts.PullOpts.ImageName)
 	}
@@ -69,8 +68,20 @@ func CreateCmd(cmd *cobra.Command, args []string) {
 
 	util.DebugPrint(fmt.Sprintf("saving environment: %v", opts))
 
-	// save new environment opts into config file
-	viper.Set(fmt.Sprintf("envs.%s", name), opts)
+	envs, err := util.GetEnvs()
+
+	if err != nil {
+		if err == util.ErrDoesNotExist {
+			// save new environment opts into config file
+			viper.Set(fmt.Sprintf("envs.%s", name), opts)
+		} else {
+			log.Fatal("cannot read environment ")
+		}
+	} else {
+		envs[name] = opts
+		viper.Set("envs", envs)
+	}
+
 	err = viper.WriteConfig()
 	if err != nil {
 		log.Fatal("error saving config: ", err)
@@ -87,9 +98,6 @@ func init() {
 	createCmd.Flags().String("shell", "/bin/sh", "default shell to use when logging into environment")
 	createCmd.Flags().String("context", ".", "context to build Dockerfile")
 	createCmd.Flags().Bool("replace", false, "replace environment if it already exists")
-
-	// Example to bind any other flags to all viper flags
-	// viper.BindPFlag("context", createCmd.PersistentFlags().Lookup("context"))
 }
 
 var (

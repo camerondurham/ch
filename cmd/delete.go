@@ -23,36 +23,41 @@ package cmd
 
 import (
 	"fmt"
-
+	"github.com/camerondurham/ch/cmd/util"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+	"log"
+	"os"
 )
 
 // deleteCmd represents the delete command
 var deleteCmd = &cobra.Command{
-	Use:   "delete",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Use:   "delete ENVIRONMENT_NAME",
+	Short: "deletes a given config",
+	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		// TODO: implement delete
-		fmt.Println("delete called")
+		envName := args[0]
+		envs, err := util.GetEnvs()
+		if err != nil {
+			log.Fatalf("cannot read config: %v", err)
+		}
+		if _, ok := envs[envName]; ok {
+			delete(envs, envName)
+		} else {
+			fmt.Printf("environment [%s] not found", envName)
+		}
+
+		viper.Set("envs", envs)
+		err = viper.WriteConfig()
+		if err != nil {
+			fmt.Printf("cannot write to config: %v", err)
+			os.Exit(1)
+		} else {
+			fmt.Printf("environment deleted: %v", envName)
+		}
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(deleteCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// deleteCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// deleteCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

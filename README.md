@@ -8,18 +8,20 @@ environment.
 ## Goals
 
 - [x] `create ENVIRONMENT`: create new environment config
-  
+  - [x] replace if it already exists
+  - [x] build image or pull from Docker repository
+    
+- [x] `delete ENVIRONMENT`: delete environment
+
 - [ ] `start ENVIRONMENT`: run container in background
 
 - [ ] `shell ENVIRONMENT`: start shell in container
 
-- [ ] `config CONTAINER`: manage multiple environments with single container wrapper
-  - list mounted directories
-  - list container source
+- [ ] `stop ENVIRONMENT`: shutdown running container
 
-- [ ] `list [CONTAINER]`: list container environment details
-
-- [ ] `setup LOCATION`: build/pull Dockerfile, setup run script
+- [x] `list [CONTAINER]`: list container environment details, no args prints all details
+  - [x] list mounted directories
+  - [x] list container source
 
 - [ ] unit test each command
 

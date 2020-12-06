@@ -23,39 +23,44 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/camerondurham/ch/cmd/util"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
+	"os"
 )
 
 // listCmd represents the list command
 var listCmd = &cobra.Command{
-	Use:   "list",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Use:   "list [ENVIRONMENT_NAME]",
+	Short: "list configuration for existing environments",
 	Run: func(cmd *cobra.Command, args []string) {
-		envs := viper.GetStringMapString("envs")
-		// TODO: unmarshal back into correct type
-		for k, v := range envs {
-			fmt.Printf("%v: %v\n", k, v)
+
+		envName := ""
+		if len(args) > 0 {
+			envName = args[0]
 		}
+
+		configEnvs, err := util.GetEnvs()
+
+		if err != nil {
+			fmt.Printf("unable to decode config file: %v\nplease check formatting of config and delete if needed", err)
+			os.Exit(1)
+		}
+
+		if envName != "" {
+			if v, ok := configEnvs[envName]; ok {
+				util.PrintConfig(envName, v)
+			} else {
+				fmt.Printf("no environment found")
+			}
+		} else {
+			for k, v := range configEnvs {
+				util.PrintConfig(k, v)
+			}
+		}
+
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(listCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// listCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// listCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

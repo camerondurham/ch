@@ -16,9 +16,3 @@ type ContainerOpts struct {
 	Volume    string
 	Shell     string
 }
-
-type Environment struct {
-	Name string
-	Opts *ContainerOpts
-}
-
