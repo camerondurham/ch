@@ -7,19 +7,19 @@ environment.
 
 ## Goals
 
-- [x] `create ENVIRONMENT`: create new environment config
+- [x] `create ENVIRONMENT` create new environment config
   - [x] replace if it already exists
   - [x] build image or pull from Docker repository
-    
-- [x] `delete ENVIRONMENT`: delete environment
 
-- [ ] `start ENVIRONMENT`: run container in background
+- [x] `delete ENVIRONMENT` delete environment
 
-- [ ] `shell ENVIRONMENT`: start shell in container
+- [ ] `start ENVIRONMENT` run container in background
 
-- [ ] `stop ENVIRONMENT`: shutdown running container
+- [ ] `shell ENVIRONMENT` start shell in container
 
-- [x] `list [CONTAINER]`: list container environment details, no args prints all details
+- [ ] `stop ENVIRONMENT` shutdown running container
+
+- [x] `list [CONTAINER]` list container environment details, no args prints all details
   - [x] list mounted directories
   - [x] list container source
 
