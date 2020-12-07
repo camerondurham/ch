@@ -75,7 +75,7 @@ func CreateCmd(cmd *cobra.Command, args []string) {
 			// save new environment opts into config file
 			viper.Set(fmt.Sprintf("envs.%s", name), opts)
 		} else {
-			log.Fatal("cannot read environment ")
+			log.Fatal("cannot read environment")
 		}
 	} else {
 		envs[name] = opts

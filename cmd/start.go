@@ -24,7 +24,6 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"log"
-	"os"
 )
 
 // startCmd represents the start command
@@ -34,34 +33,56 @@ var startCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		envName := args[0]
-		if !viper.IsSet("envs") {
-			fmt.Print("no environments exist")
-			os.Exit(1)
-		}
-		envs, err := util.GetEnvs()
-		if err != nil {
-			fmt.Printf("error retrieving envs: %v\n", err)
-			os.Exit(1)
-		}
+		//if !viper.IsSet("envs") {
+		//	fmt.Print("no environments exist")
+		//	os.Exit(1)
+		//}
+		//envs, err := util.GetEnvs()
+		//if err != nil {
+		//	fmt.Printf("error retrieving envs: %v\n", err)
+		//	os.Exit(1)
+		//}
+		//
+		envs := util.GetEnvsOrDie()
 
 		if containerOpts, ok := envs[envName]; ok {
 			ctx := context.Background()
 			cli, err := client.NewEnvClient()
 
-			containerConfig := &container.Config{Image: envName}
+			containerConfig := &container.Config{Image: envName, Tty: true, AttachStdin: true}
 			if containerOpts.Shell != "" {
 				containerConfig.Shell = []string{containerOpts.Shell}
 			}
+
+			if containerOpts.Volume != "" {
+				// TODO(cadurham): implement attaching volumes
+				//containerConfig.Volumes = []string{containerOpts.Volume}
+			}
+
 			if err != nil {
 				log.Fatal("error creating Docker client: are you sure Docker is running?")
 			}
-			resp := util.CreateContainer(ctx, cli, &container.Config{
-				Image: envName,
-			}, envName)
+			resp := util.CreateContainer(ctx, cli, containerConfig, envName)
 
 			util.StartContainer(ctx, cli, resp.ID)
+			fmt.Printf("started... imageID: %v", resp.ID)
 
-			fmt.Printf("started image: %v", resp.ID)
+			running, _ := util.GetRunning()
+
+			if running == nil {
+				running = make(map[string]string)
+			}
+
+			running[envName] = resp.ID
+			viper.Set("running", running)
+
+			err = viper.WriteConfig()
+			if err != nil {
+				log.Printf("failed saving running containers")
+			}
+
+		} else {
+			fmt.Printf("no such environment: %v", envName)
 		}
 	},
 }

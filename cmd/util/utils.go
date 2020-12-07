@@ -47,3 +47,22 @@ func GetEnvs() (envs map[string]*config.ContainerOpts, err error) {
 	err = viper.UnmarshalKey("envs", &envs)
 	return
 }
+
+func GetEnvsOrDie() map[string]*config.ContainerOpts {
+	envs, err := GetEnvs()
+	if err != nil {
+		fmt.Printf("error retrieving envs: %v\n", err)
+		os.Exit(1)
+	}
+	return envs
+}
+
+func GetRunning() (running map[string]string, err error) {
+	if !viper.IsSet("running") {
+		return nil, ErrDoesNotExist
+	}
+
+	running = make(map[string]string)
+	err = viper.UnmarshalKey("running", &running)
+	return
+}
