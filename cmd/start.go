@@ -16,11 +16,9 @@ limitations under the License.
 package cmd
 
 import (
-	"context"
 	"fmt"
 	"github.com/camerondurham/ch/cmd/util"
 	"github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/client"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"log"
@@ -46,8 +44,7 @@ var startCmd = &cobra.Command{
 		envs := util.GetEnvsOrDie()
 
 		if containerOpts, ok := envs[envName]; ok {
-			ctx := context.Background()
-			cli, err := client.NewEnvClient()
+			ctx, cli := util.DockerClientInitOrDie()
 
 			containerConfig := &container.Config{Image: envName, Tty: true, AttachStdin: true}
 			if containerOpts.Shell != "" {
@@ -59,9 +56,6 @@ var startCmd = &cobra.Command{
 				//containerConfig.Volumes = []string{containerOpts.Volume}
 			}
 
-			if err != nil {
-				log.Fatal("error creating Docker client: are you sure Docker is running?")
-			}
 			resp := util.CreateContainer(ctx, cli, containerConfig, envName)
 
 			util.StartContainer(ctx, cli, resp.ID)
@@ -76,7 +70,7 @@ var startCmd = &cobra.Command{
 			running[envName] = resp.ID
 			viper.Set("running", running)
 
-			err = viper.WriteConfig()
+			err := viper.WriteConfig()
 			if err != nil {
 				log.Printf("failed saving running containers")
 			}

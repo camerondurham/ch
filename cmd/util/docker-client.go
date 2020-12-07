@@ -32,6 +32,16 @@ type BuildOutput struct {
 	Error       string       `json:"error,omitempty"`
 }
 
+func DockerClientInitOrDie() (ctx context.Context, cli *client.Client) {
+	ctx = context.Background()
+	cli, err := client.NewEnvClient()
+	if err != nil {
+		fmt.Printf("error creating Docker client: %v\nare you sure the client is running?\n", err)
+		os.Exit(1)
+	}
+	return ctx, cli
+}
+
 // ListRunning lists running containers like docker ps
 func ListRunning(cli *client.Client) {
 	containers, err := cli.ContainerList(context.Background(), types.ContainerListOptions{})
@@ -219,4 +229,25 @@ func StopContainer(ctx context.Context, cli *client.Client, containerID string, 
 	if err := cli.ContainerStop(ctx, containerID, nil); err != nil {
 		log.Fatal("error stopping container: ", err)
 	}
+}
+
+// CreateExec creates an exec config to run an exec process
+func CreateExec(ctx context.Context, cli *client.Client, container string, config types.ExecConfig, execCmd string) types.HijackedResponse {
+	resp, err := cli.ContainerExecCreate(ctx, container, config)
+	if err != nil {
+		log.Fatalf("unable to create exec for container: %v\nerror: %s\n", container, err)
+	}
+
+	hjResp, err := cli.ContainerExecAttach(ctx, resp.ID, config)
+
+	//err = cli.ContainerExecStart(ctx, resp.ID, types.ExecStartCheck{
+	//	Tty:    true,
+	//})
+
+	// TODO: hook up reader to output? maybe in shell.go
+
+	if err != nil {
+		log.Fatalf("error starting exec: %v\n", err)
+	}
+	return hjResp
 }
