@@ -20,6 +20,7 @@ import (
 	"github.com/camerondurham/ch/cmd/util"
 	"github.com/docker/docker/api/types"
 	"github.com/spf13/cobra"
+	"log"
 	"os"
 )
 
@@ -53,16 +54,16 @@ var shellCmd = &cobra.Command{
 			}
 
 			util.DebugPrint(fmt.Sprintf("starting container: %v", containerID))
-			resp := util.CreateExec(ctx, cli, containerID, types.ExecConfig{
-				Detach:       false,
+			execID, reader, writer, err := util.CreateExec(ctx, cli, containerID, types.ExecConfig{
+				Cmd:          []string{containerOpts.Shell},
 				Tty:          true,
 				AttachStdin:  true,
 				AttachStdout: true,
 				AttachStderr: true,
-				Cmd:          []string{containerOpts.Shell},
-			}, containerOpts.Shell)
+			})
 
-			util.DebugPrint(fmt.Sprintf("started exec: %v\n", resp))
+			log.Printf("created execID: %v", execID)
+			log.Printf("reader: %v, writer: %v", reader, writer)
 
 		} else {
 			fmt.Printf("no such environment: %v", envName)
