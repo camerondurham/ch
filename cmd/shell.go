@@ -16,6 +16,7 @@ limitations under the License.
 package cmd
 
 import (
+	"bufio"
 	"fmt"
 	"github.com/camerondurham/ch/cmd/util"
 	"github.com/docker/docker/api/types"
@@ -54,7 +55,7 @@ var shellCmd = &cobra.Command{
 			}
 
 			util.DebugPrint(fmt.Sprintf("starting container: %v", containerID))
-			execID, reader, writer, err := util.CreateExec(ctx, cli, containerID, types.ExecConfig{
+			execID, reader, writer, err := util.CreateExecInteractive(ctx, cli, containerID, types.ExecConfig{
 				Cmd:          []string{containerOpts.Shell},
 				Tty:          true,
 				AttachStdin:  true,
@@ -64,6 +65,34 @@ var shellCmd = &cobra.Command{
 
 			log.Printf("created execID: %v", execID)
 			log.Printf("reader: %v, writer: %v", reader, writer)
+
+			go func() {
+				buf := make([]byte, 1024)
+				for {
+					n, err := reader.Read(buf)
+					if err != nil {
+						fmt.Printf("failed to read: %v", err)
+						break
+					} else {
+						// TODO: debug print
+						log.Printf("read %d bytes: %v", n, buf[:n])
+						fmt.Printf("%s", buf[:n])
+					}
+				}
+			}()
+
+			stdReader := bufio.NewReader(os.Stdin)
+			for {
+				text, err := stdReader.ReadString('\n')
+				if err != nil {
+					fmt.Printf("failed to read: %v", err)
+				} else {
+					_, err := writer.Write([]byte(text))
+					if err != nil {
+						fmt.Printf("could not write bytes: %v", err)
+					}
+				}
+			}
 
 		} else {
 			fmt.Printf("no such environment: %v", envName)

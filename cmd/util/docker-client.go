@@ -232,30 +232,31 @@ func StopContainer(ctx context.Context, cli *client.Client, containerID string, 
 	}
 }
 
-// CreateExec creates an exec config to run an exec process
-func CreateExec(ctx context.Context, cli *client.Client, container string, config types.ExecConfig) (execID string, r io.Reader, w io.Writer, err error) {
+// CreateExecInteractive creates an exec config to run an exec process
+func CreateExecInteractive(ctx context.Context, cli *client.Client, container string, config types.ExecConfig) (execID string, r io.Reader, w io.Writer, err error) {
 	resp, err := cli.ContainerExecCreate(ctx, container, config)
 	if err != nil {
 		log.Fatalf("unable to create exec for container: %v\nerror: %s\n", container, err)
 	}
 
-	hjResp, err := cli.ContainerExecAttach(ctx, resp.ID, types.ExecConfig{})
+	// returns hijacked response
+	attach, err := cli.ContainerExecAttach(ctx, resp.ID, types.ExecConfig{})
 	if err != nil {
 		log.Fatalf("error starting exec: %v\n", err)
 	}
 
 	execID = resp.ID
 
-	log.Printf("attached %v", hjResp)
+	log.Printf("attached %v", attach)
 
 	r, w = io.Pipe()
 
 	go func() {
-		_, err = stdcopy.StdCopy(w, w, hjResp.Reader)
+		_, err = stdcopy.StdCopy(w, w, attach.Reader)
 		if err != nil {
 			fmt.Print(fmt.Errorf("StdCopy failed: %v", err))
 		}
-		hjResp.Close()
+		attach.Close()
 	}()
 
 	return execID, r, w, err
