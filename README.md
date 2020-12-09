@@ -22,11 +22,11 @@ environment.
 
 - [x] `delete ENVIRONMENT` delete environment
 
-- [ ] `start ENVIRONMENT` run container in background
+- [x] `start ENVIRONMENT` run container in background
 
 - [ ] `shell ENVIRONMENT` start shell in container
 
-- [ ] `stop ENVIRONMENT` shutdown running container
+- [x] `stop ENVIRONMENT` shutdown running container
 
 - [x] `list [CONTAINER]` list container environment details, no args prints all details
   - [x] list mounted directories
