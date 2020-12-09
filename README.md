@@ -3,7 +3,14 @@
 The goal of this project is to provide a simple shell interface and containerized environment for a C/C++ dev
 environment.
 
-[![GitHub Super-Linter](https://github.com/camerondurham/ch/workflows/Lint%20Code%20Base/badge.svg)](https://github.com/marketplace/actions/super-linter)
+<a href="https://github.com/marketplace/actions/super-linter">
+  <img align="left" src="https://github.com/camerondurham/ch/workflows/Lint%20Code%20Base/badge.svg" />
+</a>
+
+<a href="https://www.repostatus.org/#wip">
+  <img align="left" src="https://www.repostatus.org/badges/latest/wip.svg" alt="Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public."/>
+</a>
+
 
 ## Goals
 
