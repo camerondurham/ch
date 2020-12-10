@@ -1,7 +1,0 @@
-Makefile:	 git grep -EI "TODO|FIXME"
-Makefile:	 git grep -EI "TODO|FIXME" > todos.txt
-cmd/create.go:		// TODO: implement with dockerutils
-cmd/delete.go:		// TODO: implement delete
-cmd/list.go:		// TODO: implement list
-cmd/root.go:// TODO: move to types file
-cmd/root.go:// TODO: add commands: start, shell
