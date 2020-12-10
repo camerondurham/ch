@@ -1,7 +1,6 @@
-# ch: container helper
+# ch: container helper [WIP]
 
-The goal of this project is to provide a simple shell interface and containerized environment for a C/C++ dev
-environment.
+A simple Docker interface to manage multiple containerized devleopment environments. Provides a simple shell environment for separate development environments designed to use for C++ development in CSCI 104 but portable enough to use whichever Docker container you choose.
 
 <a href="https://github.com/marketplace/actions/super-linter">
   <img align="left" src="https://github.com/camerondurham/ch/workflows/Lint%20Code%20Base/badge.svg" />
@@ -18,13 +17,17 @@ environment.
 
 - [x] `create ENVIRONMENT` create new environment config
   - [x] replace if it already exists
-  - [x] build image or pull from Docker repository
-
+  - [x] build image from Dockerfile
+  - [x] pull image from Docker repository
+  
 - [x] `delete ENVIRONMENT` delete environment
 
 - [x] `start ENVIRONMENT` run container in background
 
 - [ ] `shell ENVIRONMENT` start shell in container
+  - [ ] run commands in container
+  - [ ] attach interactive terminal to container
+  
 
 - [x] `stop ENVIRONMENT` shutdown running container
 
@@ -43,7 +46,7 @@ ch create ENVIRONMENT_NAME {--file DOCKERFILE|--image DOCKER_IMAGE} [--volume PA
 ch create --file ./env/Dockerfile --shell /bin/bash --volume ./project/files/ --name cs104
 
 # start container
-# [docker run ]
+# [docker run]
 ch start cs104
 
 # get shell into environment
@@ -62,23 +65,7 @@ ch --set-default cs104
 
 ### create
 
-support the following `docker build` flags:
-
-```shell script
-  -f, --file string             Name of the Dockerfile (Default is 'PATH/Dockerfile')
-      --image string            Name of the Docker container to pull from Docker Hub
-```
-
-support the following `docker run` flags:
-
-```shell script
-      --cap-add list                   Add Linux capabilities
-      --cap-drop list                  Drop Linux capabilities
-      --name string                    Assign a name to the container
-      --privileged                     Give extended privileges to this container
-  -v, --volume list                    Bind mount a volume
-  -w, --workdir string                 Working directory inside the container
-```
+create docker environment, specify Dockerfile to build or image to pull
 
 ### start
 
@@ -95,13 +82,6 @@ stop running container/environment
 ### list
 
 list all saved configs
-
-### root
-
-root command should allow you to set some defaults:
-
-- `--set-default`: set default environment to start if you regularly use one
-
 
 ## Development
 
