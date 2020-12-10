@@ -13,7 +13,7 @@ A simple Docker interface to manage multiple containerized devleopment environme
 
 </br>
 
-## Goals
+## Status
 
 - [x] `create ENVIRONMENT` create new environment config
   - [x] replace if it already exists
@@ -35,7 +35,13 @@ A simple Docker interface to manage multiple containerized devleopment environme
   - [x] list mounted directories
   - [x] list container source
 
-- [ ] unit test each command
+- [ ] unit tests
+  - [ ] `create`
+  - [ ] `delete`
+  - [ ] `start`
+  - [ ] `shell`
+  - [ ] `stop`
+  - [ ] `list`
 
 ## Spec
 
