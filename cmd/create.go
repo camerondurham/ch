@@ -27,8 +27,6 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/camerondurham/ch/cmd/config"
-	"github.com/camerondurham/ch/cmd/util"
 	"github.com/docker/docker/client"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -72,13 +70,13 @@ func CreateCmd(cmd *cobra.Command, args []string) {
 	}
 
 	if opts.BuildOpts != nil {
-		err = util.BuildImageWithContext(ctx,
+		err = BuildImageWithContext(ctx,
 			cli,
 			opts.BuildOpts.DockerfilePath,
 			opts.BuildOpts.Context,
 			opts.BuildOpts.Tag)
 	} else {
-		err = util.PullImage(ctx,
+		err = PullImage(ctx,
 			cli,
 			opts.PullOpts.ImageName)
 	}
@@ -87,12 +85,12 @@ func CreateCmd(cmd *cobra.Command, args []string) {
 		log.Fatal("cannot create new environment, error creating image: ", err)
 	}
 
-	util.DebugPrint(fmt.Sprintf("saving environment: %v", opts))
+	DebugPrint(fmt.Sprintf("saving environment: %v", opts))
 
-	envs, err := util.GetEnvs()
+	envs, err := GetEnvs()
 
 	if err != nil {
-		if err == util.ErrDoesNotExist {
+		if err == ErrDoesNotExist {
 			// save new environment opts into config file
 			viper.Set(fmt.Sprintf("envs.%s", name), opts)
 		} else {
@@ -108,7 +106,7 @@ func CreateCmd(cmd *cobra.Command, args []string) {
 		log.Fatal("error saving config: ", err)
 	}
 
-	util.PrintConfig(name, opts)
+	PrintConfig(name, opts)
 }
 func init() {
 	rootCmd.AddCommand(createCmd)
@@ -126,12 +124,12 @@ var (
 	errorBuildImageFieldsNotPresent  = errors.New("file and context must be provided to build a container")
 )
 
-func parseContainerOpts(cmd *cobra.Command, environmentName string) (*config.ContainerOpts, error) {
+func parseContainerOpts(cmd *cobra.Command, environmentName string) (*ContainerOpts, error) {
 	if file, _ := cmd.Flags().GetString("file"); file != "" {
 		if contextDirName, _ := cmd.Flags().GetString("context"); contextDirName != "" {
 			volumeName, shellCmd := parseOptional(cmd)
-			return &config.ContainerOpts{
-				BuildOpts: &config.BuildOpts{
+			return &ContainerOpts{
+				BuildOpts: &BuildOpts{
 					DockerfilePath: file,
 					Context:        contextDirName,
 					Tag:            environmentName,
@@ -140,14 +138,14 @@ func parseContainerOpts(cmd *cobra.Command, environmentName string) (*config.Con
 				Shell:  shellCmd,
 			}, nil
 		} else {
-			return &config.ContainerOpts{}, errorBuildImageFieldsNotPresent
+			return &ContainerOpts{}, errorBuildImageFieldsNotPresent
 		}
 	}
 
 	if imageName, _ := cmd.Flags().GetString("image"); imageName != "" {
 		volumeName, shellCmd := parseOptional(cmd)
-		return &config.ContainerOpts{
-			PullOpts: &config.PullOpts{
+		return &ContainerOpts{
+			PullOpts: &PullOpts{
 				ImageName: imageName,
 			},
 			Volume: volumeName,

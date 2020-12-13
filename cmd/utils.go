@@ -1,9 +1,8 @@
-package util
+package cmd
 
 import (
 	"errors"
 	"fmt"
-	"github.com/camerondurham/ch/cmd/config"
 	"github.com/spf13/viper"
 	"os"
 )
@@ -17,7 +16,7 @@ var (
 	ErrDoesNotExist = errors.New("does not exist")
 )
 
-func PrintConfig(envName string, opts *config.ContainerOpts) {
+func PrintConfig(envName string, opts *ContainerOpts) {
 	fmt.Printf(printConfigNest0, "Name", envName)
 	bo := opts.BuildOpts
 	po := opts.PullOpts
@@ -38,17 +37,17 @@ func DebugPrint(msg string) {
 	}
 }
 
-func GetEnvs() (envs map[string]*config.ContainerOpts, err error) {
+func GetEnvs() (envs map[string]*ContainerOpts, err error) {
 	if !viper.IsSet("envs") {
 		return nil, ErrDoesNotExist
 	}
 
-	envs = make(map[string]*config.ContainerOpts)
+	envs = make(map[string]*ContainerOpts)
 	err = viper.UnmarshalKey("envs", &envs)
 	return
 }
 
-func GetEnvsOrDie() map[string]*config.ContainerOpts {
+func GetEnvsOrDie() map[string]*ContainerOpts {
 	envs, err := GetEnvs()
 	if err != nil {
 		fmt.Printf("error retrieving envs: %v\n", err)

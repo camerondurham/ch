@@ -23,7 +23,6 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/camerondurham/ch/cmd/util"
 	"github.com/docker/docker/api/types/container"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -47,10 +46,10 @@ var startCmd = &cobra.Command{
 		//	os.Exit(1)
 		//}
 		//
-		envs := util.GetEnvsOrDie()
+		envs := GetEnvsOrDie()
 
 		if containerOpts, ok := envs[envName]; ok {
-			ctx, cli := util.DockerClientInitOrDie()
+			ctx, cli := DockerClientInitOrDie()
 
 			containerConfig := &container.Config{Image: envName, Tty: true, AttachStdin: true}
 			if containerOpts.Shell != "" {
@@ -62,12 +61,12 @@ var startCmd = &cobra.Command{
 				//containerConfig.Volumes = []string{containerOpts.Volume}
 			}
 
-			resp := util.CreateContainer(ctx, cli, containerConfig, envName)
+			resp := CreateContainer(ctx, cli, containerConfig, envName)
 
-			util.StartContainer(ctx, cli, resp.ID)
+			StartContainer(ctx, cli, resp.ID)
 			fmt.Printf("started... imageID: %v", resp.ID)
 
-			running, _ := util.GetRunning()
+			running, _ := GetRunning()
 
 			if running == nil {
 				running = make(map[string]string)

@@ -23,7 +23,6 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/camerondurham/ch/cmd/util"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"log"
@@ -37,7 +36,7 @@ var deleteCmd = &cobra.Command{
 	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		envName := args[0]
-		envs, err := util.GetEnvs()
+		envs, err := GetEnvs()
 		if err != nil {
 			log.Fatalf("cannot read config: %v", err)
 		}

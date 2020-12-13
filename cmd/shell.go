@@ -25,7 +25,6 @@ package cmd
 import (
 	"bufio"
 	"fmt"
-	"github.com/camerondurham/ch/cmd/util"
 	"github.com/docker/docker/api/types"
 	"github.com/spf13/cobra"
 	"log"
@@ -47,22 +46,22 @@ var shellCmd = &cobra.Command{
 		autostart, _ := cmd.Flags().GetBool(autostartFlagShort)
 
 		// TODO: create helper function for envName existing
-		envs := util.GetEnvsOrDie()
+		envs := GetEnvsOrDie()
 		if containerOpts, ok := envs[envName]; ok {
-			ctx, cli := util.DockerClientInitOrDie()
-			running, err := util.GetRunning()
+			ctx, cli := DockerClientInitOrDie()
+			running, err := GetRunning()
 			containerID, ok := running[envName]
-			if !autostart && (err == util.ErrDoesNotExist || !ok) {
+			if !autostart && (err == ErrDoesNotExist || !ok) {
 				fmt.Printf(getNotRunningMsg(envName))
 				os.Exit(1)
-			} else if err == util.ErrDoesNotExist || !ok {
+			} else if err == ErrDoesNotExist || !ok {
 				// TODO: start container
 				fmt.Print("error: force starting not implemented yet")
 				os.Exit(1)
 			}
 
-			util.DebugPrint(fmt.Sprintf("starting container: %v", containerID))
-			execID, reader, writer, err := util.CreateExecInteractive(ctx, cli, containerID, types.ExecConfig{
+			DebugPrint(fmt.Sprintf("starting container: %v", containerID))
+			execID, reader, writer, err := CreateExecInteractive(ctx, cli, containerID, types.ExecConfig{
 				Cmd:          []string{containerOpts.Shell},
 				Tty:          true,
 				AttachStdin:  true,

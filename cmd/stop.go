@@ -24,7 +24,6 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"github.com/camerondurham/ch/cmd/util"
 	"github.com/docker/docker/client"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -39,13 +38,13 @@ var stopCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		envName := args[0]
-		envs := util.GetEnvsOrDie()
+		envs := GetEnvsOrDie()
 
 		if _, ok := envs[envName]; ok {
 
-			running, err := util.GetRunning()
+			running, err := GetRunning()
 			containerID, ok := running[envName]
-			if err == util.ErrDoesNotExist || !ok {
+			if err == ErrDoesNotExist || !ok {
 				fmt.Printf("%v is not running", envName)
 				os.Exit(1)
 			} else {
@@ -58,8 +57,8 @@ var stopCmd = &cobra.Command{
 					log.Fatal("error creating Docker client: are you sure Docker is running?")
 				}
 
-				util.StopContainer(ctx, cli, containerID, nil)
-				util.RemoveContainer(ctx, cli, envName)
+				StopContainer(ctx, cli, containerID, nil)
+				RemoveContainer(ctx, cli, envName)
 
 				// TODO: use standard text formatting for all errors, look for library?
 				fmt.Printf("stopped container: %v", envName)

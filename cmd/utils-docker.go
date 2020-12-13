@@ -1,4 +1,6 @@
-package util
+package cmd
+
+// TODO: rewrite as implementations on the cli
 
 import (
 	"archive/tar"
@@ -6,8 +8,9 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
-	"github.com/docker/docker/pkg/stdcopy"
+	"github.com/docker/cli/cli"
 	"io"
 	"log"
 	"os"
@@ -198,7 +201,7 @@ func BuildImageWithContext(ctx context.Context, cli *client.Client, dockerfile s
 
 // CreateContainer create container with name
 func CreateContainer(ctx context.Context, cli *client.Client, config *container.Config, containerName string) container.ContainerCreateCreatedBody {
-	createdContainerResp, err := cli.ContainerCreate(ctx, config, nil, nil, containerName)
+	createdContainerResp, err := cli.ContainerCreate(ctx, config, nil, nil, nil, containerName)
 
 	if err != nil {
 		log.Fatal("unable to create container: ", err)
@@ -233,31 +236,97 @@ func StopContainer(ctx context.Context, cli *client.Client, containerID string, 
 }
 
 // CreateExecInteractive creates an exec config to run an exec process
-func CreateExecInteractive(ctx context.Context, cli *client.Client, container string, config types.ExecConfig) (execID string, r io.Reader, w io.Writer, err error) {
-	resp, err := cli.ContainerExecCreate(ctx, container, config)
-	if err != nil {
-		log.Fatalf("unable to create exec for container: %v\nerror: %s\n", container, err)
+func CreateExecInteractive(ctx context.Context, dockerClient *client.Client, cliClient Cli, container string, config types.ExecConfig) error {
+	if _, err := dockerClient.ContainerInspect(ctx, container); err != nil {
+		return err
 	}
 
-	// returns hijacked response
-	attach, err := cli.ContainerExecAttach(ctx, resp.ID, types.ExecConfig{})
+	// avoid config Detach check if tty is correct
+
+	response, err := dockerClient.ContainerExecCreate(ctx, container, config)
 	if err != nil {
-		log.Fatalf("error starting exec: %v\n", err)
+		return err
+	}
+	execID := response.ID
+	if execID == "" {
+		return errors.New("exec ID empty")
 	}
 
-	execID = resp.ID
+	if config.Detach {
+		execStartCheck := types.ExecStartCheck{
+			Detach: config.Tty,
+			Tty:    config.Tty,
+		}
+		return dockerClient.ContainerExecStart(ctx, execID, execStartCheck)
+	}
+	return interactiveExec(ctx, dockerClient, cliClient, &config, execID)
 
-	log.Printf("attached %v", attach)
+}
 
-	r, w = io.Pipe()
+func interactiveExec(ctx context.Context, dockerClient *client.Client, cliClient Cli, execConfig *types.ExecConfig, execID string) error {
+	var (
+		out, stderr io.Writer
+		in          io.ReadCloser
+	)
+
+	// attach stdin, possibly add more functionality later
+	in = os.Stdin
+	out = os.Stdout
+
+	// attach to os.Stderr only if not tty?
+	stderr = os.Stdout
+
+	resp, err := dockerClient.ContainerExecAttach(ctx, execID, types.ExecStartCheck{Tty: true})
+
+	if err != nil {
+		log.Fatal("error attaching exec to container: ", err)
+	}
+	defer resp.Close()
+
+	errCh := make(chan error, 1)
 
 	go func() {
-		_, err = stdcopy.StdCopy(w, w, attach.Reader)
-		if err != nil {
-			fmt.Print(fmt.Errorf("StdCopy failed: %v", err))
-		}
-		attach.Close()
+		defer close(errCh)
+		errCh <- func() error {
+
+			// get streamer as hijackedIOStreamer
+			streamer := hijackedIOStreamer{
+				streams:      cliClient,
+				inputStream:  in,
+				outputStream: out,
+				errorStream:  stderr,
+				resp:         resp,
+				tty:          true,
+			}
+
+			// return streamer.stream(ctx)
+			return streamer.stream(ctx)
+		}()
 	}()
 
-	return execID, r, w, err
+	// ignore check if config wants a terminal and has appropriate Tty size for now
+
+	// check MonitorTtySize
+	if err := <-errCh; err != nil {
+		// TODO: debug print
+		log.Printf("Error hijack: %v", err)
+		return err
+	}
+
+	return getExecExitStatus(ctx, dockerClient, execID)
+}
+func getExecExitStatus(ctx context.Context, dockerClient client.ContainerAPIClient, execID string) error {
+	resp, err := dockerClient.ContainerExecInspect(ctx, execID)
+	if err != nil {
+		// daemon probably died
+		if !client.IsErrConnectionFailed(err) {
+			return err
+		}
+		return cli.StatusError{StatusCode: -1}
+	}
+	status := resp.ExitCode
+	if status != 0 {
+		return cli.StatusError{StatusCode: status}
+	}
+	return nil
 }
