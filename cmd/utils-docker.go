@@ -10,7 +10,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/docker/cli/cli"
 	"io"
 	"log"
 	"os"
@@ -315,6 +314,13 @@ func interactiveExec(ctx context.Context, cliClient Cli, execConfig *types.ExecC
 
 	return getExecExitStatus(ctx, cliClient.Client(), execID)
 }
+
+// StatusError reports an unsuccessful exit by a command.
+type StatusError struct {
+	Status     string
+	StatusCode int
+}
+
 func getExecExitStatus(ctx context.Context, dockerClient client.ContainerAPIClient, execID string) error {
 	resp, err := dockerClient.ContainerExecInspect(ctx, execID)
 	if err != nil {
@@ -322,11 +328,11 @@ func getExecExitStatus(ctx context.Context, dockerClient client.ContainerAPIClie
 		if !client.IsErrConnectionFailed(err) {
 			return err
 		}
-		return cli.StatusError{StatusCode: -1}
+		return errors.New(fmt.Sprintf("error status code: %v", -1))
 	}
 	status := resp.ExitCode
 	if status != 0 {
-		return cli.StatusError{StatusCode: status}
+		return errors.New(fmt.Sprintf("error status code: %v", status))
 	}
 	return nil
 }

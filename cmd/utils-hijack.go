@@ -5,7 +5,6 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"github.com/docker/cli/cli/command"
 	"github.com/docker/docker/api/types"
 	ioutils2 "github.com/docker/docker/pkg/ioutils"
 	"github.com/docker/docker/pkg/stdcopy"
@@ -19,7 +18,7 @@ import (
 var defaultEscapeKeys = []byte{16, 17}
 
 type hijackedIOStreamer struct {
-	streams      command.Streams
+	streams      Streams
 	inputStream  io.ReadCloser
 	outputStream io.Writer
 	errorStream  io.Writer
@@ -159,7 +158,7 @@ func (h *hijackedIOStreamer) beginInputStream(restoreInput func()) (doneC <-chan
 	return inputDone, detached
 }
 
-func setRawTerminal(streams command.Streams) error {
+func setRawTerminal(streams Streams) error {
 	if err := streams.In().SetRawTerminal(); err != nil {
 		return err
 	}
@@ -167,7 +166,7 @@ func setRawTerminal(streams command.Streams) error {
 }
 
 // nolint: unparam
-func restoreTerminal(streams command.Streams, in io.Closer) error {
+func restoreTerminal(streams Streams, in io.Closer) error {
 	streams.In().RestoreTerminal()
 	streams.Out().RestoreTerminal()
 	// WARNING: DO NOT REMOVE THE OS CHECKS !!!

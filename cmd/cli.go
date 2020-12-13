@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/docker/cli/cli/streams"
+	//"github.com/docker/cli/cli/streams"
 	"github.com/docker/docker/client"
 	"github.com/moby/term"
 	"io"
@@ -25,16 +25,23 @@ type ContainerOpts struct {
 	Shell     string
 }
 
+// Streams is an interface which exposes the standard input and output streams
+type Streams interface {
+	In() *In
+	Out() *Out
+	Err() io.Writer
+}
+
 type Cli interface {
 	Client() client.APIClient
-	Out() *streams.Out
-	In() *streams.In
+	Out() *Out
+	In() *In
 	Err() io.Writer
 }
 
 type CliClient struct {
-	in           *streams.In
-	out          *streams.Out
+	in           *In
+	out          *Out
 	err          io.Writer
 	dockerClient client.APIClient
 }
@@ -43,11 +50,11 @@ func (cli *CliClient) Client() client.APIClient {
 	return cli.dockerClient
 }
 
-func (cli *CliClient) In() *streams.In {
+func (cli *CliClient) In() *In {
 	return cli.in
 }
 
-func (cli *CliClient) Out() *streams.Out {
+func (cli *CliClient) Out() *Out {
 	return cli.out
 }
 
@@ -67,8 +74,8 @@ func NewCliClient() (*CliClient, error) {
 	}
 
 	stdin, stdout, stderr := term.StdStreams()
-	cliClient.in = streams.NewIn(stdin)
-	cliClient.out = streams.NewOut(stdout)
+	cliClient.in = NewIn(stdin)
+	cliClient.out = NewOut(stdout)
 	cliClient.err = stderr
 
 	return cliClient, nil
