@@ -236,14 +236,14 @@ func StopContainer(ctx context.Context, cli *client.Client, containerID string, 
 }
 
 // CreateExecInteractive creates an exec config to run an exec process
-func CreateExecInteractive(ctx context.Context, dockerClient *client.Client, cliClient Cli, container string, config types.ExecConfig) error {
-	if _, err := dockerClient.ContainerInspect(ctx, container); err != nil {
+func CreateExecInteractive(ctx context.Context, cliClient Cli, container string, config types.ExecConfig) error {
+	if _, err := cliClient.Client().ContainerInspect(ctx, container); err != nil {
 		return err
 	}
 
 	// avoid config Detach check if tty is correct
 
-	response, err := dockerClient.ContainerExecCreate(ctx, container, config)
+	response, err := cliClient.Client().ContainerExecCreate(ctx, container, config)
 	if err != nil {
 		return err
 	}
@@ -257,26 +257,26 @@ func CreateExecInteractive(ctx context.Context, dockerClient *client.Client, cli
 			Detach: config.Tty,
 			Tty:    config.Tty,
 		}
-		return dockerClient.ContainerExecStart(ctx, execID, execStartCheck)
+		return cliClient.Client().ContainerExecStart(ctx, execID, execStartCheck)
 	}
-	return interactiveExec(ctx, dockerClient, cliClient, &config, execID)
+	return interactiveExec(ctx, cliClient, &config, execID)
 
 }
 
-func interactiveExec(ctx context.Context, dockerClient *client.Client, cliClient Cli, execConfig *types.ExecConfig, execID string) error {
+func interactiveExec(ctx context.Context, cliClient Cli, execConfig *types.ExecConfig, execID string) error {
 	var (
 		out, stderr io.Writer
 		in          io.ReadCloser
 	)
 
 	// attach stdin, possibly add more functionality later
-	in = os.Stdin
-	out = os.Stdout
+	in = cliClient.In()
+	out = cliClient.Out()
 
 	// attach to os.Stderr only if not tty?
-	stderr = os.Stdout
+	stderr = cliClient.Err()
 
-	resp, err := dockerClient.ContainerExecAttach(ctx, execID, types.ExecStartCheck{Tty: true})
+	resp, err := cliClient.Client().ContainerExecAttach(ctx, execID, types.ExecStartCheck{Tty: true})
 
 	if err != nil {
 		log.Fatal("error attaching exec to container: ", err)
@@ -296,7 +296,7 @@ func interactiveExec(ctx context.Context, dockerClient *client.Client, cliClient
 				outputStream: out,
 				errorStream:  stderr,
 				resp:         resp,
-				tty:          true,
+				tty:          execConfig.Tty,
 			}
 
 			// return streamer.stream(ctx)
@@ -313,7 +313,7 @@ func interactiveExec(ctx context.Context, dockerClient *client.Client, cliClient
 		return err
 	}
 
-	return getExecExitStatus(ctx, dockerClient, execID)
+	return getExecExitStatus(ctx, cliClient.Client(), execID)
 }
 func getExecExitStatus(ctx context.Context, dockerClient client.ContainerAPIClient, execID string) error {
 	resp, err := dockerClient.ContainerExecInspect(ctx, execID)

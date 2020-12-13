@@ -1,8 +1,10 @@
 package cmd
 
 import (
+	"fmt"
 	"github.com/docker/cli/cli/streams"
 	"github.com/docker/docker/client"
+	"github.com/moby/term"
 	"io"
 )
 
@@ -28,6 +30,48 @@ type Cli interface {
 	Out() *streams.Out
 	In() *streams.In
 	Err() io.Writer
+}
+
+type CliClient struct {
+	in           *streams.In
+	out          *streams.Out
+	err          io.Writer
+	dockerClient client.APIClient
+}
+
+func (cli *CliClient) Client() client.APIClient {
+	return cli.dockerClient
+}
+
+func (cli *CliClient) In() *streams.In {
+	return cli.in
+}
+
+func (cli *CliClient) Out() *streams.Out {
+	return cli.out
+}
+
+func (cli *CliClient) Err() io.Writer {
+	return cli.err
+}
+
+func NewCliClient() (*CliClient, error) {
+	cliClient := &CliClient{}
+
+	_, dockerClient := DockerClientInitOrDie()
+
+	if dockerClient != nil {
+		cliClient.dockerClient = dockerClient
+	} else {
+		return nil, fmt.Errorf("error creating docker client")
+	}
+
+	stdin, stdout, stderr := term.StdStreams()
+	cliClient.in = streams.NewIn(stdin)
+	cliClient.out = streams.NewOut(stdout)
+	cliClient.err = stderr
+
+	return cliClient, nil
 }
 
 /*

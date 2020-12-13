@@ -23,11 +23,10 @@ THE SOFTWARE.
 package cmd
 
 import (
-	"bufio"
+	"context"
 	"fmt"
 	"github.com/docker/docker/api/types"
 	"github.com/spf13/cobra"
-	"log"
 	"os"
 )
 
@@ -45,10 +44,16 @@ var shellCmd = &cobra.Command{
 		envName := args[0]
 		autostart, _ := cmd.Flags().GetBool(autostartFlagShort)
 
+		cli, err := NewCliClient()
+		if err != nil {
+			fmt.Printf("error: cannot create new CLI Client: %v", err)
+			os.Exit(1)
+		}
+
 		// TODO: create helper function for envName existing
 		envs := GetEnvsOrDie()
+
 		if containerOpts, ok := envs[envName]; ok {
-			ctx, cli := DockerClientInitOrDie()
 			running, err := GetRunning()
 			containerID, ok := running[envName]
 			if !autostart && (err == ErrDoesNotExist || !ok) {
@@ -61,43 +66,17 @@ var shellCmd = &cobra.Command{
 			}
 
 			DebugPrint(fmt.Sprintf("starting container: %v", containerID))
-			execID, reader, writer, err := CreateExecInteractive(ctx, cli, containerID, types.ExecConfig{
+
+			err = CreateExecInteractive(context.Background(), cli, containerID, types.ExecConfig{
 				Cmd:          []string{containerOpts.Shell},
 				Tty:          true,
 				AttachStdin:  true,
-				AttachStdout: true,
 				AttachStderr: true,
+				AttachStdout: true,
 			})
 
-			log.Printf("created execID: %v", execID)
-			log.Printf("reader: %v, writer: %v", reader, writer)
-
-			go func() {
-				buf := make([]byte, 1024)
-				for {
-					n, err := reader.Read(buf)
-					if err != nil {
-						fmt.Printf("failed to read: %v", err)
-						break
-					} else {
-						// TODO: debug print
-						log.Printf("read %d bytes: %v", n, buf[:n])
-						fmt.Printf("%s", buf[:n])
-					}
-				}
-			}()
-
-			stdReader := bufio.NewReader(os.Stdin)
-			for {
-				text, err := stdReader.ReadString('\n')
-				if err != nil {
-					fmt.Printf("failed to read: %v", err)
-				} else {
-					_, err := writer.Write([]byte(text))
-					if err != nil {
-						fmt.Printf("could not write bytes: %v", err)
-					}
-				}
+			if err != nil {
+				fmt.Printf("error creating shell: %v", err)
 			}
 
 		} else {
