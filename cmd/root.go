@@ -37,7 +37,6 @@ var cfgFile string
 var rootCmd = &cobra.Command{
 	Use:   "ch",
 	Short: "A simple container helper to create and manage Docker environments",
-	// TODO: fill in Long description of app
 	// 	Long: `A longer description that spans multiple lines and likely contains
 	// examples and usage of using your application. For example:
 
@@ -79,6 +78,7 @@ func initConfig() {
 		// Search config in home directory with name ".ch" (without extension).
 		viper.AddConfigPath(home)
 		viper.SetConfigName(".ch")
+		viper.SetConfigType("yaml")
 	}
 
 	viper.AutomaticEnv() // read in environment variables that match

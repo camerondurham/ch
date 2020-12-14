@@ -38,34 +38,35 @@ const (
 // shellCmd represents the shell command
 var shellCmd = &cobra.Command{
 	Use:   "shell",
-	Short: "A brief description of your command",
+	Short: "Start a shell in an environment",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		envName := args[0]
-		autostart, _ := cmd.Flags().GetBool(autostartFlagShort)
+		autostart, _ := cmd.Flags().GetBool(autostartFlag)
 
 		cli, err := NewCliClient()
 		if err != nil {
-			fmt.Printf("error: cannot create new CLI Client: %v", err)
+			fmt.Printf("error: cannot create new CLI ApiClient: %v", err)
 			os.Exit(1)
 		}
 
-		// TODO: create helper function for envName existing
-		envs := GetEnvsOrDie()
+		envs := cli.Containers()
 
 		if containerOpts, ok := envs[envName]; ok {
-			running, err := GetRunning()
+			running, err := cli.Running()
 			containerID, ok := running[envName]
 			if !autostart && (err == ErrDoesNotExist || !ok) {
 				fmt.Printf(getNotRunningMsg(envName))
 				os.Exit(1)
 			} else if err == ErrDoesNotExist || !ok {
-				// TODO: start container
-				fmt.Print("error: force starting not implemented yet")
-				os.Exit(1)
+				// TODO: start container automatically
+				DebugPrint("starting non-running container because autostart flag used\n")
+				StartEnvironment(cli, containerOpts, envName)
+				running, err = cli.Running()
+				containerID, ok = running[envName]
 			}
 
-			DebugPrint(fmt.Sprintf("starting container: %v", containerID))
+			DebugPrint(fmt.Sprintf("starting container: %v\n", containerID))
 
 			err = CreateExecInteractive(context.Background(), cli, containerID, types.ExecConfig{
 				Cmd:          []string{containerOpts.Shell},
@@ -95,5 +96,7 @@ func getNotRunningMsg(envName string) string {
 	ch create %v
 
 or start container automatically with:
-	ch shell %v %v\n\n`, envName, envName, envName, autostartFlag)
+	ch shell %v %v
+
+`, envName, envName, envName, autostartFlag)
 }

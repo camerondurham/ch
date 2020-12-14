@@ -2,7 +2,10 @@ package cmd
 
 import (
 	"fmt"
-	//"github.com/docker/cli/cli/streams"
+	"github.com/camerondurham/ch/cmd/streams"
+	"github.com/spf13/viper"
+	"os"
+
 	"github.com/docker/docker/client"
 	"github.com/moby/term"
 	"io"
@@ -25,99 +28,97 @@ type ContainerOpts struct {
 	Shell     string
 }
 
+// TODO: add config/env settings to use Cli in other commands
+type Cli struct {
+	in              *streams.In
+	out             *streams.Out
+	err             io.Writer
+	dockerClient    *client.Client
+	dockerAPIClient client.APIClient
+}
+
 // Streams is an interface which exposes the standard input and output streams
 type Streams interface {
-	In() *In
-	Out() *Out
+	In() *streams.In
+	Out() *streams.Out
 	Err() io.Writer
 }
 
-type Cli interface {
-	Client() client.APIClient
-	Out() *Out
-	In() *In
+type ContainerClient interface {
+	ApiClient() client.APIClient
+	Client() *client.Client
+	Out() *streams.Out
+	In() *streams.In
 	Err() io.Writer
+	Containers() map[string]*ContainerOpts
+	Running() (map[string]string, error)
 }
 
-type CliClient struct {
-	in           *In
-	out          *Out
-	err          io.Writer
-	dockerClient client.APIClient
+func (cli *Cli) ApiClient() client.APIClient {
+	return cli.dockerAPIClient
 }
 
-func (cli *CliClient) Client() client.APIClient {
+func (cli *Cli) Client() *client.Client {
 	return cli.dockerClient
 }
 
-func (cli *CliClient) In() *In {
+func (cli *Cli) In() *streams.In {
 	return cli.in
 }
 
-func (cli *CliClient) Out() *Out {
+func (cli *Cli) Out() *streams.Out {
 	return cli.out
 }
 
-func (cli *CliClient) Err() io.Writer {
+func (cli *Cli) Err() io.Writer {
 	return cli.err
 }
 
-func NewCliClient() (*CliClient, error) {
-	cliClient := &CliClient{}
+func (cli *Cli) Containers() map[string]*ContainerOpts {
+	envs, err := GetEnvs()
+	if err != nil {
+		fmt.Printf("error retrieving envs: %v\n", err)
+		os.Exit(1)
+	}
+	return envs
+}
+
+func GetEnvs() (envs map[string]*ContainerOpts, err error) {
+	if !viper.IsSet("envs") {
+		return nil, ErrDoesNotExist
+	}
+
+	envs = make(map[string]*ContainerOpts)
+	err = viper.UnmarshalKey("envs", &envs)
+	return
+}
+
+func (cli *Cli) Running() (running map[string]string, err error) {
+	if !viper.IsSet("running") {
+		return nil, ErrDoesNotExist
+	} else {
+		running = make(map[string]string)
+		err = viper.UnmarshalKey("running", &running)
+		return
+	}
+}
+
+func NewCliClient() (*Cli, error) {
+	cliClient := &Cli{}
 
 	_, dockerClient := DockerClientInitOrDie()
 
 	if dockerClient != nil {
+		cliClient.dockerAPIClient = dockerClient
 		cliClient.dockerClient = dockerClient
 	} else {
 		return nil, fmt.Errorf("error creating docker client")
 	}
 
 	stdin, stdout, stderr := term.StdStreams()
-	cliClient.in = NewIn(stdin)
-	cliClient.out = NewOut(stdout)
+	cliClient.in = streams.NewIn(stdin)
+	cliClient.out = streams.NewOut(stdout)
 	cliClient.err = stderr
 
 	return cliClient, nil
 }
-
-/*
-// DockerCli is an instance the docker command line client.
-// Instances of the client can be returned from NewDockerCli.
-type DockerCli struct {
-	configFile         *configfile.ConfigFile
-	in                 *streams.In
-	out                *streams.Out
-	err                io.Writer
-	client             client.APIClient
-	serverInfo         ServerInfo
-	clientInfo         *ClientInfo
-	contentTrust       bool
-	contextStore       store.Store
-	currentContext     string
-	dockerEndpoint     docker.Endpoint
-	contextStoreConfig store.Config
-}
-
-// Cli represents the docker command line client.
-type Cli interface {
-	Client() client.APIClient
-	Out() *streams.Out
-	Err() io.Writer
-	In() *streams.In
-	SetIn(in *streams.In)
-	Apply(ops ...DockerCliOption) error
-	ConfigFile() *configfile.ConfigFile
-	ServerInfo() ServerInfo
-	ClientInfo() ClientInfo
-	NotaryClient(imgRefAndAuth trust.ImageRefAndAuth, actions []string) (notaryclient.Repository, error)
-	DefaultVersion() string
-	ManifestStore() manifeststore.Store
-	RegistryClient(bool) registryclient.RegistryClient
-	ContentTrustEnabled() bool
-	ContextStore() store.Store
-	CurrentContext() string
-	StackOrchestrator(flagValue string) (Orchestrator, error)
-	DockerEndpoint() docker.Endpoint
-}
-*/

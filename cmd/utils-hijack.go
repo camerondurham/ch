@@ -114,11 +114,10 @@ func (h *hijackedIOStreamer) beginOutputStream(restoreInput func()) <-chan error
 		} else {
 			_, err = stdcopy.StdCopy(h.outputStream, h.errorStream, h.resp.Reader)
 
-			// TODO: debug print
-			log.Printf("[hijack] End of stdout")
+			DebugPrint(fmt.Sprintf("[hijack] End of stdout"))
 
 			if err != nil {
-				log.Printf("error from receiveStdout: %v", err)
+				DebugPrint(fmt.Sprintf("error from receiveStdout: %v", err))
 			}
 
 			outputDone <- err
@@ -129,7 +128,6 @@ func (h *hijackedIOStreamer) beginOutputStream(restoreInput func()) <-chan error
 }
 
 func (h *hijackedIOStreamer) beginInputStream(restoreInput func()) (doneC <-chan struct{}, detachedC <-chan error) {
-	// TODO: make error channel and copy input into to container
 	inputDone := make(chan struct{})
 	detached := make(chan error)
 
@@ -165,7 +163,6 @@ func setRawTerminal(streams Streams) error {
 	return streams.Out().SetRawTerminal()
 }
 
-// nolint: unparam
 func restoreTerminal(streams Streams, in io.Closer) error {
 	streams.In().RestoreTerminal()
 	streams.Out().RestoreTerminal()

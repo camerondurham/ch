@@ -37,7 +37,7 @@ type BuildOutput struct {
 
 func DockerClientInitOrDie() (ctx context.Context, cli *client.Client) {
 	ctx = context.Background()
-	cli, err := client.NewEnvClient()
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		fmt.Printf("error creating Docker client: %v\nare you sure the client is running?\n", err)
 		os.Exit(1)
@@ -235,14 +235,14 @@ func StopContainer(ctx context.Context, cli *client.Client, containerID string, 
 }
 
 // CreateExecInteractive creates an exec config to run an exec process
-func CreateExecInteractive(ctx context.Context, cliClient Cli, container string, config types.ExecConfig) error {
-	if _, err := cliClient.Client().ContainerInspect(ctx, container); err != nil {
+func CreateExecInteractive(ctx context.Context, cliClient ContainerClient, container string, config types.ExecConfig) error {
+	if _, err := cliClient.ApiClient().ContainerInspect(ctx, container); err != nil {
 		return err
 	}
 
 	// avoid config Detach check if tty is correct
 
-	response, err := cliClient.Client().ContainerExecCreate(ctx, container, config)
+	response, err := cliClient.ApiClient().ContainerExecCreate(ctx, container, config)
 	if err != nil {
 		return err
 	}
@@ -256,13 +256,13 @@ func CreateExecInteractive(ctx context.Context, cliClient Cli, container string,
 			Detach: config.Tty,
 			Tty:    config.Tty,
 		}
-		return cliClient.Client().ContainerExecStart(ctx, execID, execStartCheck)
+		return cliClient.ApiClient().ContainerExecStart(ctx, execID, execStartCheck)
 	}
 	return interactiveExec(ctx, cliClient, &config, execID)
 
 }
 
-func interactiveExec(ctx context.Context, cliClient Cli, execConfig *types.ExecConfig, execID string) error {
+func interactiveExec(ctx context.Context, cliClient ContainerClient, execConfig *types.ExecConfig, execID string) error {
 	var (
 		out, stderr io.Writer
 		in          io.ReadCloser
@@ -275,7 +275,7 @@ func interactiveExec(ctx context.Context, cliClient Cli, execConfig *types.ExecC
 	// attach to os.Stderr only if not tty?
 	stderr = cliClient.Err()
 
-	resp, err := cliClient.Client().ContainerExecAttach(ctx, execID, types.ExecStartCheck{Tty: true})
+	resp, err := cliClient.ApiClient().ContainerExecAttach(ctx, execID, types.ExecStartCheck{Tty: true})
 
 	if err != nil {
 		log.Fatal("error attaching exec to container: ", err)
@@ -298,7 +298,6 @@ func interactiveExec(ctx context.Context, cliClient Cli, execConfig *types.ExecC
 				tty:          execConfig.Tty,
 			}
 
-			// return streamer.stream(ctx)
 			return streamer.stream(ctx)
 		}()
 	}()
@@ -307,18 +306,11 @@ func interactiveExec(ctx context.Context, cliClient Cli, execConfig *types.ExecC
 
 	// check MonitorTtySize
 	if err := <-errCh; err != nil {
-		// TODO: debug print
-		log.Printf("Error hijack: %v", err)
+		DebugPrint(fmt.Sprintf("Error hijack: %v", err))
 		return err
 	}
 
-	return getExecExitStatus(ctx, cliClient.Client(), execID)
-}
-
-// StatusError reports an unsuccessful exit by a command.
-type StatusError struct {
-	Status     string
-	StatusCode int
+	return getExecExitStatus(ctx, cliClient.ApiClient(), execID)
 }
 
 func getExecExitStatus(ctx context.Context, dockerClient client.ContainerAPIClient, execID string) error {
@@ -328,11 +320,11 @@ func getExecExitStatus(ctx context.Context, dockerClient client.ContainerAPIClie
 		if !client.IsErrConnectionFailed(err) {
 			return err
 		}
-		return errors.New(fmt.Sprintf("error status code: %v", -1))
+		return errors.New(fmt.Sprintf("error status code: %v,\nmessage: %v ", -1, err))
 	}
 	status := resp.ExitCode
 	if status != 0 {
-		return errors.New(fmt.Sprintf("error status code: %v", status))
+		return errors.New(fmt.Sprintf("error status code: %v,\nmessage: %v ", status, err))
 	}
 	return nil
 }

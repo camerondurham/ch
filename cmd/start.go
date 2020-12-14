@@ -22,11 +22,13 @@ THE SOFTWARE.
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"github.com/docker/docker/api/types/container"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"log"
+	"os"
 )
 
 // startCmd represents the start command
@@ -36,50 +38,17 @@ var startCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		envName := args[0]
-		//if !viper.IsSet("envs") {
-		//	fmt.Print("no environments exist")
-		//	os.Exit(1)
-		//}
-		//envs, err := util.GetEnvs()
-		//if err != nil {
-		//	fmt.Printf("error retrieving envs: %v\n", err)
-		//	os.Exit(1)
-		//}
-		//
-		envs := GetEnvsOrDie()
+
+		cli, err := NewCliClient()
+		if err != nil {
+			fmt.Printf("error: cannot create new CLI ApiClient: %v", err)
+			os.Exit(1)
+		}
+
+		envs := cli.Containers()
 
 		if containerOpts, ok := envs[envName]; ok {
-			ctx, cli := DockerClientInitOrDie()
-
-			containerConfig := &container.Config{Image: envName, Tty: true, AttachStdin: true}
-			if containerOpts.Shell != "" {
-				containerConfig.Shell = []string{containerOpts.Shell}
-			}
-
-			if containerOpts.Volume != "" {
-				// TODO(cadurham): implement attaching volumes
-				//containerConfig.Volumes = []string{containerOpts.Volume}
-			}
-
-			resp := CreateContainer(ctx, cli, containerConfig, envName)
-
-			StartContainer(ctx, cli, resp.ID)
-			fmt.Printf("started... imageID: %v", resp.ID)
-
-			running, _ := GetRunning()
-
-			if running == nil {
-				running = make(map[string]string)
-			}
-
-			running[envName] = resp.ID
-			viper.Set("running", running)
-
-			err := viper.WriteConfig()
-			if err != nil {
-				log.Printf("failed saving running containers")
-			}
-
+			StartEnvironment(cli, containerOpts, envName)
 		} else {
 			fmt.Printf("no such environment: %v", envName)
 		}
@@ -98,4 +67,39 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// startCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+}
+
+func StartEnvironment(client *Cli, containerOpts *ContainerOpts, envName string) {
+
+	ctx := context.Background()
+
+	containerConfig := &container.Config{Image: envName, Tty: true, AttachStdin: true}
+	if containerOpts.Shell != "" {
+		containerConfig.Shell = []string{containerOpts.Shell}
+	}
+
+	if containerOpts.Volume != "" {
+		// TODO(cadurham): implement attaching volumes
+		//containerConfig.Volumes = []string{containerOpts.Volume}
+	}
+
+	resp := CreateContainer(ctx, client.Client(), containerConfig, envName)
+
+	StartContainer(ctx, client.Client(), resp.ID)
+	fmt.Printf("started... imageID: %v", resp.ID)
+
+	running, _ := client.Running()
+
+	if running == nil {
+		running = make(map[string]string)
+	}
+
+	running[envName] = resp.ID
+	viper.Set("running", running)
+
+	err := viper.WriteConfig()
+	if err != nil {
+		log.Printf("failed saving running containers")
+	}
+
 }

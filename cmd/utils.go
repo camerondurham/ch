@@ -3,7 +3,6 @@ package cmd
 import (
 	"errors"
 	"fmt"
-	"github.com/spf13/viper"
 	"os"
 )
 
@@ -35,33 +34,4 @@ func DebugPrint(msg string) {
 	if _, ok := os.LookupEnv("DEBUG"); ok {
 		fmt.Println(msg)
 	}
-}
-
-func GetEnvs() (envs map[string]*ContainerOpts, err error) {
-	if !viper.IsSet("envs") {
-		return nil, ErrDoesNotExist
-	}
-
-	envs = make(map[string]*ContainerOpts)
-	err = viper.UnmarshalKey("envs", &envs)
-	return
-}
-
-func GetEnvsOrDie() map[string]*ContainerOpts {
-	envs, err := GetEnvs()
-	if err != nil {
-		fmt.Printf("error retrieving envs: %v\n", err)
-		os.Exit(1)
-	}
-	return envs
-}
-
-func GetRunning() (running map[string]string, err error) {
-	if !viper.IsSet("running") {
-		return nil, ErrDoesNotExist
-	}
-
-	running = make(map[string]string)
-	err = viper.UnmarshalKey("running", &running)
-	return
 }
