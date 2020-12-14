@@ -25,8 +25,9 @@ A simple Docker interface to manage multiple containerized devleopment environme
 - [x] `start ENVIRONMENT` run container in background
 
 - [ ] `shell ENVIRONMENT` start shell in container
-  - [ ] run commands in container
-  - [ ] attach interactive terminal to container
+  - [x] run commands in container
+  - [x] attach interactive terminal to container
+  - [ ] attach volumes to containers
   
 
 - [x] `stop ENVIRONMENT` shutdown running container
@@ -116,7 +117,7 @@ go mod init github.com/<name>/<repo-name>
 # add new library
 go get <new dependency>
 
-# tidy your porject
+# organize modules and dependencies
 go mod tidy
 
 # remove dependency
