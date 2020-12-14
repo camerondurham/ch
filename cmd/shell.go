@@ -23,12 +23,10 @@ THE SOFTWARE.
 package cmd
 
 import (
-	"bufio"
+	"context"
 	"fmt"
-	"github.com/camerondurham/ch/cmd/util"
 	"github.com/docker/docker/api/types"
 	"github.com/spf13/cobra"
-	"log"
 	"os"
 )
 
@@ -40,65 +38,46 @@ const (
 // shellCmd represents the shell command
 var shellCmd = &cobra.Command{
 	Use:   "shell",
-	Short: "A brief description of your command",
+	Short: "Start a shell in an environment",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		envName := args[0]
-		autostart, _ := cmd.Flags().GetBool(autostartFlagShort)
+		autostart, _ := cmd.Flags().GetBool(autostartFlag)
 
-		// TODO: create helper function for envName existing
-		envs := util.GetEnvsOrDie()
+		cli, err := NewCliClient()
+		if err != nil {
+			fmt.Printf("error: cannot create new CLI ApiClient: %v", err)
+			os.Exit(1)
+		}
+
+		envs := cli.Containers()
+
 		if containerOpts, ok := envs[envName]; ok {
-			ctx, cli := util.DockerClientInitOrDie()
-			running, err := util.GetRunning()
+			running, err := cli.Running()
 			containerID, ok := running[envName]
-			if !autostart && (err == util.ErrDoesNotExist || !ok) {
+			if !autostart && (err == ErrDoesNotExist || !ok) {
 				fmt.Printf(getNotRunningMsg(envName))
 				os.Exit(1)
-			} else if err == util.ErrDoesNotExist || !ok {
-				// TODO: start container
-				fmt.Print("error: force starting not implemented yet")
-				os.Exit(1)
+			} else if err == ErrDoesNotExist || !ok {
+				// TODO: start container automatically
+				DebugPrint("starting non-running container because autostart flag used\n")
+				StartEnvironment(cli, containerOpts, envName)
+				running, err = cli.Running()
+				containerID, ok = running[envName]
 			}
 
-			util.DebugPrint(fmt.Sprintf("starting container: %v", containerID))
-			execID, reader, writer, err := util.CreateExecInteractive(ctx, cli, containerID, types.ExecConfig{
+			DebugPrint(fmt.Sprintf("starting container: %v\n", containerID))
+
+			err = CreateExecInteractive(context.Background(), cli, containerID, types.ExecConfig{
 				Cmd:          []string{containerOpts.Shell},
 				Tty:          true,
 				AttachStdin:  true,
-				AttachStdout: true,
 				AttachStderr: true,
+				AttachStdout: true,
 			})
 
-			log.Printf("created execID: %v", execID)
-			log.Printf("reader: %v, writer: %v", reader, writer)
-
-			go func() {
-				buf := make([]byte, 1024)
-				for {
-					n, err := reader.Read(buf)
-					if err != nil {
-						fmt.Printf("failed to read: %v", err)
-						break
-					} else {
-						// TODO: debug print
-						log.Printf("read %d bytes: %v", n, buf[:n])
-						fmt.Printf("%s", buf[:n])
-					}
-				}
-			}()
-
-			stdReader := bufio.NewReader(os.Stdin)
-			for {
-				text, err := stdReader.ReadString('\n')
-				if err != nil {
-					fmt.Printf("failed to read: %v", err)
-				} else {
-					_, err := writer.Write([]byte(text))
-					if err != nil {
-						fmt.Printf("could not write bytes: %v", err)
-					}
-				}
+			if err != nil {
+				fmt.Printf("error creating shell: %v", err)
 			}
 
 		} else {
@@ -117,5 +96,7 @@ func getNotRunningMsg(envName string) string {
 	ch create %v
 
 or start container automatically with:
-	ch shell %v %v\n\n`, envName, envName, envName, autostartFlag)
+	ch shell %v %v
+
+`, envName, envName, envName, autostartFlag)
 }

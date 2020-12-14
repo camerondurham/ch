@@ -24,11 +24,8 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"github.com/camerondurham/ch/cmd/util"
-	"github.com/docker/docker/client"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"log"
 	"os"
 )
 
@@ -39,27 +36,26 @@ var stopCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		envName := args[0]
-		envs := util.GetEnvsOrDie()
+		cli, err := NewCliClient()
+		if err != nil {
+			fmt.Printf("error: cannot create new CLI ApiClient: %v", err)
+			os.Exit(1)
+		}
+
+		envs := cli.Containers()
 
 		if _, ok := envs[envName]; ok {
 
-			running, err := util.GetRunning()
+			running, err := cli.Running()
 			containerID, ok := running[envName]
-			if err == util.ErrDoesNotExist || !ok {
+			if err == ErrDoesNotExist || !ok {
 				fmt.Printf("%v is not running", envName)
 				os.Exit(1)
 			} else {
-
-				// TODO: make helper function to do this
 				ctx := context.Background()
-				cli, err := client.NewEnvClient()
-				if err != nil {
-					// yikes! 3 layers of nesting!
-					log.Fatal("error creating Docker client: are you sure Docker is running?")
-				}
 
-				util.StopContainer(ctx, cli, containerID, nil)
-				util.RemoveContainer(ctx, cli, envName)
+				StopContainer(ctx, cli.Client(), containerID, nil)
+				RemoveContainer(ctx, cli.Client(), envName)
 
 				// TODO: use standard text formatting for all errors, look for library?
 				fmt.Printf("stopped container: %v", envName)
