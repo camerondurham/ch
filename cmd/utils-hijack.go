@@ -70,6 +70,10 @@ func (h *hijackedIOStreamer) setupInput() (restore func(), err error) {
 		return func() {}, nil
 	}
 
+	if err := setRawTerminal(h.streams); err != nil {
+		return nil, fmt.Errorf("unable to set IO streams as raw terminal: %v", err)
+	}
+
 	// Use sync.Once so we may call restore multiple times but ensure we
 	// only restore the terminal once.
 	var restoreOnce sync.Once
@@ -97,7 +101,6 @@ func (h *hijackedIOStreamer) setupInput() (restore func(), err error) {
 }
 
 func (h *hijackedIOStreamer) beginOutputStream(restoreInput func()) <-chan error {
-	// TODO: make output error channel and copy output from container
 	if h.outputStream == nil && h.errorStream == nil {
 		return nil
 	}
