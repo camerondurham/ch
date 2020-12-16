@@ -29,7 +29,6 @@ import (
 	"log"
 	"strings"
 
-	"github.com/docker/docker/client"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -64,22 +63,23 @@ func CreateCmd(cmd *cobra.Command, args []string) {
 		log.Fatal("failed to parse args: ", err)
 	}
 
-	cli, err := client.NewEnvClient()
+	cli, err := util.NewCliClient()
 	ctx := context.Background()
 
 	if err != nil {
+		log.Printf("error: %v", err)
 		log.Fatal("error creating Docker client: are you sure Docker is running?")
 	}
 
 	if opts.BuildOpts != nil {
 		err = util.BuildImageWithContext(ctx,
-			cli,
+			cli.Client(),
 			opts.BuildOpts.DockerfilePath,
 			opts.BuildOpts.Context,
 			opts.BuildOpts.Tag)
 	} else {
 		err = util.PullImage(ctx,
-			cli,
+			cli.Client(),
 			opts.PullOpts.ImageName)
 	}
 
@@ -103,6 +103,7 @@ func CreateCmd(cmd *cobra.Command, args []string) {
 		viper.Set("envs", envs)
 	}
 
+	// TODO: don't overwrite existing config!!
 	err = viper.WriteConfig()
 	if err != nil {
 		log.Fatal("error saving config: ", err)
@@ -115,7 +116,7 @@ func init() {
 
 	createCmd.Flags().StringP("file", "f", "Dockerfile", "path to Dockerfile")
 	createCmd.Flags().StringP("image", "i", "", "image name to pull from DockerHub")
-	createCmd.Flags().StringP("volume", "v", "", "volume to mount to the working directory")
+	createCmd.Flags().StringArrayP("volume", "v", nil, "volume to mount to the working directory")
 	createCmd.Flags().String("shell", "/bin/sh", "default shell to use when logging into environment")
 	createCmd.Flags().String("context", ".", "context to build Dockerfile")
 	createCmd.Flags().Bool("replace", false, "replace environment if it already exists")
