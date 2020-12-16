@@ -25,7 +25,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/camerondurham/ch/cmd/util"
 	"log"
+	"strings"
 
 	"github.com/docker/docker/client"
 	"github.com/spf13/cobra"
@@ -70,13 +72,13 @@ func CreateCmd(cmd *cobra.Command, args []string) {
 	}
 
 	if opts.BuildOpts != nil {
-		err = BuildImageWithContext(ctx,
+		err = util.BuildImageWithContext(ctx,
 			cli,
 			opts.BuildOpts.DockerfilePath,
 			opts.BuildOpts.Context,
 			opts.BuildOpts.Tag)
 	} else {
-		err = PullImage(ctx,
+		err = util.PullImage(ctx,
 			cli,
 			opts.PullOpts.ImageName)
 	}
@@ -85,12 +87,12 @@ func CreateCmd(cmd *cobra.Command, args []string) {
 		log.Fatal("cannot create new environment, error creating image: ", err)
 	}
 
-	DebugPrint(fmt.Sprintf("saving environment: %v", opts))
+	util.DebugPrint(fmt.Sprintf("saving environment: %v", opts))
 
-	envs, err := GetEnvs()
+	envs, err := util.GetEnvs()
 
 	if err != nil {
-		if err == ErrDoesNotExist {
+		if err == util.ErrDoesNotExist {
 			// save new environment opts into config file
 			viper.Set(fmt.Sprintf("envs.%s", name), opts)
 		} else {
@@ -106,7 +108,7 @@ func CreateCmd(cmd *cobra.Command, args []string) {
 		log.Fatal("error saving config: ", err)
 	}
 
-	PrintConfig(name, opts)
+	util.PrintConfig(name, opts)
 }
 func init() {
 	rootCmd.AddCommand(createCmd)
@@ -124,12 +126,12 @@ var (
 	errorBuildImageFieldsNotPresent  = errors.New("file and context must be provided to build a container")
 )
 
-func parseContainerOpts(cmd *cobra.Command, environmentName string) (*ContainerOpts, error) {
+func parseContainerOpts(cmd *cobra.Command, environmentName string) (*util.ContainerOpts, error) {
 	if file, _ := cmd.Flags().GetString("file"); file != "" {
 		if contextDirName, _ := cmd.Flags().GetString("context"); contextDirName != "" {
 			volumeName, shellCmd := parseOptional(cmd)
-			return &ContainerOpts{
-				BuildOpts: &BuildOpts{
+			return &util.ContainerOpts{
+				BuildOpts: &util.BuildOpts{
 					DockerfilePath: file,
 					Context:        contextDirName,
 					Tag:            environmentName,
@@ -138,14 +140,14 @@ func parseContainerOpts(cmd *cobra.Command, environmentName string) (*ContainerO
 				Shell:  shellCmd,
 			}, nil
 		} else {
-			return &ContainerOpts{}, errorBuildImageFieldsNotPresent
+			return &util.ContainerOpts{}, errorBuildImageFieldsNotPresent
 		}
 	}
 
 	if imageName, _ := cmd.Flags().GetString("image"); imageName != "" {
 		volumeName, shellCmd := parseOptional(cmd)
-		return &ContainerOpts{
-			PullOpts: &PullOpts{
+		return &util.ContainerOpts{
+			PullOpts: &util.PullOpts{
 				ImageName: imageName,
 			},
 			Volume: volumeName,
@@ -156,8 +158,20 @@ func parseContainerOpts(cmd *cobra.Command, environmentName string) (*ContainerO
 	return nil, errorCreateImageFieldsNotPresent
 }
 
-func parseOptional(cmd *cobra.Command) (volumeName string, shellCmd string) {
-	volumeName, _ = cmd.Flags().GetString("volume")
+func parseOptional(cmd *cobra.Command) (volumeName map[string]struct{}, shellCmd string) {
+	volNames, _ := cmd.Flags().GetStringArray("volume")
+	if len(volNames) > 0 {
+		volumeName = make(map[string]struct{})
+		for i := 0; i < len(volNames); i++ {
+			// TODO: use more sophisticated, less expensive parsing
+			arr := strings.Split(volNames[i], ":")
+			if len(arr) != 2 {
+				fmt.Printf("ignoring invalid volume syntax: %v", volNames[i])
+				continue
+			}
+			volumeName[volNames[i]] = struct{}{}
+		}
+	}
 	shellCmd, _ = cmd.Flags().GetString("shell")
 	return
 }

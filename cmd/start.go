@@ -24,6 +24,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"github.com/camerondurham/ch/cmd/util"
 	"github.com/docker/docker/api/types/container"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -39,7 +40,7 @@ var startCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		envName := args[0]
 
-		cli, err := NewCliClient()
+		cli, err := util.NewCliClient()
 		if err != nil {
 			fmt.Printf("error: cannot create new CLI ApiClient: %v", err)
 			os.Exit(1)
@@ -69,7 +70,7 @@ func init() {
 	// startCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
-func StartEnvironment(client *Cli, containerOpts *ContainerOpts, envName string) {
+func StartEnvironment(client *util.Cli, containerOpts *util.ContainerOpts, envName string) {
 
 	ctx := context.Background()
 
@@ -78,14 +79,14 @@ func StartEnvironment(client *Cli, containerOpts *ContainerOpts, envName string)
 		containerConfig.Shell = []string{containerOpts.Shell}
 	}
 
-	if containerOpts.Volume != "" {
-		// TODO(cadurham): implement attaching volumes
-		//containerConfig.Volumes = []string{containerOpts.Volume}
+	if len(containerOpts.Volume) > 0 {
+		// TODO(cadurham): error check attaching volumes
+		containerConfig.Volumes = containerOpts.Volume
 	}
 
-	resp := CreateContainer(ctx, client.Client(), containerConfig, envName)
+	resp := util.CreateContainer(ctx, client.Client(), containerConfig, envName)
 
-	StartContainer(ctx, client.Client(), resp.ID)
+	util.StartContainer(ctx, client.Client(), resp.ID)
 	fmt.Printf("started... imageID: %v", resp.ID)
 
 	running, _ := client.Running()

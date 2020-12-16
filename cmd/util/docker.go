@@ -1,4 +1,4 @@
-package cmd
+package util
 
 // TODO: rewrite as implementations on the cli
 
@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/camerondurham/ch/cmd/streams"
 	"io"
 	"log"
 	"os"
@@ -289,16 +290,16 @@ func interactiveExec(ctx context.Context, cliClient ContainerClient, execConfig 
 		errCh <- func() error {
 
 			// get streamer as hijackedIOStreamer
-			streamer := hijackedIOStreamer{
-				streams:      cliClient,
-				inputStream:  in,
-				outputStream: out,
-				errorStream:  stderr,
-				resp:         resp,
-				tty:          execConfig.Tty,
+			streamer := streams.HijackedIOStreamer{
+				Streams:      cliClient,
+				InputStream:  in,
+				OutputStream: out,
+				ErrorStream:  stderr,
+				Resp:         resp,
+				Tty:          execConfig.Tty,
 			}
 
-			return streamer.stream(ctx)
+			return streamer.Stream(ctx)
 		}()
 	}()
 

@@ -1,4 +1,4 @@
-package cmd
+package util
 
 import (
 	"fmt"
@@ -24,7 +24,7 @@ type PullOpts struct {
 type ContainerOpts struct {
 	BuildOpts *BuildOpts
 	PullOpts  *PullOpts
-	Volume    string
+	Volume    map[string]struct{}
 	Shell     string
 }
 
@@ -35,13 +35,6 @@ type Cli struct {
 	err             io.Writer
 	dockerClient    *client.Client
 	dockerAPIClient client.APIClient
-}
-
-// Streams is an interface which exposes the standard input and output streams
-type Streams interface {
-	In() *streams.In
-	Out() *streams.Out
-	Err() io.Writer
 }
 
 type ContainerClient interface {

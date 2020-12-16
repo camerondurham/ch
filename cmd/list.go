@@ -23,6 +23,7 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/camerondurham/ch/cmd/util"
 	"github.com/spf13/cobra"
 	"os"
 )
@@ -38,7 +39,7 @@ var listCmd = &cobra.Command{
 			envName = args[0]
 		}
 
-		configEnvs, err := GetEnvs()
+		configEnvs, err := util.GetEnvs()
 
 		if err != nil {
 			fmt.Printf("unable to decode config file: %v\nplease check formatting of config and delete if needed", err)
@@ -47,13 +48,13 @@ var listCmd = &cobra.Command{
 
 		if envName != "" {
 			if v, ok := configEnvs[envName]; ok {
-				PrintConfig(envName, v)
+				util.PrintConfig(envName, v)
 			} else {
 				fmt.Printf("no environment found")
 			}
 		} else {
 			for k, v := range configEnvs {
-				PrintConfig(k, v)
+				util.PrintConfig(k, v)
 			}
 		}
 

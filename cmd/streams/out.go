@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-// Out is an output stream used by the DockerCli to write normal program
+// Out is an output Stream used by the DockerCli to write normal program
 // output.
 type Out struct {
 	commonStream
@@ -27,7 +27,7 @@ func (o *Out) SetRawTerminal() (err error) {
 	return err
 }
 
-// GetTtySize returns the height and width in characters of the tty
+// GetTtySize returns the height and width in characters of the Tty
 func (o *Out) GetTtySize() (uint, uint) {
 	if !o.isTerminal {
 		return 0, 0
