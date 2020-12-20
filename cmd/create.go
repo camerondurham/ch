@@ -164,18 +164,20 @@ func parseContainerOpts(cmd *cobra.Command, environmentName string) (*util.Conta
 	return nil, errorCreateImageFieldsNotPresent
 }
 
-func parseOptional(cmd *cobra.Command) (volumeName map[string]struct{}, shellCmd string) {
+func parseOptional(cmd *cobra.Command) (volumeName []string, shellCmd string) {
 	volNames, _ := cmd.Flags().GetStringArray("volume")
 	if len(volNames) > 0 {
-		volumeName = make(map[string]struct{})
+		volumeName = make([]string, 0)
 		for i := 0; i < len(volNames); i++ {
-			// TODO: use more sophisticated, less expensive parsing
+			// TODO: this fails for Windows paths
 			arr := strings.Split(volNames[i], ":")
 			if len(arr) != 2 {
 				fmt.Printf("ignoring invalid volume syntax: %v", volNames[i])
 				continue
 			}
-			volumeName[volNames[i]] = struct{}{}
+
+			//volumeName[volNames[i]] = struct{}{}
+			volumeName = append(volumeName, volNames[i])
 		}
 	}
 	shellCmd, _ = cmd.Flags().GetString("shell")

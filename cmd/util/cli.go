@@ -24,7 +24,7 @@ type PullOpts struct {
 type ContainerOpts struct {
 	BuildOpts *BuildOpts
 	PullOpts  *PullOpts
-	Volume    map[string]struct{}
+	Volume    []string
 	Shell     string
 }
 

@@ -80,8 +80,13 @@ func StartEnvironment(client *util.Cli, containerOpts *util.ContainerOpts, envNa
 	}
 
 	if len(containerOpts.Volume) > 0 {
-		// TODO(cadurham): error check attaching volumes
-		containerConfig.Volumes = containerOpts.Volume
+		// TODO(cadurham): error check attaching volumeMap
+		volumeList := containerOpts.Volume
+		volumeMap := make(map[string]struct{}, len(containerOpts.Volume))
+		for i := 0; i < len(volumeList); i++ {
+			volumeMap[volumeList[i]] = struct{}{}
+		}
+		containerConfig.Volumes = volumeMap
 	}
 
 	resp := util.CreateContainer(ctx, client.Client(), containerConfig, envName)
