@@ -1,6 +1,10 @@
 # ch: container helper [WIP]
 
-A simple Docker interface to manage multiple containerized devleopment environments. Provides a simple shell environment for separate development environments designed to use for C++ development in CSCI 104 but portable enough to use whichever Docker container you choose.
+**WARNING** This project is not yet in a usable state. I am leaving this open for visibility and comments on the general
+design. Unfortunately there is not an easy way to install this... yet. Once development has finished, I will provide a
+release. Until then, you'll have to run `make` and using the executable. Thanks!
+
+A simple Docker interface to manage multiple containerized development environments. Provides a simple shell environment for separate development environments designed to use for C++ development in CSCI 104 but portable enough to use whichever Docker container you choose.
 
 <a href="https://github.com/marketplace/actions/super-linter">
   <img align="left" src="https://github.com/camerondurham/ch/workflows/Lint%20Code%20Base/badge.svg" />
