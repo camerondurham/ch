@@ -36,8 +36,8 @@ import (
 var createCmd = &cobra.Command{
 	Use:   "create ENVIRONMENT_NAME {--file DOCKERFILE|--image DOCKER_IMAGE} [--volume PATH_TO_DIRECTORY] [--shell SHELL_CMD]",
 	Short: "Create docker environment config",
-	Long: `Create docker environment config with new name. 
-	Will look for your Dockerfile in the current directory 
+	Long: `Create docker environment config with new name.
+	Will look for your Dockerfile in the current directory
 	if you do not explicitly set --file.`,
 	Args: cobra.MinimumNArgs(1),
 	Run:  CreateCmd,
