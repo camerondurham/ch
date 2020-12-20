@@ -89,6 +89,10 @@ func CreateCmd(cmd *cobra.Command, args []string) {
 
 	util.DebugPrint(fmt.Sprintf("saving environment: %v", opts))
 
+	err = viper.ReadInConfig()
+	if err != nil {
+		util.DebugPrint(fmt.Sprintf("error reading in config: %v", err))
+	}
 	envs, err := util.GetEnvs()
 
 	if err != nil {
@@ -103,10 +107,11 @@ func CreateCmd(cmd *cobra.Command, args []string) {
 		viper.Set("envs", envs)
 	}
 
-	// TODO: don't overwrite existing config!!
+	util.SetEnvs(envs)
 	err = viper.WriteConfig()
+
 	if err != nil {
-		log.Fatal("error saving config: ", err)
+		log.Print("error saving config: ", err)
 	}
 
 	util.PrintConfig(name, opts)

@@ -86,6 +86,10 @@ func GetEnvs() (envs map[string]*ContainerOpts, err error) {
 	return
 }
 
+func SetEnvs(envs map[string]*ContainerOpts) {
+	viper.Set("envs", envs)
+}
+
 func (cli *Cli) Running() (running map[string]string, err error) {
 	if !viper.IsSet("running") {
 		return nil, ErrDoesNotExist
