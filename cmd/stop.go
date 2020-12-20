@@ -24,6 +24,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"github.com/camerondurham/ch/cmd/util"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"os"
@@ -36,7 +37,7 @@ var stopCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		envName := args[0]
-		cli, err := NewCliClient()
+		cli, err := util.NewCliClient()
 		if err != nil {
 			fmt.Printf("error: cannot create new CLI ApiClient: %v", err)
 			os.Exit(1)
@@ -48,14 +49,14 @@ var stopCmd = &cobra.Command{
 
 			running, err := cli.Running()
 			containerID, ok := running[envName]
-			if err == ErrDoesNotExist || !ok {
+			if err == util.ErrDoesNotExist || !ok {
 				fmt.Printf("%v is not running", envName)
 				os.Exit(1)
 			} else {
 				ctx := context.Background()
 
-				StopContainer(ctx, cli.Client(), containerID, nil)
-				RemoveContainer(ctx, cli.Client(), envName)
+				util.StopContainer(ctx, cli.Client(), containerID, nil)
+				util.RemoveContainer(ctx, cli.Client(), envName)
 
 				// TODO: use standard text formatting for all errors, look for library?
 				fmt.Printf("stopped container: %v", envName)

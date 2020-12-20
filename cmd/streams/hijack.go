@@ -1,4 +1,4 @@
-package cmd
+package streams
 
 // TODO: move this package to lib or utils folder
 
@@ -11,28 +11,36 @@ import (
 	"github.com/moby/term"
 	"io"
 	"log"
+	"os"
 	"runtime"
 	"sync"
 )
 
 var defaultEscapeKeys = []byte{16, 17}
 
-type hijackedIOStreamer struct {
-	streams      Streams
-	inputStream  io.ReadCloser
-	outputStream io.Writer
-	errorStream  io.Writer
+// Streams is an interface which exposes the standard input and output streams
+type Streams interface {
+	In() *In
+	Out() *Out
+	Err() io.Writer
+}
 
-	resp types.HijackedResponse
+type HijackedIOStreamer struct {
+	Streams      Streams
+	InputStream  io.ReadCloser
+	OutputStream io.Writer
+	ErrorStream  io.Writer
 
-	tty        bool
+	Resp types.HijackedResponse
+
+	Tty        bool
 	detachKeys string
 }
 
-func (h *hijackedIOStreamer) stream(ctx context.Context) error {
+func (h *HijackedIOStreamer) Stream(ctx context.Context) error {
 	restoreInput, err := h.setupInput()
 	if err != nil {
-		return fmt.Errorf("unable to setup input stream: %v", err)
+		return fmt.Errorf("unable to setup input Stream: %v", err)
 	}
 
 	defer restoreInput()
@@ -44,8 +52,8 @@ func (h *hijackedIOStreamer) stream(ctx context.Context) error {
 	case err := <-outputDone:
 		return err
 	case <-inputDone:
-		// input stream has closed
-		if h.outputStream != nil || h.errorStream != nil {
+		// input Stream has closed
+		if h.OutputStream != nil || h.ErrorStream != nil {
 			// wait for output to complete streaming.
 			select {
 			case err := <-outputDone:
@@ -63,15 +71,15 @@ func (h *hijackedIOStreamer) stream(ctx context.Context) error {
 	}
 }
 
-func (h *hijackedIOStreamer) setupInput() (restore func(), err error) {
-	if h.inputStream == nil || !h.tty {
+func (h *HijackedIOStreamer) setupInput() (restore func(), err error) {
+	if h.InputStream == nil || !h.Tty {
 		// no need to setup input TTY
 		// the resotre func is a noop
 		return func() {}, nil
 	}
 
-	if err := setRawTerminal(h.streams); err != nil {
-		return nil, fmt.Errorf("unable to set IO streams as raw terminal: %v", err)
+	if err := setRawTerminal(h.Streams); err != nil {
+		return nil, fmt.Errorf("unable to set IO Streams as raw terminal: %v", err)
 	}
 
 	// Use sync.Once so we may call restore multiple times but ensure we
@@ -79,7 +87,7 @@ func (h *hijackedIOStreamer) setupInput() (restore func(), err error) {
 	var restoreOnce sync.Once
 	restore = func() {
 		restoreOnce.Do(func() {
-			restoreTerminal(h.streams, h.inputStream)
+			restoreTerminal(h.Streams, h.InputStream)
 		})
 	}
 
@@ -95,13 +103,13 @@ func (h *hijackedIOStreamer) setupInput() (restore func(), err error) {
 		}
 	}
 
-	h.inputStream = ioutils2.NewReadCloserWrapper(term.NewEscapeProxy(h.inputStream, escapeKeys), h.inputStream.Close)
+	h.InputStream = ioutils2.NewReadCloserWrapper(term.NewEscapeProxy(h.InputStream, escapeKeys), h.InputStream.Close)
 
 	return restore, nil
 }
 
-func (h *hijackedIOStreamer) beginOutputStream(restoreInput func()) <-chan error {
-	if h.outputStream == nil && h.errorStream == nil {
+func (h *HijackedIOStreamer) beginOutputStream(restoreInput func()) <-chan error {
+	if h.OutputStream == nil && h.ErrorStream == nil {
 		return nil
 	}
 
@@ -109,18 +117,18 @@ func (h *hijackedIOStreamer) beginOutputStream(restoreInput func()) <-chan error
 	go func() {
 		var err error
 
-		if h.outputStream != nil && h.tty {
-			_, err = io.Copy(h.outputStream, h.resp.Reader)
+		if h.OutputStream != nil && h.Tty {
+			_, err = io.Copy(h.OutputStream, h.Resp.Reader)
 			// restore terminal as soon as possible once connection ends so
 			// any following print messages will be in normal type
 			restoreInput()
 		} else {
-			_, err = stdcopy.StdCopy(h.outputStream, h.errorStream, h.resp.Reader)
+			_, err = stdcopy.StdCopy(h.OutputStream, h.ErrorStream, h.Resp.Reader)
 
-			DebugPrint(fmt.Sprintf("[hijack] End of stdout"))
+			debugPrint(fmt.Sprintf("[hijack] End of stdout"))
 
 			if err != nil {
-				DebugPrint(fmt.Sprintf("error from receiveStdout: %v", err))
+				debugPrint(fmt.Sprintf("error from receiveStdout: %v", err))
 			}
 
 			outputDone <- err
@@ -130,13 +138,13 @@ func (h *hijackedIOStreamer) beginOutputStream(restoreInput func()) <-chan error
 	return outputDone
 }
 
-func (h *hijackedIOStreamer) beginInputStream(restoreInput func()) (doneC <-chan struct{}, detachedC <-chan error) {
+func (h *HijackedIOStreamer) beginInputStream(restoreInput func()) (doneC <-chan struct{}, detachedC <-chan error) {
 	inputDone := make(chan struct{})
 	detached := make(chan error)
 
 	go func() {
-		if h.inputStream != nil {
-			_, err := io.Copy(h.resp.Conn, h.inputStream)
+		if h.InputStream != nil {
+			_, err := io.Copy(h.Resp.Conn, h.InputStream)
 			restoreInput()
 
 			log.Printf("[hijack] End of stdin")
@@ -151,7 +159,7 @@ func (h *hijackedIOStreamer) beginInputStream(restoreInput func()) (doneC <-chan
 			}
 		}
 
-		if err := h.resp.CloseWrite(); err != nil {
+		if err := h.Resp.CloseWrite(); err != nil {
 			log.Printf("couldn't send EOF: %v", err)
 		}
 		close(inputDone)
@@ -185,4 +193,11 @@ func restoreTerminal(streams Streams, in io.Closer) error {
 		return in.Close()
 	}
 	return nil
+}
+
+// DebugPrint if DEBUG environment variable is set
+func debugPrint(msg string) {
+	if _, ok := os.LookupEnv("DEBUG"); ok {
+		fmt.Printf("[hijack] %v\n", msg)
+	}
 }

@@ -1,4 +1,4 @@
-package cmd
+package util
 
 import (
 	"fmt"
@@ -24,7 +24,7 @@ type PullOpts struct {
 type ContainerOpts struct {
 	BuildOpts *BuildOpts
 	PullOpts  *PullOpts
-	Volume    string
+	Volume    []string
 	Shell     string
 }
 
@@ -35,13 +35,6 @@ type Cli struct {
 	err             io.Writer
 	dockerClient    *client.Client
 	dockerAPIClient client.APIClient
-}
-
-// Streams is an interface which exposes the standard input and output streams
-type Streams interface {
-	In() *streams.In
-	Out() *streams.Out
-	Err() io.Writer
 }
 
 type ContainerClient interface {
@@ -91,6 +84,10 @@ func GetEnvs() (envs map[string]*ContainerOpts, err error) {
 	envs = make(map[string]*ContainerOpts)
 	err = viper.UnmarshalKey("envs", &envs)
 	return
+}
+
+func SetEnvs(envs map[string]*ContainerOpts) {
+	viper.Set("envs", envs)
 }
 
 func (cli *Cli) Running() (running map[string]string, err error) {

@@ -25,6 +25,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"github.com/camerondurham/ch/cmd/util"
 	"github.com/docker/docker/api/types"
 	"github.com/spf13/cobra"
 	"os"
@@ -44,7 +45,7 @@ var shellCmd = &cobra.Command{
 		envName := args[0]
 		autostart, _ := cmd.Flags().GetBool(autostartFlag)
 
-		cli, err := NewCliClient()
+		cli, err := util.NewCliClient()
 		if err != nil {
 			fmt.Printf("error: cannot create new CLI ApiClient: %v", err)
 			os.Exit(1)
@@ -55,20 +56,19 @@ var shellCmd = &cobra.Command{
 		if containerOpts, ok := envs[envName]; ok {
 			running, err := cli.Running()
 			containerID, ok := running[envName]
-			if !autostart && (err == ErrDoesNotExist || !ok) {
+			if !autostart && (err == util.ErrDoesNotExist || !ok) {
 				fmt.Printf(getNotRunningMsg(envName))
 				os.Exit(1)
-			} else if err == ErrDoesNotExist || !ok {
-				// TODO: start container automatically
-				DebugPrint("starting non-running container because autostart flag used\n")
+			} else if err == util.ErrDoesNotExist || !ok {
+				util.DebugPrint("starting non-running container because autostart flag used\n")
 				StartEnvironment(cli, containerOpts, envName)
 				running, err = cli.Running()
 				containerID, ok = running[envName]
 			}
 
-			DebugPrint(fmt.Sprintf("starting container: %v\n", containerID))
+			util.DebugPrint(fmt.Sprintf("starting container: %v\n", containerID))
 
-			err = CreateExecInteractive(context.Background(), cli, containerID, types.ExecConfig{
+			err = util.CreateExecInteractive(context.Background(), cli, containerID, types.ExecConfig{
 				Cmd:          []string{containerOpts.Shell},
 				Tty:          true,
 				AttachStdin:  true,

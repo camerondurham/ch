@@ -8,7 +8,7 @@ import (
 	"runtime"
 )
 
-// In is an input stream used by the DockerCli to read user input
+// In is an input Stream used by the DockerCli to read user input
 type In struct {
 	commonStream
 	in io.ReadCloser
@@ -32,11 +32,11 @@ func (i *In) SetRawTerminal() (err error) {
 	return err
 }
 
-// CheckTty checks if we are trying to attach to a container tty
-// from a non-tty client input stream, and if so, returns an error.
+// CheckTty checks if we are trying to attach to a container Tty
+// from a non-Tty client input Stream, and if so, returns an error.
 func (i *In) CheckTty(attachStdin, ttyMode bool) error {
-	// In order to attach to a container tty, input stream for the client must
-	// be a tty itself: redirecting or piping the client standard input is
+	// In order to attach to a container Tty, input Stream for the client must
+	// be a Tty itself: redirecting or piping the client standard input is
 	// incompatible with `docker run -t`, `docker exec -t` or `docker attach`.
 	if ttyMode && attachStdin && !i.isTerminal {
 		eText := "the input device is not a TTY"
