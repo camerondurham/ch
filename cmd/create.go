@@ -26,11 +26,11 @@ import (
 	"errors"
 	"fmt"
 	"github.com/camerondurham/ch/cmd/util"
-	"log"
-	"strings"
-
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"log"
+	"os"
+	"strings"
 )
 
 // createCmd represents the create command
@@ -169,17 +169,32 @@ func parseOptional(cmd *cobra.Command) (volumeName []string, shellCmd string) {
 	if len(volNames) > 0 {
 		volumeName = make([]string, 0)
 		for i := 0; i < len(volNames); i++ {
-			// TODO: this fails for Windows paths
-			arr := strings.Split(volNames[i], ":")
-			if len(arr) != 2 {
-				fmt.Printf("ignoring invalid volume syntax: %v", volNames[i])
-				continue
+			_, _, err := parseHostContainerPath(volNames[i])
+			if err != nil {
+				fmt.Printf("error parsing mount: %v", err)
+			} else {
+				volumeName = append(volumeName, volNames[i])
 			}
-
-			//volumeName[volNames[i]] = struct{}{}
-			volumeName = append(volumeName, volNames[i])
 		}
 	}
 	shellCmd, _ = cmd.Flags().GetString("shell")
 	return
+}
+
+func parseHostContainerPath(pathStr string) (hostPath string, containerPath string, err error) {
+	idx := strings.LastIndex(pathStr, ":")
+
+	if idx > 0 {
+		hostPath = pathStr[:idx]
+		containerPath = pathStr[idx+1:]
+		if idx >= len(pathStr)-1 {
+			return "", "", errors.New("no container path")
+		} else if _, err := os.Stat(hostPath); err != nil {
+			return "", "", errors.New(fmt.Sprintf("invalid host path: %v", hostPath))
+		} else {
+			return hostPath, containerPath, nil
+		}
+	} else {
+		return "", "", errors.New("no container path")
+	}
 }

@@ -24,6 +24,7 @@ A simple Docker interface to manage multiple containerized development environme
   - [x] replace if it already exists
   - [x] build image from Dockerfile
   - [x] pull image from Docker repository
+  - [ ] support volume mounts and path checking on Windows and macOS
   
 - [x] `delete ENVIRONMENT` delete environment
 
