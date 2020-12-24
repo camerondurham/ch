@@ -26,6 +26,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/camerondurham/ch/cmd/util"
+	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"log"
@@ -89,7 +90,6 @@ func CreateCmd(cmd *cobra.Command, args []string) {
 	}
 
 	util.DebugPrint(fmt.Sprintf("saving environment: %v", opts))
-
 	err = viper.ReadInConfig()
 	if err != nil {
 		util.DebugPrint(fmt.Sprintf("error reading in config: %v", err))
@@ -109,6 +109,16 @@ func CreateCmd(cmd *cobra.Command, args []string) {
 	}
 
 	util.SetEnvs(envs)
+
+	if err = viper.SafeWriteConfig(); err != nil {
+		// create config file if it doesn't exist
+		if os.IsNotExist(err) {
+			home, _ := homedir.Dir()
+			path := filepath.Join(home, ".ch.yaml")
+			err = viper.WriteConfigAs(path)
+		}
+	}
+
 	err = viper.WriteConfig()
 
 	if err != nil {
