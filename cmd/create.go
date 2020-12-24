@@ -30,6 +30,7 @@ import (
 	"github.com/spf13/viper"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -187,10 +188,18 @@ func parseHostContainerPath(pathStr string) (hostPath string, containerPath stri
 	if idx > 0 {
 		hostPath = pathStr[:idx]
 		containerPath = pathStr[idx+1:]
+
+		// save original host path to help user debug possible issues
+		originalHostPath := hostPath
+
+		if !filepath.IsAbs(hostPath) {
+			hostPath, _ = filepath.Abs(hostPath)
+		}
+
 		if idx >= len(pathStr)-1 {
 			return "", "", errors.New("no container path")
 		} else if _, err := os.Stat(hostPath); err != nil {
-			return "", "", errors.New(fmt.Sprintf("invalid host path: %v", hostPath))
+			return "", "", errors.New(fmt.Sprintf("invalid host path: %v", originalHostPath))
 		} else {
 			return hostPath, containerPath, nil
 		}
