@@ -209,7 +209,7 @@ func parseHostContainerPath(pathStr string) (hostPath string, containerPath stri
 		if idx >= len(pathStr)-1 {
 			return "", "", errors.New("no container path")
 		} else if _, err := os.Stat(hostPath); err != nil {
-			return "", "", errors.New(fmt.Sprintf("invalid host path: %v", originalHostPath))
+			return "", "", errors.New(fmt.Sprintf("invalid host path [%v]", originalHostPath))
 		} else {
 			return hostPath, containerPath, nil
 		}

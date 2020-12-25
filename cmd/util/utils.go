@@ -27,8 +27,8 @@ func PrintConfig(envName string, opts *ContainerOpts) {
 		fmt.Printf(printConfigNest1, "Image", po.ImageName)
 	}
 	if len(opts.Volume) > 0 {
-		for k, v := range opts.Volume {
-			fmt.Printf(printConfigNest1, "Volume", fmt.Sprintf(" %s %s ", k, v))
+		for _, v := range opts.Volume {
+			fmt.Printf(printConfigNest1, "Volume", fmt.Sprintf(" %s ", v))
 		}
 	}
 
