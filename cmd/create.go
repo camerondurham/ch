@@ -180,11 +180,11 @@ func parseOptional(cmd *cobra.Command) (volumeName []string, shellCmd string) {
 	if len(volNames) > 0 {
 		volumeName = make([]string, 0)
 		for i := 0; i < len(volNames); i++ {
-			_, _, err := parseHostContainerPath(volNames[i])
+			absPath, err := parseHostContainerPath(volNames[i])
 			if err != nil {
 				fmt.Printf("error parsing mount: %v", err)
 			} else {
-				volumeName = append(volumeName, volNames[i])
+				volumeName = append(volumeName, absPath)
 			}
 		}
 	}
@@ -192,12 +192,12 @@ func parseOptional(cmd *cobra.Command) (volumeName []string, shellCmd string) {
 	return
 }
 
-func parseHostContainerPath(pathStr string) (hostPath string, containerPath string, err error) {
+func parseHostContainerPath(pathStr string) (hostContainerAbsPath string, err error) {
 	idx := strings.LastIndex(pathStr, ":")
 
 	if idx > 0 {
-		hostPath = pathStr[:idx]
-		containerPath = pathStr[idx+1:]
+		hostPath := pathStr[:idx]
+		containerPath := pathStr[idx+1:]
 
 		// save original host path to help user debug possible issues
 		originalHostPath := hostPath
@@ -207,13 +207,14 @@ func parseHostContainerPath(pathStr string) (hostPath string, containerPath stri
 		}
 
 		if idx >= len(pathStr)-1 {
-			return "", "", errors.New("no container path")
+			return "", errors.New("no container path")
 		} else if _, err := os.Stat(hostPath); err != nil {
-			return "", "", errors.New(fmt.Sprintf("invalid host path [%v]", originalHostPath))
+			return "", errors.New(fmt.Sprintf("invalid host path [%v]", originalHostPath))
 		} else {
-			return hostPath, containerPath, nil
+			hostContainerAbsPath = fmt.Sprintf("%s:%s", hostPath, containerPath)
+			return hostContainerAbsPath, nil
 		}
 	} else {
-		return "", "", errors.New("no container path")
+		return "", errors.New("no container path")
 	}
 }

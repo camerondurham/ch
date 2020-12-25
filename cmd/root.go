@@ -23,6 +23,7 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/camerondurham/ch/cmd/util"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -85,6 +86,6 @@ func initConfig() {
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
+		util.DebugPrint(fmt.Sprint("Using config file:", viper.ConfigFileUsed()))
 	}
 }

@@ -79,17 +79,21 @@ func StartEnvironment(client *util.Cli, containerOpts *util.ContainerOpts, envNa
 		containerConfig.Shell = []string{containerOpts.Shell}
 	}
 
+	// volumes used as bind mounts
+	hostConfig := &container.HostConfig{}
+
 	if len(containerOpts.Volume) > 0 {
-		// TODO(cadurham): error check attaching volumeMap
-		volumeList := containerOpts.Volume
-		volumeMap := make(map[string]struct{}, len(containerOpts.Volume))
-		for i := 0; i < len(volumeList); i++ {
-			volumeMap[volumeList[i]] = struct{}{}
+		// TODO(cadurham): error check attaching volumeMap?
+		bindMounts := make([]string, len(containerOpts.Volume))
+
+		for i := 0; i < len(containerOpts.Volume); i++ {
+			bindMounts[i] = containerOpts.Volume[i]
 		}
-		containerConfig.Volumes = volumeMap
+
+		hostConfig.Binds = bindMounts
 	}
 
-	resp := util.CreateContainer(ctx, client.Client(), containerConfig, envName)
+	resp := util.CreateContainer(ctx, client.Client(), containerConfig, envName, hostConfig)
 
 	util.StartContainer(ctx, client.Client(), resp.ID)
 	fmt.Printf("started... imageID: %v", resp.ID)

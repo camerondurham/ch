@@ -200,8 +200,8 @@ func BuildImageWithContext(ctx context.Context, cli *client.Client, dockerfile s
 }
 
 // CreateContainer create container with name
-func CreateContainer(ctx context.Context, cli *client.Client, config *container.Config, containerName string) container.ContainerCreateCreatedBody {
-	createdContainerResp, err := cli.ContainerCreate(ctx, config, nil, nil, nil, containerName)
+func CreateContainer(ctx context.Context, cli *client.Client, config *container.Config, containerName string, hostConfig *container.HostConfig) container.ContainerCreateCreatedBody {
+	createdContainerResp, err := cli.ContainerCreate(ctx, config, hostConfig, nil, nil, containerName)
 
 	if err != nil {
 		log.Fatal("unable to create container: ", err)
