@@ -24,7 +24,7 @@ A simple Docker interface to manage multiple containerized development environme
   - [x] replace if it already exists
   - [x] build image from Dockerfile
   - [x] pull image from Docker repository
-  - [ ] support volume mounts and path checking on Windows and macOS
+  - [x] support volume mounts and path checking on Windows and macOS
   
 - [x] `delete ENVIRONMENT` delete environment
 
@@ -33,7 +33,9 @@ A simple Docker interface to manage multiple containerized development environme
 - [ ] `shell ENVIRONMENT` start shell in container
   - [x] run commands in container
   - [x] attach interactive terminal to container
-  - [ ] attach volumes to containers
+  - [x] attach volumes to containers
+    - [x] MVP on Windows
+    - [x] MVP on macOS/Unix
   
 
 - [x] `stop ENVIRONMENT` shutdown running container
