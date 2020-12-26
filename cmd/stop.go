@@ -55,8 +55,8 @@ var stopCmd = &cobra.Command{
 			} else {
 				ctx := context.Background()
 
-				util.StopContainer(ctx, cli.Client(), containerID, nil)
-				util.RemoveContainer(ctx, cli.Client(), envName)
+				cli.DockerClient().StopContainer(ctx, containerID, nil)
+				cli.DockerClient().RemoveContainer(ctx, envName)
 
 				// TODO: use standard text formatting for all errors, look for library?
 				fmt.Printf("stopped container: %v", envName)

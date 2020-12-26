@@ -93,9 +93,12 @@ func StartEnvironment(client *util.Cli, containerOpts *util.ContainerOpts, envNa
 		hostConfig.Binds = bindMounts
 	}
 
-	resp := util.CreateContainer(ctx, client.Client(), containerConfig, envName, hostConfig)
+	resp := client.DockerClient().CreateContainer(ctx,
+		containerConfig,
+		envName,
+		hostConfig)
 
-	util.StartContainer(ctx, client.Client(), resp.ID)
+	client.DockerClient().StartContainer(ctx, resp.ID)
 	fmt.Printf("started... imageID: %v", resp.ID)
 
 	running, _ := client.Running()

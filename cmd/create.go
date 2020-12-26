@@ -74,14 +74,12 @@ func CreateCmd(cmd *cobra.Command, args []string) {
 	}
 
 	if opts.BuildOpts != nil {
-		err = util.BuildImageWithContext(ctx,
-			cli.Client(),
+		err = cli.DockerClient().BuildImageWithContext(ctx,
 			opts.BuildOpts.DockerfilePath,
 			opts.BuildOpts.Context,
 			opts.BuildOpts.Tag)
 	} else {
-		err = util.PullImage(ctx,
-			cli.Client(),
+		err = cli.DockerClient().PullImage(ctx,
 			opts.PullOpts.ImageName)
 	}
 
