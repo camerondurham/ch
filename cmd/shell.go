@@ -68,7 +68,7 @@ var shellCmd = &cobra.Command{
 
 			util.DebugPrint(fmt.Sprintf("starting container: %v\n", containerID))
 
-			err = util.CreateExecInteractive(context.Background(), cli, containerID, types.ExecConfig{
+			err = cli.ApiClient().CreateExecInteractive(context.Background(), cli, containerID, types.ExecConfig{
 				Cmd:          []string{containerOpts.Shell},
 				Tty:          true,
 				AttachStdin:  true,

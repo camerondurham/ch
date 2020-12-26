@@ -6,7 +6,6 @@ import (
 	"github.com/spf13/viper"
 	"os"
 
-	"github.com/docker/docker/client"
 	"github.com/moby/term"
 	"io"
 )
@@ -33,14 +32,12 @@ type Cli struct {
 	in              *streams.In
 	out             *streams.Out
 	err             io.Writer
-	dockerClient    *client.Client
-	dockerAPIClient client.APIClient
+	dockerAPIClient *DockerAPIService
 	dockerService   *DockerService
 }
 
 type ContainerClient interface {
-	ApiClient() client.APIClient
-	Client() *client.Client
+	ApiClient() *DockerAPIService
 	DockerClient() *DockerService
 	Out() *streams.Out
 	In() *streams.In
@@ -53,12 +50,8 @@ func (cli *Cli) DockerClient() *DockerService {
 	return cli.dockerService
 }
 
-func (cli *Cli) ApiClient() client.APIClient {
+func (cli *Cli) ApiClient() *DockerAPIService {
 	return cli.dockerAPIClient
-}
-
-func (cli *Cli) Client() *client.Client {
-	return cli.dockerClient
 }
 
 func (cli *Cli) In() *streams.In {
@@ -110,9 +103,10 @@ func NewCliClient() (*Cli, error) {
 	cliClient := &Cli{}
 
 	dockerService, err := NewDockerService()
+	dockerAPIService := NewDockerAPIService(dockerService.client)
 
 	if err == nil {
-		cliClient.dockerAPIClient = dockerService.client
+		cliClient.dockerAPIClient = dockerAPIService
 		cliClient.dockerService = dockerService
 	} else {
 		return nil, fmt.Errorf("error creating docker client")
