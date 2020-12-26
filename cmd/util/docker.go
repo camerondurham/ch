@@ -11,6 +11,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/camerondurham/ch/cmd/streams"
+	"github.com/docker/docker/api/types/network"
 	"io"
 	"log"
 	"os"
@@ -19,9 +20,24 @@ import (
 
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
+	specs "github.com/opencontainers/image-spec/specs-go/v1"
 
 	"github.com/docker/docker/api/types"
 )
+
+type DockerInterface interface {
+	ContainerList(ctx context.Context, options types.ContainerListOptions) ([]types.Container, error)
+	ImagePull(ctx context.Context, refStr string, options types.ImagePullOptions) (io.ReadCloser, error)
+	ImageBuild(ctx context.Context, buildContext io.Reader, options types.ImageBuildOptions) (types.ImageBuildResponse, error)
+	ContainerCreate(ctx context.Context, config *container.Config, hostConfig *container.HostConfig, networkingConfig *network.NetworkingConfig, platform *specs.Platform, containerName string) (container.ContainerCreateCreatedBody, error)
+	ContainerRemove(ctx context.Context, containerID string, options types.ContainerRemoveOptions) error
+	ContainerStart(ctx context.Context, containerID string, options types.ContainerStartOptions) error
+	ContainerStop(ctx context.Context, containerID string, timeout *time.Duration) error
+}
+
+type DockerService struct {
+	client *client.Client
+}
 
 // Docker Build Response
 

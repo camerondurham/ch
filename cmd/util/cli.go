@@ -35,11 +35,17 @@ type Cli struct {
 	err             io.Writer
 	dockerClient    *client.Client
 	dockerAPIClient client.APIClient
+	dockerService   *DockerService
+}
+
+func (cli *Cli) DockerClient() *DockerService {
+	return cli.dockerService
 }
 
 type ContainerClient interface {
 	ApiClient() client.APIClient
 	Client() *client.Client
+	DockerClient() *DockerService
 	Out() *streams.Out
 	In() *streams.In
 	Err() io.Writer
@@ -103,11 +109,13 @@ func (cli *Cli) Running() (running map[string]string, err error) {
 func NewCliClient() (*Cli, error) {
 	cliClient := &Cli{}
 
-	_, dockerClient := DockerClientInitOrDie()
+	_, clientDocker := DockerClientInitOrDie()
+	dockerClient := &DockerService{client: clientDocker}
 
-	if dockerClient != nil {
-		cliClient.dockerAPIClient = dockerClient
-		cliClient.dockerClient = dockerClient
+	if clientDocker != nil {
+		cliClient.dockerAPIClient = clientDocker
+		cliClient.dockerClient = clientDocker
+		cliClient.dockerService = dockerClient
 	} else {
 		return nil, fmt.Errorf("error creating docker client")
 	}
