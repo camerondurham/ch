@@ -12,46 +12,53 @@ import (
 )
 
 type DockerAPI interface {
-	CreateExecInteractive(ctx context.Context, cliClient ContainerClient, container string, config types.ExecConfig) error
+	//CreateExecInteractive(ctx context.Context, cliClient ContainerClient, container string, config types.ExecConfig) error
 
-	containerInspect(ctx context.Context, container string) (types.ContainerJSON, error)
-	containerExecCreate(ctx context.Context, container string, config types.ExecConfig) (types.IDResponse, error)
-	containerExecStart(ctx context.Context, execID string, config types.ExecStartCheck) error
-	containerExecAttach(ctx context.Context, execID string, config types.ExecStartCheck) (types.HijackedResponse, error)
-	interactiveExec(ctx context.Context, cliClient ContainerClient, execConfig *types.ExecConfig, execID string) error
+	ContainerInspect(ctx context.Context, container string) (types.ContainerJSON, error)
+	ContainerExecCreate(ctx context.Context, container string, config types.ExecConfig) (types.IDResponse, error)
+	ContainerExecStart(ctx context.Context, execID string, config types.ExecStartCheck) error
+	ContainerExecAttach(ctx context.Context, execID string, config types.ExecStartCheck) (types.HijackedResponse, error)
+	ContainerExecInspect(ctx context.Context, execID string) (types.ContainerExecInspect, error)
+	//InteractiveExec(ctx context.Context, cliClient ContainerClient, execConfig *types.ExecConfig, execID string) error
 }
 
 type DockerAPIService struct {
-	client client.APIClient
+	//client client.APIClient
+	client DockerAPI
+	cc     client.APIClient
 }
 
 // TODO: improve this interface
-func NewDockerAPIService(client *client.Client) *DockerAPIService {
-	return &DockerAPIService{client: client}
+func NewDockerAPIService(client DockerService) *DockerAPIService {
+	return &DockerAPIService{client: client.cc}
 }
 
-func (d *DockerAPIService) containerInspect(ctx context.Context, container string) (types.ContainerJSON, error) {
+func (d *DockerAPIService) ContainerInspect(ctx context.Context, container string) (types.ContainerJSON, error) {
 	return d.client.ContainerInspect(ctx, container)
 }
-func (d *DockerAPIService) containerExecCreate(ctx context.Context, container string, config types.ExecConfig) (types.IDResponse, error) {
+func (d *DockerAPIService) ContainerExecCreate(ctx context.Context, container string, config types.ExecConfig) (types.IDResponse, error) {
 	return d.client.ContainerExecCreate(ctx, container, config)
 }
-func (d *DockerAPIService) containerExecStart(ctx context.Context, execID string, config types.ExecStartCheck) error {
+func (d *DockerAPIService) ContainerExecStart(ctx context.Context, execID string, config types.ExecStartCheck) error {
 	return d.client.ContainerExecStart(ctx, execID, config)
 }
-func (d *DockerAPIService) containerExecAttach(ctx context.Context, execID string, config types.ExecStartCheck) (types.HijackedResponse, error) {
+func (d *DockerAPIService) ContainerExecAttach(ctx context.Context, execID string, config types.ExecStartCheck) (types.HijackedResponse, error) {
 	return d.client.ContainerExecAttach(ctx, execID, config)
+}
+
+func (d *DockerAPIService) ContainerExecInspect(ctx context.Context, execID string) (types.ContainerExecInspect, error) {
+	return d.client.ContainerExecInspect(ctx, execID)
 }
 
 // CreateExecInteractive creates an exec config to run an exec process
 func (d *DockerAPIService) CreateExecInteractive(ctx context.Context, cliClient ContainerClient, container string, config types.ExecConfig) error {
-	if _, err := d.containerInspect(ctx, container); err != nil {
+	if _, err := d.ContainerInspect(ctx, container); err != nil {
 		return err
 	}
 
 	// avoid config Detach check if tty is correct
 
-	response, err := d.containerExecCreate(ctx, container, config)
+	response, err := d.ContainerExecCreate(ctx, container, config)
 	if err != nil {
 		return err
 	}
@@ -65,13 +72,13 @@ func (d *DockerAPIService) CreateExecInteractive(ctx context.Context, cliClient 
 			Detach: config.Tty,
 			Tty:    config.Tty,
 		}
-		return d.containerExecStart(ctx, execID, execStartCheck)
+		return d.ContainerExecStart(ctx, execID, execStartCheck)
 	}
-	return d.interactiveExec(ctx, cliClient, &config, execID)
+	return d.InteractiveExec(ctx, cliClient, &config, execID)
 
 }
 
-func (d *DockerAPIService) interactiveExec(ctx context.Context, cliClient ContainerClient, execConfig *types.ExecConfig, execID string) error {
+func (d *DockerAPIService) InteractiveExec(ctx context.Context, cliClient ContainerClient, execConfig *types.ExecConfig, execID string) error {
 	var (
 		out, stderr io.Writer
 		in          io.ReadCloser
@@ -84,7 +91,7 @@ func (d *DockerAPIService) interactiveExec(ctx context.Context, cliClient Contai
 	// attach to os.Stderr only if not tty?
 	stderr = cliClient.Err()
 
-	resp, err := d.containerExecAttach(ctx, execID, types.ExecStartCheck{Tty: true})
+	resp, err := d.ContainerExecAttach(ctx, execID, types.ExecStartCheck{Tty: true})
 
 	if err != nil {
 		log.Fatal("error attaching exec to container: ", err)
@@ -119,10 +126,10 @@ func (d *DockerAPIService) interactiveExec(ctx context.Context, cliClient Contai
 		return err
 	}
 
-	return getExecExitStatus(ctx, d.client, execID)
+	return getExecExitStatus(ctx, d, execID)
 }
 
-func getExecExitStatus(ctx context.Context, dockerClient client.ContainerAPIClient, execID string) error {
+func getExecExitStatus(ctx context.Context, dockerClient *DockerAPIService, execID string) error {
 	resp, err := dockerClient.ContainerExecInspect(ctx, execID)
 	if err != nil {
 		// daemon probably died

@@ -59,18 +59,18 @@ func CreateCmd(cmd *cobra.Command, args []string) {
 		log.Fatalf("environment name [%s] already exists", name)
 	}
 
-	opts, err := parseContainerOpts(cmd, name)
-
-	if err != nil {
-		log.Fatal("failed to parse args: ", err)
-	}
-
 	cli, err := util.NewCliClient()
 	ctx := context.Background()
 
 	if err != nil {
 		log.Printf("error: %v", err)
 		log.Fatal("error creating Docker client: are you sure Docker is running?")
+	}
+
+	opts, err := parseContainerOpts(cmd, name, cli.Validator())
+
+	if err != nil {
+		log.Fatal("failed to parse args: ", err)
 	}
 
 	if opts.BuildOpts != nil {
@@ -141,10 +141,10 @@ var (
 	errorBuildImageFieldsNotPresent  = errors.New("file and context must be provided to build a container")
 )
 
-func parseContainerOpts(cmd *cobra.Command, environmentName string) (*util.ContainerOpts, error) {
+func parseContainerOpts(cmd *cobra.Command, environmentName string, v util.Validate) (*util.ContainerOpts, error) {
 	if file, _ := cmd.Flags().GetString("file"); file != "" {
 		if contextDirName, _ := cmd.Flags().GetString("context"); contextDirName != "" {
-			volumeName, shellCmd := parseOptional(cmd)
+			volumeName, shellCmd := parseOptional(cmd, v)
 			return &util.ContainerOpts{
 				BuildOpts: &util.BuildOpts{
 					DockerfilePath: file,
@@ -160,7 +160,7 @@ func parseContainerOpts(cmd *cobra.Command, environmentName string) (*util.Conta
 	}
 
 	if imageName, _ := cmd.Flags().GetString("image"); imageName != "" {
-		volumeName, shellCmd := parseOptional(cmd)
+		volumeName, shellCmd := parseOptional(cmd, v)
 		return &util.ContainerOpts{
 			PullOpts: &util.PullOpts{
 				ImageName: imageName,
@@ -173,12 +173,12 @@ func parseContainerOpts(cmd *cobra.Command, environmentName string) (*util.Conta
 	return nil, errorCreateImageFieldsNotPresent
 }
 
-func parseOptional(cmd *cobra.Command) (volumeName []string, shellCmd string) {
+func parseOptional(cmd *cobra.Command, v util.Validate) (volumeName []string, shellCmd string) {
 	volNames, _ := cmd.Flags().GetStringArray("volume")
 	if len(volNames) > 0 {
 		volumeName = make([]string, 0)
 		for i := 0; i < len(volNames); i++ {
-			absPath, err := parseHostContainerPath(volNames[i])
+			absPath, err := parseHostContainerPath(volNames[i], v)
 			if err != nil {
 				fmt.Printf("error parsing mount: %v", err)
 			} else {
@@ -190,7 +190,7 @@ func parseOptional(cmd *cobra.Command) (volumeName []string, shellCmd string) {
 	return
 }
 
-func parseHostContainerPath(pathStr string) (hostContainerAbsPath string, err error) {
+func parseHostContainerPath(pathStr string, v util.Validate) (hostContainerAbsPath string, err error) {
 	idx := strings.LastIndex(pathStr, ":")
 
 	if idx > 0 {
@@ -199,14 +199,11 @@ func parseHostContainerPath(pathStr string) (hostContainerAbsPath string, err er
 
 		// save original host path to help user debug possible issues
 		originalHostPath := hostPath
-
-		if !filepath.IsAbs(hostPath) {
-			hostPath, _ = filepath.Abs(hostPath)
-		}
+		hostPath = v.GetAbs(hostPath)
 
 		if idx >= len(pathStr)-1 {
 			return "", errors.New("no container path")
-		} else if _, err := os.Stat(hostPath); err != nil {
+		} else if !v.ValidPath(hostPath) {
 			return "", errors.New(fmt.Sprintf("invalid host path [%v]", originalHostPath))
 		} else {
 			hostContainerAbsPath = fmt.Sprintf("%s:%s", hostPath, containerPath)
