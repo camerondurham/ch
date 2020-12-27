@@ -22,4 +22,4 @@ jobs:
         run: cd cmd && go test -v
 
       - name: Run util tests
-        run: cd util && go test -v
+        run: cd cmd/util && go test -v
