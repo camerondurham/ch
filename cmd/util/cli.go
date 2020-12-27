@@ -3,6 +3,7 @@ package util
 import (
 	"fmt"
 	"github.com/camerondurham/ch/cmd/streams"
+	"github.com/docker/docker/api/types/container"
 	"github.com/spf13/viper"
 	"os"
 
@@ -21,10 +22,16 @@ type PullOpts struct {
 }
 
 type ContainerOpts struct {
-	BuildOpts *BuildOpts
-	PullOpts  *PullOpts
-	Volume    []string
-	Shell     string
+	BuildOpts  *BuildOpts
+	PullOpts   *PullOpts
+	HostConfig *container.HostConfig
+
+	//Volume      []string // maps to HostConfig.Volumes, consolidate and just use HostConfig
+	//CapAdd      []string // HostConfig.CapAdd
+	//SecurityOpt []string // HostConfig.SecurityOpt
+	//Privileged  bool	 // HostConfig.Privileged
+
+	Shell string
 }
 
 // TODO: add config/env settings to use Cli in other commands

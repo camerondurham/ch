@@ -26,8 +26,10 @@ import (
 	"errors"
 	"fmt"
 	"github.com/camerondurham/ch/cmd/util"
+	"github.com/docker/docker/api/types/container"
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"log"
 	"os"
@@ -133,6 +135,11 @@ func init() {
 	createCmd.Flags().StringArrayP("volume", "v", nil, "volume to mount to the working directory")
 	createCmd.Flags().String("shell", "/bin/sh", "default shell to use when logging into environment")
 	createCmd.Flags().String("context", ".", "context to build Dockerfile")
+
+	// -d -t --security-opt seccomp:unconfined --cap-add SYS_PTRACE
+	createCmd.Flags().StringArray("cap-add", nil, "special capacity to add to Docker Container (syscalls)")
+	createCmd.Flags().StringArray("security-opt", nil, "security options")
+
 	createCmd.Flags().Bool("replace", false, "replace environment if it already exists")
 }
 
@@ -144,15 +151,15 @@ var (
 func parseContainerOpts(cmd *cobra.Command, environmentName string, v util.Validate) (*util.ContainerOpts, error) {
 	if file, _ := cmd.Flags().GetString("file"); file != "" {
 		if contextDirName, _ := cmd.Flags().GetString("context"); contextDirName != "" {
-			volumeName, shellCmd := parseOptional(cmd, v)
+			hostConfig, shellCmd := parseHostConfig(cmd.Flags(), v)
 			return &util.ContainerOpts{
 				BuildOpts: &util.BuildOpts{
 					DockerfilePath: file,
 					Context:        contextDirName,
 					Tag:            environmentName,
 				},
-				Volume: volumeName,
-				Shell:  shellCmd,
+				HostConfig: hostConfig,
+				Shell:      shellCmd,
 			}, nil
 		} else {
 			return &util.ContainerOpts{}, errorBuildImageFieldsNotPresent
@@ -160,33 +167,48 @@ func parseContainerOpts(cmd *cobra.Command, environmentName string, v util.Valid
 	}
 
 	if imageName, _ := cmd.Flags().GetString("image"); imageName != "" {
-		volumeName, shellCmd := parseOptional(cmd, v)
+		hostConfig, shellCmd := parseHostConfig(cmd.Flags(), v)
 		return &util.ContainerOpts{
 			PullOpts: &util.PullOpts{
 				ImageName: imageName,
 			},
-			Volume: volumeName,
-			Shell:  shellCmd,
+			HostConfig: hostConfig,
+			Shell:      shellCmd,
 		}, nil
 	}
 
 	return nil, errorCreateImageFieldsNotPresent
 }
 
-func parseOptional(cmd *cobra.Command, v util.Validate) (volumeName []string, shellCmd string) {
-	volNames, _ := cmd.Flags().GetStringArray("volume")
+func parseHostConfig(flags *pflag.FlagSet, v util.Validate) (hostConfig *container.HostConfig, shellCmd string) {
+	// for testing: pflag.NewFlagSet("fs", pflag.ErrorHandling(pflag.ContinueOnError))
+
+	hostConfig = &container.HostConfig{}
+	volNames, _ := flags.GetStringArray("volume")
 	if len(volNames) > 0 {
-		volumeName = make([]string, 0)
+		volumeNames := make([]string, 0)
 		for i := 0; i < len(volNames); i++ {
 			absPath, err := parseHostContainerPath(volNames[i], v)
 			if err != nil {
 				fmt.Printf("error parsing mount: %v", err)
 			} else {
-				volumeName = append(volumeName, absPath)
+				volumeNames = append(volumeNames, absPath)
 			}
 		}
+		hostConfig.Binds = volumeNames
 	}
-	shellCmd, _ = cmd.Flags().GetString("shell")
+
+	caps, _ := flags.GetStringArray("cap-add")
+	if len(caps) > 0 {
+		hostConfig.CapAdd = caps
+	}
+
+	secopt, _ := flags.GetStringArray("security-opt")
+	if len(secopt) > 0 {
+		hostConfig.SecurityOpt = secopt
+	}
+
+	shellCmd, _ = flags.GetString("shell")
 	return
 }
 

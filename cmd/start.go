@@ -58,16 +58,6 @@ var startCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(startCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// startCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// startCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
 func StartEnvironment(client *util.Cli, containerOpts *util.ContainerOpts, envName string) {
@@ -79,24 +69,25 @@ func StartEnvironment(client *util.Cli, containerOpts *util.ContainerOpts, envNa
 		containerConfig.Shell = []string{containerOpts.Shell}
 	}
 
-	// volumes used as bind mounts
-	hostConfig := &container.HostConfig{}
-
-	if len(containerOpts.Volume) > 0 {
-		// TODO(cadurham): error check attaching volumeMap?
-		bindMounts := make([]string, len(containerOpts.Volume))
-
-		for i := 0; i < len(containerOpts.Volume); i++ {
-			bindMounts[i] = containerOpts.Volume[i]
-		}
-
-		hostConfig.Binds = bindMounts
-	}
+	// TODO: delete if hostConfig works
+	//// volumes used as bind mounts
+	//hostConfig := &container.HostConfig{}
+	//
+	//if len(containerOpts.Volume) > 0 {
+	//	// TODO(cadurham): error check attaching volumeMap?
+	//	bindMounts := make([]string, len(containerOpts.Volume))
+	//
+	//	for i := 0; i < len(containerOpts.Volume); i++ {
+	//		bindMounts[i] = containerOpts.Volume[i]
+	//	}
+	//
+	//	hostConfig.Binds = bindMounts
+	//}
 
 	resp, err := client.DockerClient().CreateContainer(ctx,
 		containerConfig,
 		envName,
-		hostConfig)
+		containerOpts.HostConfig)
 
 	if err != nil {
 		fmt.Printf("error creating container: %v", err)

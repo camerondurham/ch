@@ -26,9 +26,21 @@ func PrintConfig(envName string, opts *ContainerOpts) {
 	} else {
 		fmt.Printf(printConfigNest1, "Image", po.ImageName)
 	}
-	if len(opts.Volume) > 0 {
-		for _, v := range opts.Volume {
+	if len(opts.HostConfig.Binds) > 0 {
+		for _, v := range opts.HostConfig.Binds {
 			fmt.Printf(printConfigNest1, "Volume", fmt.Sprintf(" %s ", v))
+		}
+	}
+
+	if len(opts.HostConfig.SecurityOpt) > 0 {
+		for _, v := range opts.HostConfig.SecurityOpt {
+			fmt.Printf(printConfigNest1, "SecOpt", fmt.Sprintf(" %s ", v))
+		}
+	}
+
+	if len(opts.HostConfig.CapAdd) > 0 {
+		for _, v := range opts.HostConfig.CapAdd {
+			fmt.Printf(printConfigNest1, "CapAdd", fmt.Sprintf(" %s ", v))
 		}
 	}
 
