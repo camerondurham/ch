@@ -34,6 +34,7 @@ type Cli struct {
 	err             io.Writer
 	dockerAPIClient *DockerAPIService
 	dockerService   *DockerService
+	validator       *Validator
 }
 
 type ContainerClient interface {
@@ -44,6 +45,7 @@ type ContainerClient interface {
 	Err() io.Writer
 	Containers() map[string]*ContainerOpts
 	Running() (map[string]string, error)
+	Validator() *Validator
 }
 
 func (cli *Cli) DockerClient() *DockerService {
@@ -99,6 +101,10 @@ func (cli *Cli) Running() (running map[string]string, err error) {
 	}
 }
 
+func (cli *Cli) Validator() *Validator {
+	return cli.validator
+}
+
 func NewCliClient() (*Cli, error) {
 	cliClient := &Cli{}
 
@@ -115,6 +121,7 @@ func NewCliClient() (*Cli, error) {
 	cliClient.in = streams.NewIn(stdin)
 	cliClient.out = streams.NewOut(stdout)
 	cliClient.err = stderr
+	cliClient.validator = &Validator{}
 
 	return cliClient, nil
 }

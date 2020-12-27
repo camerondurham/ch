@@ -18,5 +18,8 @@ jobs:
         with:
           go-version: '1.15.5'
 
+      - name: Run cmd tests
+        run: cd cmd && go test -v
+
       - name: Run util tests
-        run: cd cmd/util && go test -v
+        run: cd util && go test -v

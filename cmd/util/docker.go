@@ -33,8 +33,9 @@ type DockerClient interface {
 }
 
 type DockerService struct {
-	client DockerClient
-	cc     *client.Client
+	client    DockerClient
+	cc        *client.Client
+	validator *Validator
 }
 
 // Docker Build Response
@@ -55,7 +56,7 @@ func NewDockerService() (*DockerService, error) {
 		fmt.Printf("error creating docker client: %v", err)
 		return nil, errors.New("cannot create Docker client")
 	} else {
-		return &DockerService{client: cli, cc: cli}, nil
+		return &DockerService{client: cli, cc: cli, validator: &Validator{}}, nil
 	}
 }
 
@@ -94,15 +95,9 @@ func (d *DockerService) PullImage(ctx context.Context, imageName string) error {
 // BuildImageWithContext accepts a build context path and relative Dockerfile path
 func (d *DockerService) BuildImageWithContext(ctx context.Context, dockerfile string, contextDirPath string, imageTagName string) (err error) {
 	contextPath := contextDirPath
-	if !filepath.IsAbs(contextPath) {
-		contextPath, err = filepath.Abs(contextDirPath)
-		if err != nil {
-			DebugPrint(fmt.Sprintf("error finding abs path: %v", err))
-			return err
-		}
-	}
+	contextPath = d.validator.GetAbs(contextPath)
 
-	if _, err := os.Stat(contextPath); err != nil {
+	if d.validator.ValidPath(contextPath) {
 		return errors.New(fmt.Sprintf("context path does not exist: %v", err))
 	}
 
