@@ -69,21 +69,6 @@ func StartEnvironment(client *util.Cli, containerOpts *util.ContainerOpts, envNa
 		containerConfig.Shell = []string{containerOpts.Shell}
 	}
 
-	// TODO: delete if hostConfig works
-	//// volumes used as bind mounts
-	//hostConfig := &container.HostConfig{}
-	//
-	//if len(containerOpts.Volume) > 0 {
-	//	// TODO(cadurham): error check attaching volumeMap?
-	//	bindMounts := make([]string, len(containerOpts.Volume))
-	//
-	//	for i := 0; i < len(containerOpts.Volume); i++ {
-	//		bindMounts[i] = containerOpts.Volume[i]
-	//	}
-	//
-	//	hostConfig.Binds = bindMounts
-	//}
-
 	resp, err := client.DockerClient().CreateContainer(ctx,
 		containerConfig,
 		envName,

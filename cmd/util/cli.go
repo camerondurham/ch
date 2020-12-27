@@ -25,13 +25,7 @@ type ContainerOpts struct {
 	BuildOpts  *BuildOpts
 	PullOpts   *PullOpts
 	HostConfig *container.HostConfig
-
-	//Volume      []string // maps to HostConfig.Volumes, consolidate and just use HostConfig
-	//CapAdd      []string // HostConfig.CapAdd
-	//SecurityOpt []string // HostConfig.SecurityOpt
-	//Privileged  bool	 // HostConfig.Privileged
-
-	Shell string
+	Shell      string
 }
 
 // TODO: add config/env settings to use Cli in other commands
