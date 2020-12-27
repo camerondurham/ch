@@ -93,10 +93,15 @@ func StartEnvironment(client *util.Cli, containerOpts *util.ContainerOpts, envNa
 		hostConfig.Binds = bindMounts
 	}
 
-	resp := client.DockerClient().CreateContainer(ctx,
+	resp, err := client.DockerClient().CreateContainer(ctx,
 		containerConfig,
 		envName,
 		hostConfig)
+
+	if err != nil {
+		fmt.Printf("error creating container: %v", err)
+		os.Exit(1)
+	}
 
 	client.DockerClient().StartContainer(ctx, resp.ID)
 	fmt.Printf("started... imageID: %v", resp.ID)
@@ -110,7 +115,7 @@ func StartEnvironment(client *util.Cli, containerOpts *util.ContainerOpts, envNa
 	running[envName] = resp.ID
 	viper.Set("running", running)
 
-	err := viper.WriteConfig()
+	err = viper.WriteConfig()
 	if err != nil {
 		log.Printf("failed saving running containers")
 	}

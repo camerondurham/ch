@@ -103,10 +103,9 @@ func NewCliClient() (*Cli, error) {
 	cliClient := &Cli{}
 
 	dockerService, err := NewDockerService()
-	dockerAPIService := NewDockerAPIService(dockerService.client)
 
 	if err == nil {
-		cliClient.dockerAPIClient = dockerAPIService
+		cliClient.dockerAPIClient = NewDockerAPIService(*dockerService)
 		cliClient.dockerService = dockerService
 	} else {
 		return nil, fmt.Errorf("error creating docker client")

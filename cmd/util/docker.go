@@ -1,7 +1,5 @@
 package util
 
-// TODO: rewrite as implementations on the cli
-
 import (
 	"archive/tar"
 	"bufio"
@@ -25,77 +23,84 @@ import (
 )
 
 type DockerClient interface {
-	ListRunning(cli *client.Client)
-	ContextReader(contextPath string) (contextReader *bytes.Reader, err error)
-	PullImage(ctx context.Context, cli *client.Client, imageName string) error
-	BuildImageWithContext(ctx context.Context, cli *client.Client, dockerfile string, contextDirPath string, imageTagName string) (err error)
-	CreateContainer(ctx context.Context, cli *client.Client, config *container.Config, containerName string, hostConfig *container.HostConfig) container.ContainerCreateCreatedBody
-	RemoveContainer(ctx context.Context, cli *client.Client, containerName string)
-	StartContainer(ctx context.Context, cli *client.Client, containerID string)
-	StopContainer(ctx context.Context, cli *client.Client, containerID string, timeout *time.Duration)
+	//ListRunning(cli *client.Client)
+	//ContextReader(contextPath string) (contextReader *bytes.Reader, err error)
+	//PullImage(ctx context.Context, cli *client.Client, imageName string) error
+	//BuildImageWithContext(ctx context.Context, cli *client.Client, dockerfile string, contextDirPath string, imageTagName string) (err error)
+	//CreateContainer(ctx context.Context, cli *client.Client, config *container.Config, containerName string, hostConfig *container.HostConfig) container.ContainerCreateCreatedBody
+	//RemoveContainer(ctx context.Context, cli *client.Client, containerName string)
+	//StartContainer(ctx context.Context, cli *client.Client, containerID string)
+	//StopContainer(ctx context.Context, cli *client.Client, containerID string, timeout *time.Duration)
 
-	containerList(ctx context.Context, options types.ContainerListOptions) ([]types.Container, error)
-	imagePull(ctx context.Context, refStr string, options types.ImagePullOptions) (io.ReadCloser, error)
-	imageBuild(ctx context.Context, buildContext io.Reader, options types.ImageBuildOptions) (types.ImageBuildResponse, error)
-	containerCreate(ctx context.Context, config *container.Config, hostConfig *container.HostConfig, networkingConfig *network.NetworkingConfig, platform *specs.Platform, containerName string) (container.ContainerCreateCreatedBody, error)
-	containerRemove(ctx context.Context, containerID string, options types.ContainerRemoveOptions) error
-	containerStart(ctx context.Context, containerID string, options types.ContainerStartOptions) error
-	containerStop(ctx context.Context, containerID string, timeout *time.Duration) error
+	ContainerList(ctx context.Context, options types.ContainerListOptions) ([]types.Container, error)
+	ImagePull(ctx context.Context, refStr string, options types.ImagePullOptions) (io.ReadCloser, error)
+	ImageBuild(ctx context.Context, buildContext io.Reader, options types.ImageBuildOptions) (types.ImageBuildResponse, error)
+	ContainerCreate(ctx context.Context, config *container.Config, hostConfig *container.HostConfig, networkingConfig *network.NetworkingConfig, platform *specs.Platform, containerName string) (container.ContainerCreateCreatedBody, error)
+	ContainerRemove(ctx context.Context, containerID string, options types.ContainerRemoveOptions) error
+	ContainerStart(ctx context.Context, containerID string, options types.ContainerStartOptions) error
+	ContainerStop(ctx context.Context, containerID string, timeout *time.Duration) error
 }
 
 type DockerService struct {
-	client *client.Client
+	client DockerClient
+	cc     *client.Client
 }
 
-func DockerClientInitOrDie() (ctx context.Context, cli *client.Client) {
+func dockerClientInit() (ctx context.Context, cli *client.Client, err error) {
 	ctx = context.Background()
-	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	cli, err = client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
-		fmt.Printf("error creating Docker client: %v\nare you sure the client is running?\n", err)
-		os.Exit(1)
+		DebugPrint(fmt.Sprintf("error creating Docker client: %v\nare you sure the client is running?\n", err))
+		return nil, nil, err
 	}
-	return ctx, cli
+	return ctx, cli, nil
 }
 
 func NewDockerService() (*DockerService, error) {
-	_, client := DockerClientInitOrDie()
-	if client == nil {
+	_, cli, err := dockerClientInit()
+	if err != nil {
+		fmt.Printf("error creating docker client: %v", err)
 		return nil, errors.New("cannot create Docker client")
+	} else {
+		return &DockerService{client: cli, cc: cli}, nil
 	}
-	return &DockerService{client: client}, nil
 }
 
-func (d *DockerService) containerList(ctx context.Context, options types.ContainerListOptions) ([]types.Container, error) {
+func NewDockerServiceFromClient(cli DockerClient) *DockerService {
+	return &DockerService{client: cli}
+}
+
+func (d *DockerService) ContainerList(ctx context.Context, options types.ContainerListOptions) ([]types.Container, error) {
 	return d.client.ContainerList(ctx, options)
 }
 
-func (d *DockerService) imagePull(ctx context.Context, refStr string, options types.ImagePullOptions) (io.ReadCloser, error) {
+func (d *DockerService) ImagePull(ctx context.Context, refStr string, options types.ImagePullOptions) (io.ReadCloser, error) {
 	return d.client.ImagePull(ctx, refStr, options)
 }
 
-func (d *DockerService) imageBuild(ctx context.Context, buildContext io.Reader, options types.ImageBuildOptions) (types.ImageBuildResponse, error) {
+func (d *DockerService) ImageBuild(ctx context.Context, buildContext io.Reader, options types.ImageBuildOptions) (types.ImageBuildResponse, error) {
 	return d.client.ImageBuild(ctx, buildContext, options)
 }
 
-func (d *DockerService) containerCreate(ctx context.Context, config *container.Config, hostConfig *container.HostConfig, networkingConfig *network.NetworkingConfig, platform *specs.Platform, containerName string) (container.ContainerCreateCreatedBody, error) {
+func (d *DockerService) ContainerCreate(ctx context.Context, config *container.Config, hostConfig *container.HostConfig, networkingConfig *network.NetworkingConfig, platform *specs.Platform, containerName string) (container.ContainerCreateCreatedBody, error) {
 	return d.client.ContainerCreate(ctx, config, hostConfig, networkingConfig, platform, containerName)
 }
 
-func (d *DockerService) containerRemove(ctx context.Context, containerID string, options types.ContainerRemoveOptions) error {
+func (d *DockerService) ContainerRemove(ctx context.Context, containerID string, options types.ContainerRemoveOptions) error {
 	return d.client.ContainerRemove(ctx, containerID, options)
 }
 
-func (d *DockerService) containerStart(ctx context.Context, containerID string, options types.ContainerStartOptions) error {
+func (d *DockerService) ContainerStart(ctx context.Context, containerID string, options types.ContainerStartOptions) error {
 	return d.client.ContainerStart(ctx, containerID, options)
 }
 
-func (d *DockerService) containerStop(ctx context.Context, containerID string, timeout *time.Duration) error {
+func (d *DockerService) ContainerStop(ctx context.Context, containerID string, timeout *time.Duration) error {
 	return d.client.ContainerStop(ctx, containerID, timeout)
 }
 
 // ListRunning lists running containers like docker ps
 func (d *DockerService) ListRunning() {
-	containers, err := d.containerList(context.Background(), types.ContainerListOptions{})
+	containers, err := d.ContainerList(context.Background(), types.ContainerListOptions{})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -170,7 +175,7 @@ func contextReader(contextPath string) (contextReader *bytes.Reader, err error) 
 
 // PullImage downloads a Docker image from Docker Hub
 func (d *DockerService) PullImage(ctx context.Context, imageName string) error {
-	out, err := d.imagePull(ctx, imageName, types.ImagePullOptions{})
+	out, err := d.ImagePull(ctx, imageName, types.ImagePullOptions{})
 
 	if err != nil {
 		return err
@@ -199,11 +204,19 @@ type BuildOutput struct {
 
 // BuildImageWithContext accepts a build context path and relative Dockerfile path
 func (d *DockerService) BuildImageWithContext(ctx context.Context, dockerfile string, contextDirPath string, imageTagName string) (err error) {
-	contextPath, err := filepath.Abs(contextDirPath)
-	if err != nil {
-		log.Printf("error finding abs path: %v", err)
-		return err
+	contextPath := contextDirPath
+	if !filepath.IsAbs(contextPath) {
+		contextPath, err = filepath.Abs(contextDirPath)
+		if err != nil {
+			DebugPrint(fmt.Sprintf("error finding abs path: %v", err))
+			return err
+		}
 	}
+
+	if _, err := os.Stat(contextPath); err != nil {
+		return errors.New(fmt.Sprintf("context path does not exist: %v", err))
+	}
+
 	contextTarball := fmt.Sprintf("/tmp/%s.tar", filepath.Base(contextPath))
 
 	DebugPrint(fmt.Sprintf("dockerfile context file: %s\n", contextPath))
@@ -214,7 +227,7 @@ func (d *DockerService) BuildImageWithContext(ctx context.Context, dockerfile st
 		return err
 	}
 
-	buildResponse, err := d.imageBuild(ctx, contextTarReader, types.ImageBuildOptions{
+	buildResponse, err := d.ImageBuild(ctx, contextTarReader, types.ImageBuildOptions{
 		Context:    contextTarReader,
 		Tags:       []string{imageTagName},
 		Dockerfile: dockerfile,
@@ -260,27 +273,34 @@ func (d *DockerService) BuildImageWithContext(ctx context.Context, dockerfile st
 }
 
 // CreateContainer create container with name
-func (d *DockerService) CreateContainer(ctx context.Context, config *container.Config, containerName string, hostConfig *container.HostConfig) container.ContainerCreateCreatedBody {
-	createdContainerResp, err := d.containerCreate(ctx, config, hostConfig, nil, nil, containerName)
+func (d *DockerService) CreateContainer(ctx context.Context, config *container.Config, containerName string, hostConfig *container.HostConfig) (container.ContainerCreateCreatedBody, error) {
+
+	createdContainerResp, err := d.ContainerCreate(ctx, config, hostConfig, nil, nil, containerName)
 
 	if err != nil {
-		log.Fatal("unable to create container: ", err)
+		DebugPrint(fmt.Sprint("unable to create container: ", err))
+		return createdContainerResp, err
 	}
 
-	return createdContainerResp
+	return createdContainerResp, nil
 }
 
 // RemoveContainer delete container
 func (d *DockerService) RemoveContainer(ctx context.Context, containerName string) {
-	DebugPrint(fmt.Sprintf("removing container[%s]...", containerName))
-	if err := d.containerRemove(context.Background(), containerName, types.ContainerRemoveOptions{}); err != nil {
+
+	DebugPrint(fmt.Sprintf("removing container[%s]", containerName))
+
+	if err := d.ContainerRemove(context.Background(), containerName, types.ContainerRemoveOptions{}); err != nil {
 		log.Fatal("error removing container: ", err)
 	}
 }
 
 // StartContainer with given name
 func (d *DockerService) StartContainer(ctx context.Context, containerID string) {
-	if err := d.containerStart(ctx, containerID, types.ContainerStartOptions{}); err != nil {
+
+	DebugPrint(fmt.Sprintf("starting container[%s]", containerID))
+
+	if err := d.ContainerStart(ctx, containerID, types.ContainerStartOptions{}); err != nil {
 		log.Fatal("unable to start container: ", err)
 	}
 }
@@ -290,7 +310,7 @@ func (d *DockerService) StopContainer(ctx context.Context, containerID string, t
 
 	DebugPrint(fmt.Sprintf("removing container [%s]...", containerID))
 
-	if err := d.containerStop(ctx, containerID, nil); err != nil {
+	if err := d.ContainerStop(ctx, containerID, nil); err != nil {
 		log.Fatal("error stopping container: ", err)
 	}
 }
