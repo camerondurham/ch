@@ -19,4 +19,4 @@ jobs:
           go-version: '1.15.5'
 
       - name: Run util tests
-        uses: cd cmd/util && go test -v
+        run: cd cmd/util && go test -v
