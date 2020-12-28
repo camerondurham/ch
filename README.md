@@ -30,12 +30,15 @@ A simple Docker interface to manage multiple containerized development environme
 
 - [x] `start ENVIRONMENT` run container in background
 
-- [ ] `shell ENVIRONMENT` start shell in container
+- [x] `shell ENVIRONMENT` start shell in container
   - [x] run commands in container
   - [x] attach interactive terminal to container
   - [x] attach volumes to containers
     - [x] MVP on Windows
     - [x] MVP on macOS/Unix
+  - [x] add options for debugging in containers
+    - [x] security options (`seccomp:unconfined`)
+    - [x] add capacities (`SYS_PTRACE`)
   
 
 - [x] `stop ENVIRONMENT` shutdown running container
@@ -45,7 +48,7 @@ A simple Docker interface to manage multiple containerized development environme
   - [x] list container source
 
 - [ ] unit tests
-  - [ ] `create`
+  - [x] `create`
   - [ ] `delete`
   - [ ] `start`
   - [ ] `shell`
