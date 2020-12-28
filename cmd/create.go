@@ -26,7 +26,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/camerondurham/ch/cmd/util"
-	"github.com/docker/docker/api/types/container"
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -130,7 +129,7 @@ func CreateCmd(cmd *cobra.Command, args []string) {
 func init() {
 	rootCmd.AddCommand(createCmd)
 
-	createCmd.Flags().StringP("file", "f", "Dockerfile", "path to Dockerfile")
+	createCmd.Flags().StringP("file", "f", "", "path to Dockerfile")
 	createCmd.Flags().StringP("image", "i", "", "image name to pull from DockerHub")
 	createCmd.Flags().StringArrayP("volume", "v", nil, "volume to mount to the working directory")
 	createCmd.Flags().String("shell", "/bin/sh", "default shell to use when logging into environment")
@@ -180,10 +179,10 @@ func parseContainerOpts(cmd *cobra.Command, environmentName string, v util.Valid
 	return nil, errorCreateImageFieldsNotPresent
 }
 
-func parseHostConfig(flags *pflag.FlagSet, v util.Validate) (hostConfig *container.HostConfig, shellCmd string) {
+func parseHostConfig(flags *pflag.FlagSet, v util.Validate) (hostConfig *util.HostConfig, shellCmd string) {
 	// for testing: pflag.NewFlagSet("fs", pflag.ErrorHandling(pflag.ContinueOnError))
 
-	hostConfig = &container.HostConfig{}
+	hostConfig = &util.HostConfig{}
 	volNames, _ := flags.GetStringArray("volume")
 	if len(volNames) > 0 {
 		volumeNames := make([]string, 0)

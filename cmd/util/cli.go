@@ -3,7 +3,7 @@ package util
 import (
 	"fmt"
 	"github.com/camerondurham/ch/cmd/streams"
-	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/strslice"
 	"github.com/spf13/viper"
 	"os"
 
@@ -21,10 +21,17 @@ type PullOpts struct {
 	ImageName string
 }
 
+type HostConfig struct {
+	Binds       []string          // List of volume bindings for this container
+	SecurityOpt []string          // List of string values to customize labels for MLS systems, such as SELinux.
+	Privileged  bool              // Is the container in privileged mode
+	CapAdd      strslice.StrSlice // List of kernel capabilities to add to the container
+}
+
 type ContainerOpts struct {
 	BuildOpts  *BuildOpts
 	PullOpts   *PullOpts
-	HostConfig *container.HostConfig
+	HostConfig *HostConfig
 	Shell      string
 }
 

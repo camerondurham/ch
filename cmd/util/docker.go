@@ -190,12 +190,14 @@ func (d *DockerService) StartContainer(ctx context.Context, containerID string) 
 }
 
 // StopContainer from running
-func (d *DockerService) StopContainer(ctx context.Context, containerID string, timeout *time.Duration) {
+func (d *DockerService) StopContainer(ctx context.Context, containerID string, timeout *time.Duration) error {
 
 	DebugPrint(fmt.Sprintf("removing container [%s]...", containerID))
 
 	if err := d.ContainerStop(ctx, containerID, nil); err != nil {
-		log.Fatal("error stopping container: ", err)
+		return fmt.Errorf("error stopping container: %v", err)
+	} else {
+		return nil
 	}
 }
 

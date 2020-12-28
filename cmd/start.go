@@ -69,10 +69,17 @@ func StartEnvironment(client *util.Cli, containerOpts *util.ContainerOpts, envNa
 		containerConfig.Shell = []string{containerOpts.Shell}
 	}
 
+	hostConfig := &container.HostConfig{
+		Binds:       containerOpts.HostConfig.Binds,
+		CapAdd:      containerOpts.HostConfig.CapAdd,
+		Privileged:  containerOpts.HostConfig.Privileged,
+		SecurityOpt: containerOpts.HostConfig.SecurityOpt,
+	}
+
 	resp, err := client.DockerClient().CreateContainer(ctx,
 		containerConfig,
 		envName,
-		containerOpts.HostConfig)
+		hostConfig)
 
 	if err != nil {
 		fmt.Printf("error creating container: %v", err)

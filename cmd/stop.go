@@ -55,11 +55,14 @@ var stopCmd = &cobra.Command{
 			} else {
 				ctx := context.Background()
 
-				cli.DockerClient().StopContainer(ctx, containerID, nil)
-				cli.DockerClient().RemoveContainer(ctx, envName)
-
-				// TODO: use standard text formatting for all errors, look for library?
-				fmt.Printf("stopped container: %v", envName)
+				err := cli.DockerClient().StopContainer(ctx, containerID, nil)
+				if err != nil {
+					// TODO: remove invalid container from config
+					fmt.Printf("container not running")
+				} else {
+					fmt.Printf("stopped container: %v", envName)
+					cli.DockerClient().RemoveContainer(ctx, envName)
+				}
 
 				delete(running, envName)
 
@@ -69,7 +72,6 @@ var stopCmd = &cobra.Command{
 				if err != nil {
 					fmt.Printf("error writing changes to config")
 				}
-
 			}
 
 		} else {
