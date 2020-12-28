@@ -28,7 +28,6 @@ import (
 	"github.com/camerondurham/ch/cmd/util"
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"log"
 	"os"
@@ -135,7 +134,6 @@ func init() {
 	createCmd.Flags().String("shell", "/bin/sh", "default shell to use when logging into environment")
 	createCmd.Flags().String("context", ".", "context to build Dockerfile")
 
-	// -d -t --security-opt seccomp:unconfined --cap-add SYS_PTRACE
 	createCmd.Flags().StringArray("cap-add", nil, "special capacity to add to Docker Container (syscalls)")
 	createCmd.Flags().StringArray("security-opt", nil, "security options")
 
@@ -148,9 +146,16 @@ var (
 )
 
 func parseContainerOpts(cmd *cobra.Command, environmentName string, v util.Validate) (*util.ContainerOpts, error) {
+
+	shellCmdArgs, _ := cmd.Flags().GetString("shell")
+	volumeArgs, _ := cmd.Flags().GetStringArray("volume")
+	capAddArgs, _ := cmd.Flags().GetStringArray("cap-add")
+	secOptArgs, _ := cmd.Flags().GetStringArray("security-opt")
+
+	hostConfig, shellCmd := parseHostConfig(shellCmdArgs, volumeArgs, capAddArgs, secOptArgs, v)
+
 	if file, _ := cmd.Flags().GetString("file"); file != "" {
 		if contextDirName, _ := cmd.Flags().GetString("context"); contextDirName != "" {
-			hostConfig, shellCmd := parseHostConfig(cmd.Flags(), v)
 			return &util.ContainerOpts{
 				BuildOpts: &util.BuildOpts{
 					DockerfilePath: file,
@@ -163,10 +168,7 @@ func parseContainerOpts(cmd *cobra.Command, environmentName string, v util.Valid
 		} else {
 			return &util.ContainerOpts{}, errorBuildImageFieldsNotPresent
 		}
-	}
-
-	if imageName, _ := cmd.Flags().GetString("image"); imageName != "" {
-		hostConfig, shellCmd := parseHostConfig(cmd.Flags(), v)
+	} else if imageName, _ := cmd.Flags().GetString("image"); imageName != "" {
 		return &util.ContainerOpts{
 			PullOpts: &util.PullOpts{
 				ImageName: imageName,
@@ -179,15 +181,13 @@ func parseContainerOpts(cmd *cobra.Command, environmentName string, v util.Valid
 	return nil, errorCreateImageFieldsNotPresent
 }
 
-func parseHostConfig(flags *pflag.FlagSet, v util.Validate) (hostConfig *util.HostConfig, shellCmd string) {
-	// for testing: pflag.NewFlagSet("fs", pflag.ErrorHandling(pflag.ContinueOnError))
-
+func parseHostConfig(shellCmdArg string, volNameArgs []string, capAddArgs []string, secOptArgs []string, v util.Validate) (hostConfig *util.HostConfig, shellCmd string) {
 	hostConfig = &util.HostConfig{}
-	volNames, _ := flags.GetStringArray("volume")
-	if len(volNames) > 0 {
+
+	if len(volNameArgs) > 0 {
 		volumeNames := make([]string, 0)
-		for i := 0; i < len(volNames); i++ {
-			absPath, err := parseHostContainerPath(volNames[i], v)
+		for i := 0; i < len(volNameArgs); i++ {
+			absPath, err := parseHostContainerPath(volNameArgs[i], v)
 			if err != nil {
 				fmt.Printf("error parsing mount: %v", err)
 			} else {
@@ -197,17 +197,17 @@ func parseHostConfig(flags *pflag.FlagSet, v util.Validate) (hostConfig *util.Ho
 		hostConfig.Binds = volumeNames
 	}
 
-	caps, _ := flags.GetStringArray("cap-add")
-	if len(caps) > 0 {
-		hostConfig.CapAdd = caps
+	if len(capAddArgs) > 0 {
+		hostConfig.CapAdd = capAddArgs
 	}
 
-	secopt, _ := flags.GetStringArray("security-opt")
-	if len(secopt) > 0 {
-		hostConfig.SecurityOpt = secopt
+	if len(secOptArgs) > 0 {
+		hostConfig.SecurityOpt = secOptArgs
 	}
 
-	shellCmd, _ = flags.GetString("shell")
+	if shellCmdArg != "" {
+		shellCmd = shellCmdArg
+	}
 	return
 }
 

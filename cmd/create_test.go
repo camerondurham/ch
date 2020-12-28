@@ -4,6 +4,7 @@ import (
 	"github.com/camerondurham/ch/cmd/util"
 	"github.com/camerondurham/ch/cmd/util/mocks"
 	"github.com/golang/mock/gomock"
+	"reflect"
 	"testing"
 )
 
@@ -188,6 +189,78 @@ func Test_parseHostContainerPath(t *testing.T) {
 			}
 			if gotHostContainerAbsPath != tt.wantHostContainerAbsPath {
 				t.Errorf("parseHostContainerPath() gotHostContainerAbsPath = %v, want %v", gotHostContainerAbsPath, tt.wantHostContainerAbsPath)
+			}
+		})
+	}
+}
+
+func Test_parseHostConfig(t *testing.T) {
+	type args struct {
+		shellCmdArg string
+		volNameArgs []string
+		capAddArgs  []string
+		secOptArgs  []string
+		v           util.Validate
+	}
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	m := mocks.NewMockValidate(ctrl)
+
+	m.EXPECT().GetAbs(gomock.Eq("/Users/camerondurham/projects")).Return("/Users/camerondurham/projects").AnyTimes()
+	m.EXPECT().ValidPath(gomock.Eq("/Users/camerondurham/projects")).Return(true).AnyTimes()
+
+	tests := []struct {
+		name           string
+		args           args
+		wantHostConfig *util.HostConfig
+		wantShellCmd   string
+	}{
+		// TODO: Add test cases.
+		{
+			name: "test no fields",
+			args: args{
+				shellCmdArg: "",
+				volNameArgs: nil,
+				capAddArgs:  nil,
+				secOptArgs:  nil,
+				v:           m,
+			},
+			wantHostConfig: &util.HostConfig{
+				Binds:       nil,
+				SecurityOpt: nil,
+				Privileged:  false,
+				CapAdd:      nil,
+			},
+			wantShellCmd: "",
+		},
+		{
+			name: "test basic test fields",
+			args: args{
+				shellCmdArg: "/bin/sh",
+				volNameArgs: []string{"/Users/camerondurham/projects:/work"},
+				capAddArgs:  []string{"SYS_PTRACE"},
+				secOptArgs:  []string{"seccomp:unconfined"},
+				v:           m,
+			},
+			wantHostConfig: &util.HostConfig{
+				Binds:       []string{"/Users/camerondurham/projects:/work"},
+				SecurityOpt: []string{"seccomp:unconfined"},
+				Privileged:  false,
+				CapAdd:      []string{"SYS_PTRACE"},
+			},
+			wantShellCmd: "/bin/sh",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotHostConfig, gotShellCmd := parseHostConfig(tt.args.shellCmdArg, tt.args.volNameArgs, tt.args.capAddArgs, tt.args.secOptArgs, tt.args.v)
+			if !reflect.DeepEqual(gotHostConfig, tt.wantHostConfig) {
+				t.Errorf("parseHostConfig() gotHostConfig = %v, want %v", gotHostConfig, tt.wantHostConfig)
+			}
+			if gotShellCmd != tt.wantShellCmd {
+				t.Errorf("parseHostConfig() gotShellCmd = %v, want %v", gotShellCmd, tt.wantShellCmd)
 			}
 		})
 	}
