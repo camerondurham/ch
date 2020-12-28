@@ -38,7 +38,7 @@ const (
 
 // shellCmd represents the shell command
 var shellCmd = &cobra.Command{
-	Use:   "shell",
+	Use:   "shell ENVIRONMENT_NAME",
 	Short: "Start a shell in an environment",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {

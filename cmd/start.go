@@ -34,7 +34,7 @@ import (
 
 // startCmd represents the start command
 var startCmd = &cobra.Command{
-	Use:   "start",
+	Use:   "start ENVIRONMENT_NAME",
 	Short: "start environment in the background",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
@@ -102,5 +102,4 @@ func StartEnvironment(client *util.Cli, containerOpts *util.ContainerOpts, envNa
 	if err != nil {
 		log.Printf("failed saving running containers")
 	}
-
 }
