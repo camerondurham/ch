@@ -35,18 +35,20 @@ var deleteCmd = &cobra.Command{
 	Use:   "delete ENVIRONMENT_NAME",
 	Short: "deletes a given config",
 	Args:  cobra.MinimumNArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
-		envName := args[0]
-		envs, err := util.GetEnvs()
-		if err != nil {
-			log.Fatalf("cannot read config: %v", err)
-		}
-		if _, ok := envs[envName]; ok {
-			delete(envs, envName)
-		} else {
-			fmt.Printf("environment [%s] not found", envName)
-		}
+	Run:   DeleteCmd,
+}
 
+func DeleteCmd(cmd *cobra.Command, args []string) {
+	envName := args[0]
+	envs, err := util.GetEnvs()
+	if err != nil {
+		log.Fatalf("cannot read config: %v", err)
+	}
+
+	if err := removeEnvironment(envName, envs); err != nil {
+		fmt.Printf("error: %v", err)
+		os.Exit(1)
+	} else {
 		viper.Set("envs", envs)
 		err = viper.WriteConfig()
 		if err != nil {
@@ -55,9 +57,17 @@ var deleteCmd = &cobra.Command{
 		} else {
 			fmt.Printf("environment deleted: %v", envName)
 		}
-	},
+	}
 }
-
 func init() {
 	rootCmd.AddCommand(deleteCmd)
+}
+
+func removeEnvironment(envName string, envs map[string]*util.ContainerOpts) error {
+	if _, ok := envs[envName]; ok {
+		delete(envs, envName)
+		return nil
+	} else {
+		return fmt.Errorf("environment [%s] not found", envName)
+	}
 }

@@ -32,35 +32,36 @@ import (
 var listCmd = &cobra.Command{
 	Use:   "list [ENVIRONMENT_NAME]",
 	Short: "list configuration for existing environments",
-	Run: func(cmd *cobra.Command, args []string) {
-
-		envName := ""
-		if len(args) > 0 {
-			envName = args[0]
-		}
-
-		configEnvs, err := util.GetEnvs()
-
-		if err != nil {
-			fmt.Printf("unable to decode config file: %v\nplease check formatting of config and delete if needed", err)
-			os.Exit(1)
-		}
-
-		if envName != "" {
-			if v, ok := configEnvs[envName]; ok {
-				util.PrintConfig(envName, v)
-			} else {
-				fmt.Printf("no environment found")
-			}
-		} else {
-			for k, v := range configEnvs {
-				util.PrintConfig(k, v)
-			}
-		}
-
-	},
+	Run:   ListCmd,
 }
 
+func ListCmd(cmd *cobra.Command, args []string) {
+
+	envName := ""
+	if len(args) > 0 {
+		envName = args[0]
+	}
+
+	configEnvs, err := util.GetEnvs()
+
+	if err != nil {
+		fmt.Printf("unable to decode config file: %v\nplease check formatting of config and delete if needed", err)
+		os.Exit(1)
+	}
+
+	if envName != "" {
+		if v, ok := configEnvs[envName]; ok {
+			util.PrintConfig(envName, v)
+		} else {
+			fmt.Printf("no environment found")
+		}
+	} else {
+		for k, v := range configEnvs {
+			util.PrintConfig(k, v)
+		}
+	}
+
+}
 func init() {
 	rootCmd.AddCommand(listCmd)
 }

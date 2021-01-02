@@ -35,52 +35,53 @@ var stopCmd = &cobra.Command{
 	Use:   "stop ENVIRONMENT_NAME",
 	Short: "Stop a running environment (a running Docker container)",
 	Args:  cobra.ExactArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
-		envName := args[0]
-		cli, err := util.NewCliClient()
-		if err != nil {
-			fmt.Printf("error: cannot create new CLI ApiClient: %v", err)
-			os.Exit(1)
-		}
-
-		envs := cli.Containers()
-
-		if _, ok := envs[envName]; ok {
-
-			running, err := cli.Running()
-			containerID, ok := running[envName]
-			if err == util.ErrDoesNotExist || !ok {
-				fmt.Printf("%v is not running", envName)
-				os.Exit(1)
-			} else {
-				ctx := context.Background()
-
-				err := cli.DockerClient().StopContainer(ctx, containerID, nil)
-				if err != nil {
-					// TODO: remove invalid container from config
-					fmt.Printf("container not running")
-				} else {
-					fmt.Printf("stopped container: %v", envName)
-					cli.DockerClient().RemoveContainer(ctx, envName)
-				}
-
-				delete(running, envName)
-
-				// TODO: use other storage for running containers, possibly discover through Docker API?
-				viper.Set("running", running)
-				err = viper.WriteConfig()
-				if err != nil {
-					fmt.Printf("error writing changes to config")
-				}
-			}
-
-		} else {
-			fmt.Printf("environment does not exist: %v", envName)
-			os.Exit(1)
-		}
-	},
+	Run:   StopCmd,
 }
 
+func StopCmd(cmd *cobra.Command, args []string) {
+	envName := args[0]
+	cli, err := util.NewCliClient()
+	if err != nil {
+		fmt.Printf("error: cannot create new CLI ApiClient: %v", err)
+		os.Exit(1)
+	}
+
+	envs := cli.Containers()
+
+	if _, ok := envs[envName]; ok {
+
+		running, err := cli.Running()
+		containerID, ok := running[envName]
+		if err == util.ErrDoesNotExist || !ok {
+			fmt.Printf("%v is not running", envName)
+			os.Exit(1)
+		} else {
+			ctx := context.Background()
+
+			err := cli.DockerClient().StopContainer(ctx, containerID, nil)
+			if err != nil {
+				// TODO: remove invalid container from config
+				fmt.Printf("container not running")
+			} else {
+				fmt.Printf("stopped container: %v", envName)
+				cli.DockerClient().RemoveContainer(ctx, envName)
+			}
+
+			delete(running, envName)
+
+			// TODO: use other storage for running containers, possibly discover through Docker API?
+			viper.Set("running", running)
+			err = viper.WriteConfig()
+			if err != nil {
+				fmt.Printf("error writing changes to config")
+			}
+		}
+
+	} else {
+		fmt.Printf("environment does not exist: %v", envName)
+		os.Exit(1)
+	}
+}
 func init() {
 	rootCmd.AddCommand(stopCmd)
 }

@@ -41,51 +41,52 @@ var shellCmd = &cobra.Command{
 	Use:   "shell ENVIRONMENT_NAME",
 	Short: "Start a shell in an environment",
 	Args:  cobra.ExactArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
-		envName := args[0]
-		autostart, _ := cmd.Flags().GetBool(autostartFlag)
-
-		cli, err := util.NewCliClient()
-		if err != nil {
-			fmt.Printf("error: cannot create new CLI ApiClient: %v", err)
-			os.Exit(1)
-		}
-
-		envs := cli.Containers()
-
-		if containerOpts, ok := envs[envName]; ok {
-			running, err := cli.Running()
-			containerID, ok := running[envName]
-			if !autostart && (err == util.ErrDoesNotExist || !ok) {
-				fmt.Printf(getNotRunningMsg(envName))
-				os.Exit(1)
-			} else if err == util.ErrDoesNotExist || !ok {
-				util.DebugPrint("starting non-running container because autostart flag used\n")
-				StartEnvironment(cli, containerOpts, envName)
-				running, err = cli.Running()
-				containerID, ok = running[envName]
-			}
-
-			util.DebugPrint(fmt.Sprintf("starting container: %v\n", containerID))
-
-			err = cli.ApiClient().CreateExecInteractive(context.Background(), cli, containerID, types.ExecConfig{
-				Cmd:          []string{containerOpts.Shell},
-				Tty:          true,
-				AttachStdin:  true,
-				AttachStderr: true,
-				AttachStdout: true,
-			})
-
-			if err != nil {
-				fmt.Printf("error creating shell: %v", err)
-			}
-
-		} else {
-			fmt.Printf("no such environment: %v", envName)
-		}
-	},
+	Run:   ShellCmd,
 }
 
+func ShellCmd(cmd *cobra.Command, args []string) {
+	envName := args[0]
+	autostart, _ := cmd.Flags().GetBool(autostartFlag)
+
+	cli, err := util.NewCliClient()
+	if err != nil {
+		fmt.Printf("error: cannot create new CLI ApiClient: %v", err)
+		os.Exit(1)
+	}
+
+	envs := cli.Containers()
+
+	if containerOpts, ok := envs[envName]; ok {
+		running, err := cli.Running()
+		containerID, ok := running[envName]
+		if !autostart && (err == util.ErrDoesNotExist || !ok) {
+			fmt.Printf(getNotRunningMsg(envName))
+			os.Exit(1)
+		} else if err == util.ErrDoesNotExist || !ok {
+			util.DebugPrint("starting non-running container because autostart flag used\n")
+			StartEnvironment(cli, containerOpts, envName)
+			running, err = cli.Running()
+			containerID, ok = running[envName]
+		}
+
+		util.DebugPrint(fmt.Sprintf("starting container: %v\n", containerID))
+
+		err = cli.ApiClient().CreateExecInteractive(context.Background(), cli, containerID, types.ExecConfig{
+			Cmd:          []string{containerOpts.Shell},
+			Tty:          true,
+			AttachStdin:  true,
+			AttachStderr: true,
+			AttachStdout: true,
+		})
+
+		if err != nil {
+			fmt.Printf("error creating shell: %v", err)
+		}
+
+	} else {
+		fmt.Printf("no such environment: %v", envName)
+	}
+}
 func init() {
 	rootCmd.AddCommand(shellCmd)
 	shellCmd.Flags().BoolP(autostartFlag, autostartFlagShort, false, "autostart the environment if not running")

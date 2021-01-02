@@ -36,15 +36,19 @@ import (
 )
 
 // createCmd represents the create command
-var createCmd = &cobra.Command{
-	Use:   "create ENVIRONMENT_NAME {--file DOCKERFILE|--image DOCKER_IMAGE} [--volume PATH_TO_DIRECTORY] [--shell SHELL_CMD] [[--cap-add cap1] ...] [[--security-opt secopt1] ...]",
-	Short: "Create docker environment config",
-	Long: `Create docker environment config with new name.
+var (
+	createCmd = &cobra.Command{
+		Use:   "create ENVIRONMENT_NAME {--file DOCKERFILE|--image DOCKER_IMAGE} [--volume PATH_TO_DIRECTORY] [--shell SHELL_CMD] [[--cap-add cap1] ...] [[--security-opt secopt1] ...]",
+		Short: "Create docker environment config",
+		Long: `Create docker environment config with new name.
 	Will look for your Dockerfile in the current directory
 	if you do not explicitly set --file.`,
-	Args: cobra.MinimumNArgs(1),
-	Run:  CreateCmd,
-}
+		Args: cobra.MinimumNArgs(1),
+		Run:  CreateCmd,
+	}
+	errorCreateImageFieldsNotPresent = errors.New("file or image must be provided to create container")
+	errorBuildImageFieldsNotPresent  = errors.New("file and context must be provided to build a container")
+)
 
 // CreateCmd creates a new Docker environment
 // TODO: restructure for easier testing
@@ -139,11 +143,6 @@ func init() {
 
 	createCmd.Flags().Bool("replace", false, "replace environment if it already exists")
 }
-
-var (
-	errorCreateImageFieldsNotPresent = errors.New("file or image must be provided to create container")
-	errorBuildImageFieldsNotPresent  = errors.New("file and context must be provided to build a container")
-)
 
 func parseContainerOpts(cmd *cobra.Command, environmentName string, v util.Validate) (*util.ContainerOpts, error) {
 

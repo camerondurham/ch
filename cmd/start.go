@@ -37,23 +37,25 @@ var startCmd = &cobra.Command{
 	Use:   "start ENVIRONMENT_NAME",
 	Short: "start environment in the background",
 	Args:  cobra.ExactArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
-		envName := args[0]
+	Run:   StartCmd,
+}
 
-		cli, err := util.NewCliClient()
-		if err != nil {
-			fmt.Printf("error: cannot create new CLI ApiClient: %v", err)
-			os.Exit(1)
-		}
+func StartCmd(cmd *cobra.Command, args []string) {
+	envName := args[0]
 
-		envs := cli.Containers()
+	cli, err := util.NewCliClient()
+	if err != nil {
+		fmt.Printf("error: cannot create new CLI ApiClient: %v", err)
+		os.Exit(1)
+	}
 
-		if containerOpts, ok := envs[envName]; ok {
-			StartEnvironment(cli, containerOpts, envName)
-		} else {
-			fmt.Printf("no such environment: %v", envName)
-		}
-	},
+	envs := cli.Containers()
+
+	if containerOpts, ok := envs[envName]; ok {
+		StartEnvironment(cli, containerOpts, envName)
+	} else {
+		fmt.Printf("no such environment: %v", envName)
+	}
 }
 
 func init() {
