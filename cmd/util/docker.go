@@ -170,22 +170,28 @@ func (d *DockerService) CreateContainer(ctx context.Context, config *container.C
 }
 
 // RemoveContainer delete container
-func (d *DockerService) RemoveContainer(ctx context.Context, containerName string) {
+func (d *DockerService) RemoveContainer(ctx context.Context, containerName string) error {
 
 	DebugPrint(fmt.Sprintf("removing container[%s]", containerName))
 
 	if err := d.ContainerRemove(context.Background(), containerName, types.ContainerRemoveOptions{}); err != nil {
-		log.Fatal("error removing container: ", err)
+		DebugPrint(fmt.Sprint("error removing container: ", err))
+		return err
+	} else {
+		return nil
 	}
 }
 
 // StartContainer with given name
-func (d *DockerService) StartContainer(ctx context.Context, containerID string) {
+func (d *DockerService) StartContainer(ctx context.Context, containerID string) error {
 
 	DebugPrint(fmt.Sprintf("starting container[%s]", containerID))
 
 	if err := d.ContainerStart(ctx, containerID, types.ContainerStartOptions{}); err != nil {
-		log.Fatal("unable to start container: ", err)
+		DebugPrint(fmt.Sprint("error starting container: ", err))
+		return err
+	} else {
+		return nil
 	}
 }
 
@@ -195,7 +201,8 @@ func (d *DockerService) StopContainer(ctx context.Context, containerID string, t
 	DebugPrint(fmt.Sprintf("removing container [%s]...", containerID))
 
 	if err := d.ContainerStop(ctx, containerID, nil); err != nil {
-		return fmt.Errorf("error stopping container: %v", err)
+		DebugPrint(fmt.Sprint("error stopping container: ", err))
+		return err
 	} else {
 		return nil
 	}

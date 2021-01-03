@@ -114,10 +114,15 @@ func updateRunning(running map[string]string, containerID string, envName string
 }
 
 func createHostConfig(containerOpts *util.ContainerOpts) *container.HostConfig {
-	return &container.HostConfig{
-		Binds:       containerOpts.HostConfig.Binds,
-		CapAdd:      containerOpts.HostConfig.CapAdd,
-		Privileged:  containerOpts.HostConfig.Privileged,
-		SecurityOpt: containerOpts.HostConfig.SecurityOpt,
+	if containerOpts.HostConfig != nil {
+		return &container.HostConfig{
+			Binds:       containerOpts.HostConfig.Binds,
+			CapAdd:      containerOpts.HostConfig.CapAdd,
+			Privileged:  containerOpts.HostConfig.Privileged,
+			SecurityOpt: containerOpts.HostConfig.SecurityOpt,
+		}
+	} else {
+		return &container.HostConfig{}
 	}
+
 }
