@@ -1,14 +1,14 @@
 name: Unit Test
 
-on: push
+on: [push, pull_request]
 
 jobs:
   unit-test:
-    # name of job
-    name: Unit Test Modules
-
-    runs-on: ubuntu-latest
-
+    strategy:
+      matrix:
+        go-version: [1.15.x]
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -16,10 +16,10 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v2
         with:
-          go-version: '1.15.5'
+          go-version: ${{ matrix.go-version }}
 
-      - name: Run cmd tests
-        run: cd cmd && go test -v
+      - name: Build
+        run: go build .
 
-      - name: Run util tests
-        run: cd cmd/util && go test -v
+      - name: Test
+        run: go test ./...
