@@ -4,8 +4,8 @@ docker image rm -f $testname
 docker system prune -f
 #New-Item -Force -Path c:\users\cameron\.ch.yaml
 
-# this is sloppy, use unit tests or use Windows equivalent of "dirname"
+# this is sloppy, use unit test-scripts or use Windows equivalent of "dirname"
 $repo = 'C:\Users\Cameron\Projects\ch'
 
-# note, will fail if not run from tests folder
+# note, will fail if not run from test-scripts folder
 go run $repo\main.go create $testname --file Dockerfile.alpine --shell /bin/sh --replace
