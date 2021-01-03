@@ -45,7 +45,7 @@ func DeleteCmd(cmd *cobra.Command, args []string) {
 		log.Fatalf("cannot read config: %v", err)
 	}
 
-	if err := removeEnvironment(envName, envs); err != nil {
+	if envs, err := removeEnvironment(envName, envs); err != nil {
 		fmt.Printf("error: %v", err)
 		os.Exit(1)
 	} else {
@@ -63,11 +63,11 @@ func init() {
 	rootCmd.AddCommand(deleteCmd)
 }
 
-func removeEnvironment(envName string, envs map[string]*util.ContainerOpts) error {
+func removeEnvironment(envName string, envs map[string]*util.ContainerOpts) (map[string]*util.ContainerOpts, error) {
 	if _, ok := envs[envName]; ok {
 		delete(envs, envName)
-		return nil
+		return envs, nil
 	} else {
-		return fmt.Errorf("environment [%s] not found", envName)
+		return envs, fmt.Errorf("environment [%s] not found", envName)
 	}
 }
