@@ -265,3 +265,98 @@ func Test_parseHostConfig(t *testing.T) {
 		})
 	}
 }
+
+func Test_parseContainerOpts(t *testing.T) {
+	type args struct {
+		environmentName string
+		v               util.Validate
+		cmdFlags        *commandFlags
+	}
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	m := mocks.NewMockValidate(ctrl)
+	// TODO: add expected stuff here
+
+	tests := []struct {
+		name    string
+		args    args
+		want    *util.ContainerOpts
+		wantErr bool
+	}{
+		{
+			name: "File and Image Fields Not Present",
+			args: args{
+				environmentName: "test",
+				v:               m,
+				cmdFlags: &commandFlags{
+					file:  "",
+					image: "",
+				},
+			},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name: "File Present, No Context Path",
+			args: args{
+				environmentName: "test",
+				v:               m,
+				cmdFlags: &commandFlags{
+					file:    "Dockerfile",
+					context: "",
+				},
+			},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name: "Docker Image Name Present",
+			args: args{
+				environmentName: "test",
+				v:               m,
+				cmdFlags: &commandFlags{
+					image: "camerondurham/xv6-docker",
+				},
+			},
+			want: &util.ContainerOpts{
+				PullOpts:   &util.PullOpts{ImageName: "camerondurham/xv6-docker"},
+				HostConfig: &util.HostConfig{},
+			},
+		},
+		{
+			name: "Docker Build Context Present",
+			args: args{
+				environmentName: "test",
+				v:               m,
+				cmdFlags: &commandFlags{
+					file:    "Dockerfile",
+					context: ".",
+					shell:   "/bin/sh",
+				},
+			},
+			want: &util.ContainerOpts{
+				BuildOpts: &util.BuildOpts{
+					DockerfilePath: "Dockerfile",
+					Context:        ".",
+					Tag:            "test",
+				},
+				HostConfig: &util.HostConfig{},
+				Shell:      "/bin/sh",
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := parseContainerOpts(tt.args.environmentName, tt.args.v, tt.args.cmdFlags)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("parseContainerOpts() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != nil && !reflect.DeepEqual(*got, *tt.want) {
+				t.Errorf("parseContainerOpts() got = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

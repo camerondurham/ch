@@ -50,14 +50,44 @@ var (
 	errorBuildImageFieldsNotPresent  = errors.New("file and context must be provided to build a container")
 )
 
+type commandFlags struct {
+	file        string
+	image       string
+	volume      []string
+	shell       string
+	context     string
+	capAdd      []string
+	securityOpt []string
+	replace     bool
+}
+
 // CreateCmd creates a new Docker environment
 // TODO: restructure for easier testing
 // https://stackoverflow.com/questions/35827147/cobra-viper-golang-how-to-test-subcommands
 func CreateCmd(cmd *cobra.Command, args []string) {
 
 	name := args[0]
-	queryName := viper.GetStringMapString(fmt.Sprintf("envs.%s", name))
+	file, _ := cmd.Flags().GetString("file")
+	imageName, _ := cmd.Flags().GetString("image")
+	volumeArgs, _ := cmd.Flags().GetStringArray("volume")
+	shellCmdArgs, _ := cmd.Flags().GetString("shell")
+	contextDir, _ := cmd.Flags().GetString("contextDir")
+	capAddArgs, _ := cmd.Flags().GetStringArray("cap-add")
+	secOptArgs, _ := cmd.Flags().GetStringArray("security-opt")
 	replace, _ := cmd.Flags().GetBool("replace")
+
+	cmdFlags := &commandFlags{
+		file:        file,
+		image:       imageName,
+		volume:      volumeArgs,
+		shell:       shellCmdArgs,
+		context:     contextDir,
+		capAdd:      capAddArgs,
+		securityOpt: secOptArgs,
+		replace:     replace,
+	}
+
+	queryName := viper.GetStringMapString(fmt.Sprintf("envs.%s", name))
 
 	if len(queryName) > 0 && !replace {
 		log.Fatalf("environment name [%s] already exists", name)
@@ -71,7 +101,7 @@ func CreateCmd(cmd *cobra.Command, args []string) {
 		log.Fatal("error creating Docker client: are you sure Docker is running?")
 	}
 
-	opts, err := parseContainerOpts(cmd, name, cli.Validator())
+	opts, err := parseContainerOpts(name, cli.Validator(), cmdFlags)
 
 	if err != nil {
 		log.Fatal("failed to parse args: ", err)
@@ -144,33 +174,28 @@ func init() {
 	createCmd.Flags().Bool("replace", false, "replace environment if it already exists")
 }
 
-func parseContainerOpts(cmd *cobra.Command, environmentName string, v util.Validate) (*util.ContainerOpts, error) {
+func parseContainerOpts(environmentName string, v util.Validate, cmdFlags *commandFlags) (*util.ContainerOpts, error) {
 
-	shellCmdArgs, _ := cmd.Flags().GetString("shell")
-	volumeArgs, _ := cmd.Flags().GetStringArray("volume")
-	capAddArgs, _ := cmd.Flags().GetStringArray("cap-add")
-	secOptArgs, _ := cmd.Flags().GetStringArray("security-opt")
+	hostConfig, shellCmd := parseHostConfig(cmdFlags.shell, cmdFlags.volume, cmdFlags.capAdd, cmdFlags.securityOpt, v)
 
-	hostConfig, shellCmd := parseHostConfig(shellCmdArgs, volumeArgs, capAddArgs, secOptArgs, v)
-
-	if file, _ := cmd.Flags().GetString("file"); file != "" {
-		if contextDirName, _ := cmd.Flags().GetString("context"); contextDirName != "" {
+	if cmdFlags.file != "" {
+		if cmdFlags.context != "" {
 			return &util.ContainerOpts{
 				BuildOpts: &util.BuildOpts{
-					DockerfilePath: file,
-					Context:        contextDirName,
+					DockerfilePath: cmdFlags.file,
+					Context:        cmdFlags.context,
 					Tag:            environmentName,
 				},
 				HostConfig: hostConfig,
 				Shell:      shellCmd,
 			}, nil
 		} else {
-			return &util.ContainerOpts{}, errorBuildImageFieldsNotPresent
+			return nil, errorBuildImageFieldsNotPresent
 		}
-	} else if imageName, _ := cmd.Flags().GetString("image"); imageName != "" {
+	} else if cmdFlags.image != "" {
 		return &util.ContainerOpts{
 			PullOpts: &util.PullOpts{
-				ImageName: imageName,
+				ImageName: cmdFlags.image,
 			},
 			HostConfig: hostConfig,
 			Shell:      shellCmd,
