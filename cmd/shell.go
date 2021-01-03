@@ -64,7 +64,7 @@ func ShellCmd(cmd *cobra.Command, args []string) {
 			os.Exit(1)
 		} else if err == util.ErrDoesNotExist || !ok {
 			util.DebugPrint("starting non-running container because autostart flag used\n")
-			StartEnvironment(cli, containerOpts, envName)
+			startEnvironment(cli, containerOpts, envName)
 			running, err = cli.Running()
 			containerID, ok = running[envName]
 		}

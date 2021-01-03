@@ -97,14 +97,16 @@ func CreateCmd(cmd *cobra.Command, args []string) {
 	ctx := context.Background()
 
 	if err != nil {
-		log.Printf("error: %v", err)
-		log.Fatal("error creating Docker client: are you sure Docker is running?")
+		fmt.Printf("error creating Docker client: are you sure Docker is running?")
+		fmt.Printf("ERROR: %v", err)
+		os.Exit(1)
 	}
 
 	opts, err := parseContainerOpts(name, cli.Validator(), cmdFlags)
 
 	if err != nil {
-		log.Fatal("failed to parse args: ", err)
+		fmt.Printf("failed to parse args: %v", err)
+		os.Exit(1)
 	}
 
 	if opts.BuildOpts != nil {
@@ -118,7 +120,8 @@ func CreateCmd(cmd *cobra.Command, args []string) {
 	}
 
 	if err != nil {
-		log.Fatal("cannot create new environment, error creating image: ", err)
+		fmt.Printf("cannot create new environment, error creating image: %v", err)
+		os.Exit(1)
 	}
 
 	util.DebugPrint(fmt.Sprintf("saving environment: %v", opts))
@@ -133,7 +136,8 @@ func CreateCmd(cmd *cobra.Command, args []string) {
 			// save new environment opts into config file
 			viper.Set(fmt.Sprintf("envs.%s", name), opts)
 		} else {
-			log.Fatal("cannot read environment")
+			fmt.Print("cannot read environment")
+			os.Exit(1)
 		}
 	} else {
 		envs[name] = opts

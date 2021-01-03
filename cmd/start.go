@@ -41,7 +41,13 @@ var startCmd = &cobra.Command{
 }
 
 func StartCmd(cmd *cobra.Command, args []string) {
+
 	envName := args[0]
+	if envName == "" {
+		fmt.Printf("you must provide an environment name")
+		_ = cmd.Usage()
+		os.Exit(1)
+	}
 
 	cli, err := util.NewCliClient()
 	if err != nil {
@@ -52,9 +58,10 @@ func StartCmd(cmd *cobra.Command, args []string) {
 	envs := cli.Containers()
 
 	if containerOpts, ok := envs[envName]; ok {
-		StartEnvironment(cli, containerOpts, envName)
+		startEnvironment(cli, containerOpts, envName)
 	} else {
 		fmt.Printf("no such environment: %v", envName)
+		os.Exit(1)
 	}
 }
 
@@ -62,7 +69,7 @@ func init() {
 	rootCmd.AddCommand(startCmd)
 }
 
-func StartEnvironment(client *util.Cli, containerOpts *util.ContainerOpts, envName string) {
+func startEnvironment(client *util.Cli, containerOpts *util.ContainerOpts, envName string) {
 
 	ctx := context.Background()
 
@@ -71,12 +78,7 @@ func StartEnvironment(client *util.Cli, containerOpts *util.ContainerOpts, envNa
 		containerConfig.Shell = []string{containerOpts.Shell}
 	}
 
-	hostConfig := &container.HostConfig{
-		Binds:       containerOpts.HostConfig.Binds,
-		CapAdd:      containerOpts.HostConfig.CapAdd,
-		Privileged:  containerOpts.HostConfig.Privileged,
-		SecurityOpt: containerOpts.HostConfig.SecurityOpt,
-	}
+	hostConfig := createHostConfig(containerOpts)
 
 	resp, err := client.DockerClient().CreateContainer(ctx,
 		containerConfig,
@@ -89,19 +91,33 @@ func StartEnvironment(client *util.Cli, containerOpts *util.ContainerOpts, envNa
 	}
 
 	client.DockerClient().StartContainer(ctx, resp.ID)
-	fmt.Printf("started... imageID: %v", resp.ID)
+	fmt.Printf("started... imageID: \n%v", resp.ID)
 
 	running, _ := client.Running()
 
-	if running == nil {
-		running = make(map[string]string)
-	}
+	running = updateRunning(running, resp.ID, envName)
 
-	running[envName] = resp.ID
 	viper.Set("running", running)
 
 	err = viper.WriteConfig()
 	if err != nil {
 		log.Printf("failed saving running containers")
+	}
+}
+
+func updateRunning(running map[string]string, containerID string, envName string) map[string]string {
+	if running == nil {
+		running = make(map[string]string)
+	}
+	running[envName] = containerID
+	return running
+}
+
+func createHostConfig(containerOpts *util.ContainerOpts) *container.HostConfig {
+	return &container.HostConfig{
+		Binds:       containerOpts.HostConfig.Binds,
+		CapAdd:      containerOpts.HostConfig.CapAdd,
+		Privileged:  containerOpts.HostConfig.Privileged,
+		SecurityOpt: containerOpts.HostConfig.SecurityOpt,
 	}
 }
