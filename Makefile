@@ -1,8 +1,25 @@
-# previously required:
-# env GIT_TERMINAL_PROMPT=1
+all: $(DISTS)
 
-build:
-	go build -v
+BUILDS=\
+  darwin-amd64  \
+  linux-386     \
+  linux-amd64   \
+  linux-arm     \
+  linux-arm64   \
+  windows-386   \
+  windows-amd64 \
+
+dist:
+	@mkdir -p dist
+
+$(DISTS): OS = $(word 1,$(subst -, ,$*))
+$(DISTS): ARCH = $(word 2,$(subst -, ,$*))
+
+$(DISTS): dist/$(NAME)-%-$(VERSION).tgz: dist
+	@echo "building: $@"
+	@echo "OS = $(OS)"
+	@echo "ARCH = $(ARCH)"
+	@touch $@
 
 cleanup:
 	go mod tidy
