@@ -14,12 +14,17 @@ dist:
 
 $(DISTS): OS = $(word 1,$(subst -, ,$*))
 $(DISTS): ARCH = $(word 2,$(subst -, ,$*))
+$(DISTS): DIST = "$(OS)-$(ARCH)"
 
 $(DISTS): dist/$(NAME)-%-$(VERSION).tgz: dist
 	@echo "building: $@"
 	@echo "OS = $(OS)"
 	@echo "ARCH = $(ARCH)"
-	@touch $@
+	@mkdir -p "dist/$(DIST)"
+	@GOOS=$(OS) GOARCH=$(ARCH) go build -o "dist/$(DIST)"
+
+clean:
+	rm -rf dist
 
 cleanup:
 	go mod tidy
@@ -30,7 +35,3 @@ get-tools:
 
 todo:
 	 git grep -EI "TODO|FIXME"
-
-todos:
-	 cp todos.txt todos.bkup.txt
-	 git grep -EI "TODO|FIXME" > todos.txt
