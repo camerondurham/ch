@@ -12,7 +12,8 @@ BINARY=ch
 VERSION=0.0.1
 BUILD=`git rev-parse HEAD`
 PLATFORMS=darwin linux windows
-ARCHITECTURES=386 amd64
+# removing 386 as a target architecture
+ARCHITECTURES=amd64
 
 # Setup linker flags option for build that interoperate with variable names in src code
 LDFLAGS=-ldflags "-X main.Version=${VERSION} -X main.Build=${BUILD}"
@@ -26,14 +27,32 @@ build:
 
 build_all:
 	$(foreach GOOS, $(PLATFORMS),\
-	$(foreach GOARCH, $(ARCHITECTURES), $(shell export GOOS=$(GOOS); export GOARCH=$(GOARCH); mkdir -p dist/$(BINARY)-$(GOOS)-$(GOARCH); go build -v -o dist/$(BINARY)-$(GOOS)-$(GOARCH)/$(BINARY))))
+	$(foreach GOARCH, $(ARCHITECTURES), $(shell mkdir -p dist/$(BINARY)-$(GOOS)-$(GOARCH); GOOS=$(GOOS) GOARCH=$(GOARCH) go build -v -o dist/$(BINARY)-$(GOOS)-$(GOARCH)/$(BINARY))))
+
+TO_ZIP_DIRS = $(filter %/, $(wildcard dist/*/))  # Find all directories in static/projects
+TO_ZIP_NAMES = $(patsubst %/,%,$(TO_ZIP_DIRS))  # Remove trailing /
+ZIP_TARGETS = $(addsuffix .zip,$(TO_ZIP_NAMES))  # Add .zip
+
+debug: build_all
+	@echo $(TO_ZIP_DIRS)
+	@echo $(TO_ZIP_NAMES)
+	@echo $(ZIP_TARGETS)
+
+$(ZIP_TARGETS):
+	@echo $@
+	@echo $(basename $@)
+	@echo $(notdir $@)
+	@echo $(notdir $(basename $@))
+	cd $(basename $@)/.. && zip -FSr $(notdir $@) $(notdir $(basename $@))
+
+zip_exe: $(ZIP_TARGETS)
 
 install:
 	go install ${LDFLAGS}
 
 # Remove only what we've created
 clean:
-	find ${ROOT_DIR} -name '${BINARY}[-?][a-zA-Z0-9]*[-?][a-zA-Z0-9]*' -delete
+	find ${ROOT_DIR} -name '${BINARY}[-?][a-zA-Z0-9]*[-?][a-zA-Z0-9]*' | xargs rm -rf
 
-.PHONY: check clean install build_all all
+.PHONY: check clean install build_all all zip_exe
 
