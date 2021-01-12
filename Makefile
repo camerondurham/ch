@@ -29,9 +29,9 @@ build_all:
 	$(foreach GOOS, $(PLATFORMS),\
 	$(foreach GOARCH, $(ARCHITECTURES), $(shell mkdir -p dist/$(BINARY)-$(GOOS)-$(GOARCH); GOOS=$(GOOS) GOARCH=$(GOARCH) go build -v -o dist/$(BINARY)-$(GOOS)-$(GOARCH)/$(BINARY))))
 
-TO_ZIP_DIRS = $(filter %/, $(wildcard dist/*/))  # Find all directories in static/projects
-TO_ZIP_NAMES = $(patsubst %/,%,$(TO_ZIP_DIRS))  # Remove trailing /
-ZIP_TARGETS = $(addsuffix .zip,$(TO_ZIP_NAMES))  # Add .zip
+TO_ZIP_DIRS = $(filter %/, $(wildcard dist/*/))  	# Find all directories in static/projects
+TO_ZIP_NAMES = $(patsubst %/,%,$(TO_ZIP_DIRS))  	# Remove trailing /
+ZIP_TARGETS = $(addsuffix .zip,$(TO_ZIP_NAMES))  	# Add .zip
 
 debug: build_all
 	@echo $(TO_ZIP_DIRS)
@@ -39,12 +39,9 @@ debug: build_all
 	@echo $(ZIP_TARGETS)
 
 $(ZIP_TARGETS):
-	@echo $@
-	@echo $(basename $@)
-	@echo $(notdir $@)
-	@echo $(notdir $(basename $@))
 	cd $(basename $@)/.. && zip -FSr $(notdir $@) $(notdir $(basename $@))
 
+# edit .github/workflows/build-and-release.yml if this name changes
 zip_exe: $(ZIP_TARGETS)
 
 install:
