@@ -1,6 +1,5 @@
 # ch: container helper
 
-## Beta Stage
 **This project is in a beta stage. Please report any issues and I'll be happy to address!**
 
 A simple Docker interface to manage multiple containerized development environments. Provides a simple shell environment for separate development environments designed to use for C++ development in CSCI 104 but portable enough to use whichever Docker container you choose.
