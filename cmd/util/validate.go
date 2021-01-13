@@ -23,5 +23,5 @@ func (v *Validator) GetAbs(path string) (absPath string) {
 
 func (v *Validator) ValidPath(path string) bool {
 	_, err := os.Stat(path)
-	return err != nil
+	return err == nil
 }

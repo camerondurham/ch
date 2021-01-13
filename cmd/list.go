@@ -45,6 +45,10 @@ func ListCmd(cmd *cobra.Command, args []string) {
 	configEnvs, err := util.GetEnvs()
 
 	if err != nil {
+		if err == util.ErrDoesNotExist {
+			fmt.Printf("no environments created yet")
+			os.Exit(0)
+		}
 		fmt.Printf("unable to decode config file: %v\nplease check formatting of config and delete if needed", err)
 		os.Exit(1)
 	}

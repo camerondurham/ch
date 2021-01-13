@@ -44,12 +44,6 @@ type ErrorDetail struct {
 	Message string `json:"message"`
 }
 
-type BuildOutput struct {
-	Stream      string       `json:"stream"`
-	ErrorDetail *ErrorDetail `json:"errorDetail"`
-	Error       string       `json:"error,omitempty"`
-}
-
 func NewDockerService() (*DockerService, error) {
 	_, cli, err := dockerClientInit()
 	if err != nil {
@@ -78,18 +72,59 @@ func (d *DockerService) ListRunning() {
 
 // PullImage downloads a Docker image from Docker Hub
 func (d *DockerService) PullImage(ctx context.Context, imageName string) error {
-	out, err := d.ImagePull(ctx, imageName, types.ImagePullOptions{})
+	imagePullOutput, err := d.ImagePull(ctx, imageName, types.ImagePullOptions{})
 
 	if err != nil {
 		return err
 	}
 
-	_, err = io.Copy(os.Stdout, out)
-	if err != nil {
-		return err
+	type ImagePullOutput struct {
+		Status         string `json:"status"`
+		Error          string `json:"error"`
+		Progress       string `json:"progress"`
+		ProgressDetail struct {
+			Current int `json:"current"`
+			Total   int `json:"total"`
+		} `json:"progressDetail"`
 	}
 
-	return nil
+	defer imagePullOutput.Close()
+
+	rd := bufio.NewReader(imagePullOutput)
+	var retErr error
+
+	for {
+		str, err := rd.ReadString('\n')
+		if err == io.EOF {
+			retErr = nil
+			break
+		} else {
+			var msg ImagePullOutput
+
+			err = json.Unmarshal([]byte(str), &msg)
+
+			if err != nil {
+				DebugPrint(fmt.Sprintf("error unmarshalling str: [%v]\nerr:%v", str, err))
+			}
+
+			if msg.Error != "" {
+				retErr = fmt.Errorf("error pulling image: %v", msg.Error)
+				break
+			}
+
+			fmt.Printf("%s\n", msg.Status)
+		}
+	}
+
+	return retErr
+
+	//_, err = io.Copy(os.Stdout, imagePullResponse)
+
+	//if err != nil {
+	//	return err
+	//}
+	//
+	//return nil
 }
 
 // BuildImageWithContext accepts a build context path and relative Dockerfile path
@@ -121,6 +156,12 @@ func (d *DockerService) BuildImageWithContext(ctx context.Context, dockerfile st
 	if err != nil {
 		log.Printf("unable to build docker image: %v", err)
 		return err
+	}
+
+	type BuildOutput struct {
+		Stream      string       `json:"stream"`
+		ErrorDetail *ErrorDetail `json:"errorDetail"`
+		Error       string       `json:"error,omitempty"`
 	}
 
 	defer buildResponse.Body.Close()
