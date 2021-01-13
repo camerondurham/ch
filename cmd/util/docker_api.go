@@ -12,14 +12,11 @@ import (
 )
 
 type DockerAPI interface {
-	//CreateExecInteractive(ctx context.Context, cliClient ContainerClient, container string, config types.ExecConfig) error
-
 	ContainerInspect(ctx context.Context, container string) (types.ContainerJSON, error)
 	ContainerExecCreate(ctx context.Context, container string, config types.ExecConfig) (types.IDResponse, error)
 	ContainerExecStart(ctx context.Context, execID string, config types.ExecStartCheck) error
 	ContainerExecAttach(ctx context.Context, execID string, config types.ExecStartCheck) (types.HijackedResponse, error)
 	ContainerExecInspect(ctx context.Context, execID string) (types.ContainerExecInspect, error)
-	//InteractiveExec(ctx context.Context, cliClient ContainerClient, execConfig *types.ExecConfig, execID string) error
 }
 
 type DockerAPIService struct {
