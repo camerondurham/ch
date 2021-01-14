@@ -11,20 +11,20 @@ function Get-LatestReleaseVersion($repository) {
   return $content_json.tag_name
 }
 
-function Get-ReleasePackage($download_url, $download_path, $extract_path) {
-  Invoke-WebRequest $download_url -OutFile $download_path
-  Write-Host "Unpacking file"
-  Expand-Archive -LiteralPath $download_path -DestinationPath $extract_path -Force
+function Get-ReleasePackage($Url, $DownloadPath, $ExtractPath) {
+  Invoke-WebRequest $Url -OutFile $DownloadPath
+  Write-Output "Unpacking file"
+  Expand-Archive -LiteralPath $DownloadPath -DestinationPath $ExtractPath -Force
 }
 
-function Get-ReleaseUrl($repository, $version, $filename) {
+function Get-ReleaseUrl($Repository, $Version, $Filename) {
   # repository: username/reponame format
   #   example: camerondurham/ch
   #    version: version tag to download
   #   example: v0.0.6-beta
   # zip_filename: asset to download
   #      example: ch-windows-amd64.zip
-  "https://github.com/{0}/releases/download/{1}/{2}" -f $repository.Trim(" "), $version.Trim(" "), $filename.Trim(" ")
+  "https://github.com/{0}/releases/download/{1}/{2}" -f $Repository.Trim(" "), $Version.Trim(" "), $Filename.Trim(" ")
 }
 
 function Add-ToPath($directory) {
@@ -40,15 +40,15 @@ function Add-ToPath($directory) {
     $env:Path = $newpath
   }
   else {
-    Write-Host "Invalid path [$directory] , ignoring..."
+    Write-Output "Invalid path [$directory] , ignoring..."
   }
 }
 
 $latest_version = Get-LatestReleaseVersion($repository)
 
-$download_url = Get-ReleaseUrl $repository $latest_version $zip_filename
+$download_url = Get-ReleaseUrl -Repository $repository -Version $latest_version -Filename $zip_filename
 
-Write-Host "download url: $download_url"
+Write-Output "download url: $download_url"
 
 $path = [Environment]::GetFolderPath("USERPROFILE")
 $download_dir = Join-Path -Path $path -ChildPath "Downloads"
@@ -57,16 +57,16 @@ if (-Not (Test-Path $download_dir)) {
   $download_path = $current_dir
 }
 
-Write-Host "Downloading $program version: $latest_version to $download_dir"
+Write-Output "Downloading $program version: $latest_version to $download_dir"
 
 $download_path = Join-Path -Path $download_dir -ChildPath $zip_filename
 $unpack_path = $current_dir
 
-Get-ReleasePackage $download_url $download_path $unpack_path
+Get-ReleasePackage -Url $download_url -DownloadPath $download_path -ExtractPath $unpack_path
 
 $unpacked_folder = $zip_filename.TrimEnd(".zip")
 $binary_location = Join-Path -Path $unpack_path -ChildPath $unpacked_folder
 
 Add-ToPath $binary_location
 
-Write-Host "Done! Try using ch with: ch --help"
+Write-Output "Done! Try using ch with: ch --help"
