@@ -8,4 +8,4 @@ docker system prune -f
 $repo = 'C:\Users\Cameron\Projects\ch'
 
 # note, will fail if not run from test-scripts folder
-go run $repo\main.go create $testname --file Dockerfile.alpine --shell /bin/sh --replace
+go run ..\..\main.go create $testname --file Dockerfile.alpine --shell /bin/sh --replace
