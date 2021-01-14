@@ -6,8 +6,8 @@ function Get-LatestReleaseVersion($repository) {
   # call with Get-LatestReleaseVersion("camerondurham/ch")
   $release_endpoint = "https://api.github.com/repos/$repository/releases/latest"
   $resp = Invoke-WebRequest -Uri $release_endpoint -UseBasicParsing
-  $content_json = ConvertFrom-Json $resp.content
-  return $content_json.tag_name
+  $content = ConvertFrom-Json $resp.content
+  return $content.tag_name
 }
 
 function Get-ReleasePackage($Url, $DownloadPath, $ExtractPath) {

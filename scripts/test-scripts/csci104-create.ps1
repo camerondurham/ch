@@ -1,3 +1,1 @@
-$repo = 'C:\Users\Cameron\Projects\ch'
-
-go run ..\..\main.go create csci104 --image camerondurham/cs104-docker:v1 --shell /bin/bash --replace
+go run ..\..\main.go create csci104 --image usccsci104/docker:latest --shell /bin/bash --security-opt seccomp:unconfined --cap-add SYS_PTRACE --replace
