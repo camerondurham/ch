@@ -1,7 +1,6 @@
 $program = "ch"
 $repository = "camerondurham/ch"
 $zip_filename = "ch-windows-amd64.zip"
-$current_dir = Get-Location
 
 function Get-LatestReleaseVersion($repository) {
   # call with Get-LatestReleaseVersion("camerondurham/ch")
@@ -48,19 +47,12 @@ $latest_version = Get-LatestReleaseVersion($repository)
 
 $download_url = Get-ReleaseUrl -Repository $repository -Version $latest_version -Filename $zip_filename
 
-Write-Output "download url: $download_url"
-
-$path = [Environment]::GetFolderPath("USERPROFILE")
-$download_dir = Join-Path -Path $path -ChildPath "Downloads"
-
-if (-Not (Test-Path $download_dir)) {
-  $download_path = $current_dir
-}
+$download_dir = [Environment]::GetFolderPath("USERPROFILE")
 
 Write-Output "Downloading $program version: $latest_version to $download_dir"
 
 $download_path = Join-Path -Path $download_dir -ChildPath $zip_filename
-$unpack_path = $current_dir
+$unpack_path = $download_dir
 
 Get-ReleasePackage -Url $download_url -DownloadPath $download_path -ExtractPath $unpack_path
 
