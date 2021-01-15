@@ -56,6 +56,4 @@ ch stop cs104
 # list all environments
 ch list
 
-# set default container when you don't provide any args
-ch --set-default cs104
 ```
