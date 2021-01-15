@@ -58,6 +58,12 @@ func StartCmd(cmd *cobra.Command, args []string) {
 	envs := cli.Containers()
 
 	if containerOpts, ok := envs[envName]; ok {
+		running, err := cli.Running()
+		_, ok := running[envName]
+		if err == nil && ok {
+			fmt.Printf("%v is already running", envName)
+			os.Exit(0)
+		}
 		startEnvironment(cli, containerOpts, envName)
 	} else {
 		fmt.Printf("no such environment: %v", envName)
@@ -73,7 +79,8 @@ func startEnvironment(client *util.Cli, containerOpts *util.ContainerOpts, envNa
 
 	ctx := context.Background()
 
-	containerConfig := &container.Config{Image: envName, Tty: true, AttachStdin: true}
+	imageName := getImageName(envName, containerOpts)
+	containerConfig := &container.Config{Image: imageName, Tty: true, AttachStdin: true}
 	if containerOpts.Shell != "" {
 		containerConfig.Shell = []string{containerOpts.Shell}
 	}
@@ -112,6 +119,14 @@ func updateRunning(running map[string]string, containerID string, envName string
 	}
 	running[envName] = containerID
 	return running
+}
+
+func getImageName(envName string, containerOpts *util.ContainerOpts) string {
+	if containerOpts.BuildOpts != nil {
+		return envName
+	} else {
+		return containerOpts.PullOpts.ImageName
+	}
 }
 
 func createHostConfig(containerOpts *util.ContainerOpts) *container.HostConfig {

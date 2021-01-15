@@ -62,8 +62,6 @@ type commandFlags struct {
 }
 
 // CreateCmd creates a new Docker environment
-// TODO: restructure for easier testing
-// https://stackoverflow.com/questions/35827147/cobra-viper-golang-how-to-test-subcommands
 func CreateCmd(cmd *cobra.Command, args []string) {
 
 	name := args[0]
@@ -71,7 +69,7 @@ func CreateCmd(cmd *cobra.Command, args []string) {
 	imageName, _ := cmd.Flags().GetString("image")
 	volumeArgs, _ := cmd.Flags().GetStringArray("volume")
 	shellCmdArgs, _ := cmd.Flags().GetString("shell")
-	contextDir, _ := cmd.Flags().GetString("contextDir")
+	contextDir, _ := cmd.Flags().GetString("context")
 	capAddArgs, _ := cmd.Flags().GetStringArray("cap-add")
 	secOptArgs, _ := cmd.Flags().GetStringArray("security-opt")
 	replace, _ := cmd.Flags().GetBool("replace")

@@ -132,10 +132,11 @@ func (d *DockerService) BuildImageWithContext(ctx context.Context, dockerfile st
 	contextPath := contextDirPath
 	contextPath = d.validator.GetAbs(contextPath)
 
-	if d.validator.ValidPath(contextPath) {
-		return errors.New(fmt.Sprintf("context path does not exist: %v", err))
+	if !d.validator.ValidPath(contextPath) {
+		return errors.New(fmt.Sprintf("context path does not exist: %v", contextPath))
 	}
 
+	// TODO: use ioutil.TempFile
 	contextTarball := fmt.Sprintf("/tmp/%s.tar", filepath.Base(contextPath))
 
 	DebugPrint(fmt.Sprintf("dockerfile context file: %s\n", contextPath))
@@ -226,7 +227,7 @@ func (d *DockerService) RemoveContainer(ctx context.Context, containerName strin
 // StartContainer with given name
 func (d *DockerService) StartContainer(ctx context.Context, containerID string) error {
 
-	DebugPrint(fmt.Sprintf("starting container[%s]", containerID))
+	DebugPrint(fmt.Sprintf("starting container [%s]", containerID))
 
 	if err := d.ContainerStart(ctx, containerID, types.ContainerStartOptions{}); err != nil {
 		DebugPrint(fmt.Sprint("error starting container: ", err))

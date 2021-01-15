@@ -42,7 +42,7 @@ func StopCmd(cmd *cobra.Command, args []string) {
 	envName := args[0]
 	cli, err := util.NewCliClient()
 	if err != nil {
-		fmt.Printf("error: cannot create new CLI ApiClient: %v", err)
+		fmt.Printf("error: cannot create new CLI ApiClient: %v\n", err)
 		os.Exit(1)
 	}
 
@@ -53,7 +53,7 @@ func StopCmd(cmd *cobra.Command, args []string) {
 		running, err := cli.Running()
 		containerID, ok := running[envName]
 		if err == util.ErrDoesNotExist || !ok {
-			fmt.Printf("%v is not running", envName)
+			fmt.Printf("%v is not running\n", envName)
 			os.Exit(1)
 		} else {
 			ctx := context.Background()
@@ -61,9 +61,9 @@ func StopCmd(cmd *cobra.Command, args []string) {
 			err := cli.DockerClient().StopContainer(ctx, containerID, nil)
 			if err != nil {
 				// TODO: remove invalid container from config
-				fmt.Printf("container not running")
+				fmt.Printf("container not running\n")
 			} else {
-				fmt.Printf("stopped container: %v", envName)
+				fmt.Printf("stopped container: %v\n", envName)
 				cli.DockerClient().RemoveContainer(ctx, envName)
 			}
 
@@ -73,12 +73,12 @@ func StopCmd(cmd *cobra.Command, args []string) {
 			viper.Set("running", running)
 			err = viper.WriteConfig()
 			if err != nil {
-				fmt.Printf("error writing changes to config")
+				fmt.Printf("error writing changes to config\n")
 			}
 		}
 
 	} else {
-		fmt.Printf("environment does not exist: %v", envName)
+		fmt.Printf("environment does not exist: %v\n", envName)
 		os.Exit(1)
 	}
 }
