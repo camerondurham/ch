@@ -24,6 +24,7 @@ package cmd
 import (
 	"fmt"
 	"github.com/camerondurham/ch/cmd/util"
+	"github.com/camerondurham/ch/version"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -32,12 +33,15 @@ import (
 	"github.com/spf13/viper"
 )
 
-var cfgFile string
+var (
+	cfgFile string
+)
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "ch",
-	Short: "A simple container helper to create and manage Docker environments",
+	Use:     "ch",
+	Short:   "A simple container helper to create and manage Docker environments",
+	Version: version.PkgVersion,
 	// 	Long: `A longer description that spans multiple lines and likely contains
 	// examples and usage of using your application. For example:
 

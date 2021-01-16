@@ -32,10 +32,11 @@ import (
 
 // stopCmd represents the stop command
 var stopCmd = &cobra.Command{
-	Use:   "stop ENVIRONMENT_NAME",
-	Short: "Stop a running environment (a running Docker container)",
-	Args:  cobra.ExactArgs(1),
-	Run:   StopCmd,
+	Use:     "stop ENVIRONMENT_NAME",
+	Short:   "Stop a running environment (a running Docker container)",
+	Args:    cobra.ExactArgs(1),
+	Version: rootCmd.Version,
+	Run:     StopCmd,
 }
 
 func StopCmd(cmd *cobra.Command, args []string) {

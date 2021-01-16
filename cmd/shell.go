@@ -38,10 +38,11 @@ const (
 
 // shellCmd represents the shell command
 var shellCmd = &cobra.Command{
-	Use:   "shell ENVIRONMENT_NAME",
-	Short: "Start a shell in an environment",
-	Args:  cobra.ExactArgs(1),
-	Run:   ShellCmd,
+	Use:     "shell ENVIRONMENT_NAME",
+	Short:   "Start a shell in an environment",
+	Args:    cobra.ExactArgs(1),
+	Version: rootCmd.Version,
+	Run:     ShellCmd,
 }
 
 func ShellCmd(cmd *cobra.Command, args []string) {
@@ -50,7 +51,7 @@ func ShellCmd(cmd *cobra.Command, args []string) {
 
 	cli, err := util.NewCliClient()
 	if err != nil {
-		fmt.Printf("error: cannot create new CLI ApiClient: %v", err)
+		fmt.Printf("error: cannot create new CLI ApiClient: %v\n", err)
 		os.Exit(1)
 	}
 
@@ -80,11 +81,11 @@ func ShellCmd(cmd *cobra.Command, args []string) {
 		})
 
 		if err != nil {
-			fmt.Printf("error creating shell: %v", err)
+			fmt.Printf("error creating shell: %v\n", err)
 		}
 
 	} else {
-		fmt.Printf("no such environment: %v", envName)
+		fmt.Printf("no such environment: %v\n", envName)
 	}
 }
 func init() {
@@ -94,10 +95,10 @@ func init() {
 
 func getNotRunningMsg(envName string) string {
 	return fmt.Sprintf(`%v is not running, please run: 
-	ch create %v
+	ch start %v
 
 or start container automatically with:
-	ch shell %v %v
+	ch shell %v --%v
 
 `, envName, envName, envName, autostartFlag)
 }

@@ -9,14 +9,15 @@ K := $(foreach exec,$(EXECUTABLES),\
 ROOT_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
 BINARY=ch
-VERSION=0.0.1
+VERSION=`git tag --points-at HEAD`
 BUILD=`git rev-parse HEAD`
 PLATFORMS=darwin linux windows
 # removing 386 as a target architecture
 ARCHITECTURES=amd64
+PACKAGE=github.com/camerondurham/ch/version
 
 # Setup linker flags option for build that interoperate with variable names in src code
-LDFLAGS=-ldflags "-X main.Version=${VERSION} -X main.Build=${BUILD}"
+LDFLAGS=-ldflags "-X ${PACKAGE}.PkgVersion=${VERSION} -X ${PACKAGE}.GitRevision=${BUILD}"
 
 default: build
 
@@ -27,7 +28,7 @@ build:
 
 build_all:
 	$(foreach GOOS, $(PLATFORMS),\
-	$(foreach GOARCH, $(ARCHITECTURES), $(shell mkdir -p dist/$(BINARY)-$(GOOS)-$(GOARCH); GOOS=$(GOOS) GOARCH=$(GOARCH) go build -v -o dist/$(BINARY)-$(GOOS)-$(GOARCH))))
+	$(foreach GOARCH, $(ARCHITECTURES), $(shell mkdir -p dist/$(BINARY)-$(GOOS)-$(GOARCH); GOOS=$(GOOS) GOARCH=$(GOARCH) go build -v $(LDFLAGS) -o dist/$(BINARY)-$(GOOS)-$(GOARCH))))
 
 TO_ZIP_DIRS = $(filter %/, $(wildcard dist/*/))  	# Find all directories in static/projects
 TO_ZIP_NAMES = $(patsubst %/,%,$(TO_ZIP_DIRS))  	# Remove trailing /
@@ -52,4 +53,3 @@ clean:
 	find ${ROOT_DIR} -name '${BINARY}[-?][a-zA-Z0-9]*[-?][a-zA-Z0-9]*' | xargs rm -rf
 
 .PHONY: check clean install build_all all zip_exe
-

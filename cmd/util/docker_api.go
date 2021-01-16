@@ -133,11 +133,11 @@ func getExecExitStatus(ctx context.Context, dockerClient *DockerAPIService, exec
 		if !client.IsErrConnectionFailed(err) {
 			return err
 		}
-		return errors.New(fmt.Sprintf("error status code: %v,\nmessage: %v ", -1, err))
+		return errors.New(fmt.Sprintf("error status code: %v,\nmessage: %v\n", -1, err))
 	}
 	status := resp.ExitCode
 	if status != 0 {
-		return errors.New(fmt.Sprintf("error status code: %v,\nmessage: %v ", status, err))
+		return errors.New(fmt.Sprintf("error status code: %v,\nmessage: %v\n", status, err))
 	}
 	return nil
 }

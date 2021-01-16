@@ -31,12 +31,15 @@ import (
 )
 
 // deleteCmd represents the delete command
-var deleteCmd = &cobra.Command{
-	Use:   "delete ENVIRONMENT_NAME",
-	Short: "deletes a given config",
-	Args:  cobra.MinimumNArgs(1),
-	Run:   DeleteCmd,
-}
+var (
+	deleteCmd = &cobra.Command{
+		Use:     "delete ENVIRONMENT_NAME",
+		Short:   "deletes a given config",
+		Args:    cobra.MinimumNArgs(1),
+		Version: rootCmd.Version,
+		Run:     DeleteCmd,
+	}
+)
 
 func DeleteCmd(cmd *cobra.Command, args []string) {
 	envName := args[0]
@@ -46,16 +49,16 @@ func DeleteCmd(cmd *cobra.Command, args []string) {
 	}
 
 	if envs, err := removeEnvironment(envName, envs); err != nil {
-		fmt.Printf("error: %v", err)
+		fmt.Printf("error: %v\n", err)
 		os.Exit(1)
 	} else {
 		viper.Set("envs", envs)
 		err = viper.WriteConfig()
 		if err != nil {
-			fmt.Printf("cannot write to config: %v", err)
+			fmt.Printf("cannot write to config: %v\n", err)
 			os.Exit(1)
 		} else {
-			fmt.Printf("environment deleted: %v", envName)
+			fmt.Printf("environment deleted: %v\n", envName)
 		}
 	}
 }

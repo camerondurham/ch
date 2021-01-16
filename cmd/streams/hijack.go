@@ -10,7 +10,6 @@ import (
 	"github.com/docker/docker/pkg/stdcopy"
 	"github.com/moby/term"
 	"io"
-	"log"
 	"os"
 	"runtime"
 	"sync"
@@ -97,7 +96,7 @@ func (h *HijackedIOStreamer) setupInput() (restore func(), err error) {
 	if h.detachKeys != "" {
 		customEscapeKeys, err := term.ToBytes(h.detachKeys)
 		if err != nil {
-			log.Printf("invalid detach escape keys, using default: %s", err)
+			debugPrint(fmt.Sprintf("invalid detach escape keys, using default: %s", err))
 		} else {
 			escapeKeys = customEscapeKeys
 		}
@@ -147,7 +146,7 @@ func (h *HijackedIOStreamer) beginInputStream(restoreInput func()) (doneC <-chan
 			_, err := io.Copy(h.Resp.Conn, h.InputStream)
 			restoreInput()
 
-			log.Printf("[hijack] End of stdin")
+			debugPrint("\n[hijack] End of stdin\n")
 
 			if _, ok := err.(term.EscapeError); ok {
 				detached <- err
@@ -155,12 +154,12 @@ func (h *HijackedIOStreamer) beginInputStream(restoreInput func()) (doneC <-chan
 			}
 
 			if err != nil {
-				log.Printf("Error sendStdin: %v", err)
+				debugPrint(fmt.Sprintf("Error sendStdin: %v", err))
 			}
 		}
 
 		if err := h.Resp.CloseWrite(); err != nil {
-			log.Printf("couldn't send EOF: %v", err)
+			debugPrint(fmt.Sprintf("couldn't send EOF: %v", err))
 		}
 		close(inputDone)
 	}()

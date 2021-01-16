@@ -30,9 +30,10 @@ import (
 
 // listCmd represents the list command
 var listCmd = &cobra.Command{
-	Use:   "list [ENVIRONMENT_NAME]",
-	Short: "list configuration for existing environments",
-	Run:   ListCmd,
+	Use:     "list [ENVIRONMENT_NAME]",
+	Short:   "list configuration for existing environments",
+	Version: rootCmd.Version,
+	Run:     ListCmd,
 }
 
 func ListCmd(cmd *cobra.Command, args []string) {
@@ -46,10 +47,10 @@ func ListCmd(cmd *cobra.Command, args []string) {
 
 	if err != nil {
 		if err == util.ErrDoesNotExist {
-			fmt.Printf("no environments created yet")
+			fmt.Printf("no environments created yet\n")
 			os.Exit(0)
 		}
-		fmt.Printf("unable to decode config file: %v\nplease check formatting of config and delete if needed", err)
+		fmt.Printf("unable to decode config file: %v\nplease check formatting of config and delete if needed\n", err)
 		os.Exit(1)
 	}
 
@@ -57,7 +58,7 @@ func ListCmd(cmd *cobra.Command, args []string) {
 		if v, ok := configEnvs[envName]; ok {
 			util.PrintConfig(envName, v)
 		} else {
-			fmt.Printf("no environment found")
+			fmt.Printf("no environment found\n")
 		}
 	} else {
 		for k, v := range configEnvs {

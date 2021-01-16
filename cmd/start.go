@@ -28,30 +28,30 @@ import (
 	"github.com/docker/docker/api/types/container"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"log"
 	"os"
 )
 
 // startCmd represents the start command
 var startCmd = &cobra.Command{
-	Use:   "start ENVIRONMENT_NAME",
-	Short: "start environment in the background",
-	Args:  cobra.ExactArgs(1),
-	Run:   StartCmd,
+	Use:     "start ENVIRONMENT_NAME",
+	Short:   "start environment in the background",
+	Args:    cobra.ExactArgs(1),
+	Version: rootCmd.Version,
+	Run:     StartCmd,
 }
 
 func StartCmd(cmd *cobra.Command, args []string) {
 
 	envName := args[0]
 	if envName == "" {
-		fmt.Printf("you must provide an environment name")
+		fmt.Printf("you must provide an environment name\n")
 		_ = cmd.Usage()
 		os.Exit(1)
 	}
 
 	cli, err := util.NewCliClient()
 	if err != nil {
-		fmt.Printf("error: cannot create new CLI ApiClient: %v", err)
+		fmt.Printf("error: cannot create new CLI ApiClient: %v\n", err)
 		os.Exit(1)
 	}
 
@@ -61,12 +61,12 @@ func StartCmd(cmd *cobra.Command, args []string) {
 		running, err := cli.Running()
 		_, ok := running[envName]
 		if err == nil && ok {
-			fmt.Printf("%v is already running", envName)
+			fmt.Printf("%v is already running\n", envName)
 			os.Exit(0)
 		}
 		startEnvironment(cli, containerOpts, envName)
 	} else {
-		fmt.Printf("no such environment: %v", envName)
+		fmt.Printf("no such environment: %v\n", envName)
 		os.Exit(1)
 	}
 }
@@ -93,12 +93,12 @@ func startEnvironment(client *util.Cli, containerOpts *util.ContainerOpts, envNa
 		hostConfig)
 
 	if err != nil {
-		fmt.Printf("error creating container: %v", err)
+		fmt.Printf("error creating container: %v\n", err)
 		os.Exit(1)
 	}
 
 	client.DockerClient().StartContainer(ctx, resp.ID)
-	fmt.Printf("[%v] started...", envName)
+	fmt.Printf("[%v] started...\n", envName)
 	util.DebugPrint(fmt.Sprintf("containerID:\n%v", resp.ID))
 
 	running, _ := client.Running()
@@ -109,7 +109,7 @@ func startEnvironment(client *util.Cli, containerOpts *util.ContainerOpts, envNa
 
 	err = viper.WriteConfig()
 	if err != nil {
-		log.Printf("failed saving running containers")
+		fmt.Printf("failed saving running containers\n")
 	}
 }
 

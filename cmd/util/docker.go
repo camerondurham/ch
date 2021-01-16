@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"github.com/docker/docker/api/types/network"
 	"io"
+	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -137,7 +138,13 @@ func (d *DockerService) BuildImageWithContext(ctx context.Context, dockerfile st
 	}
 
 	// TODO: use ioutil.TempFile
-	contextTarball := fmt.Sprintf("/tmp/%s.tar", filepath.Base(contextPath))
+	//contextTarball := fmt.Sprintf("/tmp/%s.tar", filepath.Base(contextPath))
+	dir, err := ioutil.TempDir("", "docker-context")
+	if err != nil {
+		return fmt.Errorf("error creating TempDir: %v", err)
+	}
+	defer os.RemoveAll(dir)
+	contextTarball := filepath.Join(dir, "context.tar")
 
 	DebugPrint(fmt.Sprintf("dockerfile context file: %s\n", contextPath))
 	DebugPrint(fmt.Sprintf("output filename: %s\n", contextTarball))
@@ -155,7 +162,7 @@ func (d *DockerService) BuildImageWithContext(ctx context.Context, dockerfile st
 	})
 
 	if err != nil {
-		log.Printf("unable to build docker image: %v", err)
+		DebugPrint(fmt.Sprintf("unable to build docker image: \n%v\n", err))
 		return err
 	}
 

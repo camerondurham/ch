@@ -43,8 +43,9 @@ var (
 		Long: `Create docker environment config with new name.
 	Will look for your Dockerfile in the current directory
 	if you do not explicitly set --file.`,
-		Args: cobra.MinimumNArgs(1),
-		Run:  CreateCmd,
+		Args:    cobra.MinimumNArgs(1),
+		Version: rootCmd.Version,
+		Run:     CreateCmd,
 	}
 	errorCreateImageFieldsNotPresent = errors.New("file or image must be provided to create container")
 	errorBuildImageFieldsNotPresent  = errors.New("file and context must be provided to build a container")
@@ -95,15 +96,15 @@ func CreateCmd(cmd *cobra.Command, args []string) {
 	ctx := context.Background()
 
 	if err != nil {
-		fmt.Printf("error creating Docker client: are you sure Docker is running?")
-		fmt.Printf("ERROR: %v", err)
+		fmt.Printf("error creating Docker client: are you sure Docker is running?\n")
+		fmt.Printf("ERROR: %v\n", err)
 		os.Exit(1)
 	}
 
 	opts, err := parseContainerOpts(name, cli.Validator(), cmdFlags)
 
 	if err != nil {
-		fmt.Printf("failed to parse args: %v", err)
+		fmt.Printf("failed to parse args: %v\n", err)
 		os.Exit(1)
 	}
 
@@ -118,7 +119,7 @@ func CreateCmd(cmd *cobra.Command, args []string) {
 	}
 
 	if err != nil {
-		fmt.Printf("cannot create new environment, error creating image: %v", err)
+		fmt.Printf("cannot create new environment\nerror creating image:\n%v\n", err)
 		os.Exit(1)
 	}
 
@@ -215,7 +216,7 @@ func parseHostConfig(shellCmdArg string, volNameArgs []string, capAddArgs []stri
 		for i := 0; i < len(volNameArgs); i++ {
 			absPath, err := parseHostContainerPath(volNameArgs[i], v)
 			if err != nil {
-				fmt.Printf("error parsing mount: %v", err)
+				fmt.Printf("error parsing mount: %v\ncheck that you have provided a valid path", err)
 			} else {
 				volumeNames = append(volumeNames, absPath)
 			}
