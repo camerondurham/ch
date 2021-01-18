@@ -8,7 +8,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/camerondurham/ch/cmd/streams"
 	"github.com/docker/docker/api/types/network"
+	"github.com/docker/docker/pkg/jsonmessage"
 	"io"
 	"io/ioutil"
 	"log"
@@ -72,7 +74,7 @@ func (d *DockerService) ListRunning() {
 }
 
 // PullImage downloads a Docker image from Docker Hub
-func (d *DockerService) PullImage(ctx context.Context, imageName string) error {
+func (d *DockerService) PullImage(ctx context.Context, out *streams.Out, imageName string) error {
 	imagePullOutput, err := d.ImagePull(ctx, imageName, types.ImagePullOptions{})
 
 	if err != nil {
@@ -91,41 +93,7 @@ func (d *DockerService) PullImage(ctx context.Context, imageName string) error {
 
 	defer imagePullOutput.Close()
 
-	rd := bufio.NewReader(imagePullOutput)
-	var retErr error
-
-	for {
-		str, err := rd.ReadString('\n')
-		if err == io.EOF {
-			retErr = nil
-			break
-		} else {
-			var msg ImagePullOutput
-
-			err = json.Unmarshal([]byte(str), &msg)
-
-			if err != nil {
-				DebugPrint(fmt.Sprintf("error unmarshalling str: [%v]\nerr:%v", str, err))
-			}
-
-			if msg.Error != "" {
-				retErr = fmt.Errorf("error pulling image: %v", msg.Error)
-				break
-			}
-
-			fmt.Printf("%s\n", msg.Status)
-		}
-	}
-
-	return retErr
-
-	//_, err = io.Copy(os.Stdout, imagePullResponse)
-
-	//if err != nil {
-	//	return err
-	//}
-	//
-	//return nil
+	return jsonmessage.DisplayJSONMessagesToStream(imagePullOutput, out, nil)
 }
 
 // BuildImageWithContext accepts a build context path and relative Dockerfile path

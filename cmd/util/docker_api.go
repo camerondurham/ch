@@ -17,6 +17,8 @@ type DockerAPI interface {
 	ContainerExecStart(ctx context.Context, execID string, config types.ExecStartCheck) error
 	ContainerExecAttach(ctx context.Context, execID string, config types.ExecStartCheck) (types.HijackedResponse, error)
 	ContainerExecInspect(ctx context.Context, execID string) (types.ContainerExecInspect, error)
+	ContainerExecResize(ctx context.Context, execID string, options types.ResizeOptions) error
+	ContainerResize(ctx context.Context, containerID string, options types.ResizeOptions) error
 }
 
 type DockerAPIService struct {
@@ -45,6 +47,14 @@ func (d *DockerAPIService) ContainerExecAttach(ctx context.Context, execID strin
 
 func (d *DockerAPIService) ContainerExecInspect(ctx context.Context, execID string) (types.ContainerExecInspect, error) {
 	return d.client.ContainerExecInspect(ctx, execID)
+}
+
+func (d *DockerAPIService) ContainerExecResize(ctx context.Context, id string, options types.ResizeOptions) error {
+	return d.client.ContainerExecResize(ctx, id, options)
+}
+
+func (d *DockerAPIService) ContainerResize(ctx context.Context, id string, options types.ResizeOptions) error {
+	return d.client.ContainerResize(ctx, id, options)
 }
 
 // CreateExecInteractive creates an exec config to run an exec process
@@ -116,6 +126,11 @@ func (d *DockerAPIService) InteractiveExec(ctx context.Context, cliClient Contai
 	}()
 
 	// ignore check if config wants a terminal and has appropriate Tty size for now
+	if execConfig.Tty && cliClient.In().IsTerminal() {
+		if err := MonitorTtySize(ctx, cliClient, execID, true); err != nil {
+			fmt.Fprintln(cliClient.Err(), "Error monitoring TTY size:", err)
+		}
+	}
 
 	// check MonitorTtySize
 	if err := <-errCh; err != nil {

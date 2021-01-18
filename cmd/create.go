@@ -115,7 +115,7 @@ func CreateCmd(cmd *cobra.Command, args []string) {
 			opts.BuildOpts.Tag)
 	} else {
 		err = cli.DockerClient().PullImage(ctx,
-			opts.PullOpts.ImageName)
+			cli.Out(), opts.PullOpts.ImageName)
 	}
 
 	if err != nil {
@@ -133,16 +133,15 @@ func CreateCmd(cmd *cobra.Command, args []string) {
 	if err != nil {
 		if err == util.ErrDoesNotExist {
 			// save new environment opts into config file
-			viper.Set(fmt.Sprintf("envs.%s", name), opts)
+			envs = make(map[string]*util.ContainerOpts)
 		} else {
-			fmt.Print("cannot read environment")
+			util.DebugPrint(fmt.Sprintf("error reading environment: %v", err))
+			fmt.Print("cannot read environment from .ch.yaml")
 			os.Exit(1)
 		}
-	} else {
-		envs[name] = opts
-		viper.Set("envs", envs)
 	}
 
+	envs[name] = opts
 	util.SetEnvs(envs)
 
 	if err = viper.SafeWriteConfig(); err != nil {
