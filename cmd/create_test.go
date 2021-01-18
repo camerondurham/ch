@@ -277,6 +277,7 @@ func Test_parseContainerOpts(t *testing.T) {
 	defer ctrl.Finish()
 
 	m := mocks.NewMockValidate(ctrl)
+	m.EXPECT().GetAbs(gomock.Eq(".")).Return("/Users/camerondurham/context").AnyTimes()
 	// TODO: add expected stuff here
 
 	tests := []struct {
@@ -339,7 +340,7 @@ func Test_parseContainerOpts(t *testing.T) {
 			want: &util.ContainerOpts{
 				BuildOpts: &util.BuildOpts{
 					DockerfilePath: "Dockerfile",
-					Context:        ".",
+					Context:        "/Users/camerondurham/context",
 					Tag:            "test",
 				},
 				HostConfig: &util.HostConfig{},
