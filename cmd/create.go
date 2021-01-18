@@ -26,6 +26,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/camerondurham/ch/cmd/util"
+	"github.com/docker/go-connections/nat"
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -52,14 +53,16 @@ var (
 )
 
 type commandFlags struct {
-	file        string
-	image       string
-	volume      []string
-	shell       string
-	context     string
-	capAdd      []string
-	securityOpt []string
-	replace     bool
+	file         string
+	image        string
+	volume       []string
+	shell        string
+	context      string
+	capAdd       []string
+	securityOpt  []string
+	portBindings []string
+	privileged   bool
+	replace      bool
 }
 
 // CreateCmd creates a new Docker environment
@@ -73,17 +76,21 @@ func CreateCmd(cmd *cobra.Command, args []string) {
 	contextDir, _ := cmd.Flags().GetString("context")
 	capAddArgs, _ := cmd.Flags().GetStringArray("cap-add")
 	secOptArgs, _ := cmd.Flags().GetStringArray("security-opt")
+	portBindingArgs, _ := cmd.Flags().GetStringArray("port")
+	privileged, _ := cmd.Flags().GetBool("privileged")
 	replace, _ := cmd.Flags().GetBool("replace")
 
 	cmdFlags := &commandFlags{
-		file:        file,
-		image:       imageName,
-		volume:      volumeArgs,
-		shell:       shellCmdArgs,
-		context:     contextDir,
-		capAdd:      capAddArgs,
-		securityOpt: secOptArgs,
-		replace:     replace,
+		file:         file,
+		image:        imageName,
+		volume:       volumeArgs,
+		shell:        shellCmdArgs,
+		context:      contextDir,
+		capAdd:       capAddArgs,
+		securityOpt:  secOptArgs,
+		portBindings: portBindingArgs,
+		privileged:   privileged,
+		replace:      replace,
 	}
 
 	queryName := viper.GetStringMapString(fmt.Sprintf("envs.%s", name))
@@ -167,18 +174,20 @@ func init() {
 	createCmd.Flags().StringP("file", "f", "", "path to Dockerfile")
 	createCmd.Flags().StringP("image", "i", "", "image name to pull from DockerHub")
 	createCmd.Flags().StringArrayP("volume", "v", nil, "volume to mount to the working directory")
+	createCmd.Flags().StringArrayP("port", "p", nil, "bind host ports to container")
 	createCmd.Flags().String("shell", "/bin/sh", "default shell to use when logging into environment")
 	createCmd.Flags().String("context", ".", "context to build Dockerfile")
 
 	createCmd.Flags().StringArray("cap-add", nil, "special capacity to add to Docker Container (syscalls)")
 	createCmd.Flags().StringArray("security-opt", nil, "security options")
+	createCmd.Flags().Bool("privileged", false, "run container as privileged (full root/admin access)")
 
 	createCmd.Flags().Bool("replace", false, "replace environment if it already exists")
 }
 
 func parseContainerOpts(environmentName string, v util.Validate, cmdFlags *commandFlags) (*util.ContainerOpts, error) {
 
-	hostConfig, shellCmd := parseHostConfig(cmdFlags.shell, cmdFlags.volume, cmdFlags.capAdd, cmdFlags.securityOpt, v)
+	hostConfig, shellCmd := parseHostConfig(cmdFlags.shell, cmdFlags.privileged, cmdFlags.capAdd, cmdFlags.securityOpt, v, cmdFlags.volume, cmdFlags.portBindings)
 
 	if cmdFlags.file != "" {
 		if cmdFlags.context != "" {
@@ -207,7 +216,7 @@ func parseContainerOpts(environmentName string, v util.Validate, cmdFlags *comma
 	return nil, errorCreateImageFieldsNotPresent
 }
 
-func parseHostConfig(shellCmdArg string, volNameArgs []string, capAddArgs []string, secOptArgs []string, v util.Validate) (hostConfig *util.HostConfig, shellCmd string) {
+func parseHostConfig(shellCmdArg string, privileged bool, capAddArgs []string, secOptArgs []string, v util.Validate, volNameArgs []string, portOpts []string) (hostConfig *util.HostConfig, shellCmd string) {
 	hostConfig = &util.HostConfig{}
 
 	if len(volNameArgs) > 0 {
@@ -223,12 +232,25 @@ func parseHostConfig(shellCmdArg string, volNameArgs []string, capAddArgs []stri
 		hostConfig.Binds = volumeNames
 	}
 
+	if len(portOpts) > 0 {
+		ports, portBindings, err := nat.ParsePortSpecs(portOpts)
+		if err != nil {
+			fmt.Printf("error parsing ports: %v\nerror: %v\n", ports, err)
+		}
+
+		hostConfig.PortBindings = portBindings
+	}
+
 	if len(capAddArgs) > 0 {
 		hostConfig.CapAdd = capAddArgs
 	}
 
 	if len(secOptArgs) > 0 {
 		hostConfig.SecurityOpt = secOptArgs
+	}
+
+	if privileged {
+		hostConfig.Privileged = privileged
 	}
 
 	if shellCmdArg != "" {

@@ -132,10 +132,11 @@ func getImageName(envName string, containerOpts *util.ContainerOpts) string {
 func createHostConfig(containerOpts *util.ContainerOpts) *container.HostConfig {
 	if containerOpts.HostConfig != nil {
 		return &container.HostConfig{
-			Binds:       containerOpts.HostConfig.Binds,
-			CapAdd:      containerOpts.HostConfig.CapAdd,
-			Privileged:  containerOpts.HostConfig.Privileged,
-			SecurityOpt: containerOpts.HostConfig.SecurityOpt,
+			Binds:        containerOpts.HostConfig.Binds,
+			CapAdd:       containerOpts.HostConfig.CapAdd,
+			Privileged:   containerOpts.HostConfig.Privileged,
+			PortBindings: containerOpts.HostConfig.PortBindings,
+			SecurityOpt:  containerOpts.HostConfig.SecurityOpt,
 		}
 	} else {
 		return &container.HostConfig{}

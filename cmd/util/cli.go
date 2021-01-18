@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/camerondurham/ch/cmd/streams"
 	"github.com/docker/docker/api/types/strslice"
+	"github.com/docker/go-connections/nat"
 	"github.com/spf13/viper"
 	"os"
 
@@ -22,10 +23,11 @@ type PullOpts struct {
 }
 
 type HostConfig struct {
-	Binds       []string          // List of volume bindings for this container
-	SecurityOpt []string          // List of string values to customize labels for MLS systems, such as SELinux.
-	Privileged  bool              // Is the container in privileged mode
-	CapAdd      strslice.StrSlice // List of kernel capabilities to add to the container
+	Binds        []string          // List of volume bindings for this container
+	SecurityOpt  []string          // List of string values to customize labels for MLS systems, such as SELinux.
+	PortBindings nat.PortMap       // Map of host to container ports
+	Privileged   bool              // Is the container in privileged mode
+	CapAdd       strslice.StrSlice // List of kernel capabilities to add to the container
 }
 
 type ContainerOpts struct {

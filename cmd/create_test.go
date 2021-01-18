@@ -255,7 +255,7 @@ func Test_parseHostConfig(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotHostConfig, gotShellCmd := parseHostConfig(tt.args.shellCmdArg, tt.args.volNameArgs, tt.args.capAddArgs, tt.args.secOptArgs, tt.args.v)
+			gotHostConfig, gotShellCmd := parseHostConfig(tt.args.shellCmdArg, false, tt.args.capAddArgs, tt.args.secOptArgs, tt.args.v, tt.args.volNameArgs, nil)
 			if !reflect.DeepEqual(gotHostConfig, tt.wantHostConfig) {
 				t.Errorf("parseHostConfig() gotHostConfig = %v, want %v", gotHostConfig, tt.wantHostConfig)
 			}
