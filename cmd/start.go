@@ -27,7 +27,6 @@ import (
 	"github.com/camerondurham/ch/cmd/util"
 	"github.com/docker/docker/api/types/container"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"os"
 )
 
@@ -58,9 +57,7 @@ func StartCmd(cmd *cobra.Command, args []string) {
 	envs := cli.Containers()
 
 	if containerOpts, ok := envs[envName]; ok {
-		running, err := cli.Running()
-		_, ok := running[envName]
-		if err == nil && ok {
+		if cli.ContainerIsRunning(envName) {
 			fmt.Printf("%v is already running\n", envName)
 			os.Exit(0)
 		}
@@ -75,7 +72,7 @@ func init() {
 	rootCmd.AddCommand(startCmd)
 }
 
-func startEnvironment(client *util.Cli, containerOpts *util.ContainerOpts, envName string) {
+func startEnvironment(client *util.Cli, containerOpts *util.ContainerOpts, envName string) (containerID string) {
 
 	ctx := context.Background()
 
@@ -101,24 +98,8 @@ func startEnvironment(client *util.Cli, containerOpts *util.ContainerOpts, envNa
 	fmt.Printf("[%v] started...\n", envName)
 	util.DebugPrint(fmt.Sprintf("containerID:\n%v", resp.ID))
 
-	running, _ := client.Running()
-
-	running = updateRunning(running, resp.ID, envName)
-
-	viper.Set("running", running)
-
-	err = viper.WriteConfig()
-	if err != nil {
-		fmt.Printf("failed saving running containers\n")
-	}
-}
-
-func updateRunning(running map[string]string, containerID string, envName string) map[string]string {
-	if running == nil {
-		running = make(map[string]string)
-	}
-	running[envName] = containerID
-	return running
+	containerID = resp.ID
+	return
 }
 
 func getImageName(envName string, containerOpts *util.ContainerOpts) string {

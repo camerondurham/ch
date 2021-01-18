@@ -9,11 +9,11 @@ import (
 	"errors"
 	"fmt"
 	"github.com/camerondurham/ch/cmd/streams"
+	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/pkg/jsonmessage"
 	"io"
 	"io/ioutil"
-	"log"
 	"os"
 	"path/filepath"
 	"time"
@@ -61,16 +61,20 @@ func NewDockerServiceFromClient(cli DockerClient) *DockerService {
 	return &DockerService{client: cli}
 }
 
-// ListRunning lists running containers like docker ps
-func (d *DockerService) ListRunning() {
-	containers, err := d.ContainerList(context.Background(), types.ContainerListOptions{})
+// GetRunning lists running containers like docker ps
+func (d *DockerService) GetRunning(filters filters.Args, print bool) []types.Container {
+	containers, err := d.ContainerList(context.Background(), types.ContainerListOptions{Filters: filters})
 	if err != nil {
-		log.Fatal(err)
+		fmt.Printf("failed to running containers\nerror: %v\n", err)
+		os.Exit(1)
 	}
 
-	for _, c := range containers {
-		fmt.Printf("%s %s\n", c.ID[:10], c.Image)
+	if print {
+		for _, c := range containers {
+			fmt.Printf("%s %s\n", c.ID[:10], c.Image)
+		}
 	}
+	return containers
 }
 
 // PullImage downloads a Docker image from Docker Hub

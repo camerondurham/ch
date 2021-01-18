@@ -41,6 +41,10 @@ stop running container/environment
 
 list all saved configs
 
+### running
+
+list all running environments
+
 ## Examples
 
 ```shell script
@@ -62,4 +66,7 @@ ch stop cs104
 
 # list all environments
 ch list
+
+# list all running environments
+ch running
 ```

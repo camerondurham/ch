@@ -68,6 +68,17 @@ func init() {
 
 func removeEnvironment(envName string, envs map[string]*util.ContainerOpts) (map[string]*util.ContainerOpts, error) {
 	if _, ok := envs[envName]; ok {
+
+		cli, err := util.NewCliClient()
+		if err != nil {
+			fmt.Printf("error: cannot create new CLI ApiClient: %v\n", err)
+			os.Exit(1)
+		}
+
+		if cli.ContainerIsRunning(envName) {
+			return envs, fmt.Errorf("environment [%s] is currently running! \nPlease stop the environment before deleting it.\n", envName)
+		}
+
 		delete(envs, envName)
 		return envs, nil
 	} else {

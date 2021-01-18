@@ -22,24 +22,27 @@ THE SOFTWARE.
 package cmd
 
 import (
-	"context"
 	"fmt"
 	"github.com/camerondurham/ch/cmd/util"
+	"github.com/docker/docker/api/types/filters"
 	"github.com/spf13/cobra"
 	"os"
+	"strings"
+	"text/tabwriter"
+	"time"
 )
 
-// stopCmd represents the stop command
-var stopCmd = &cobra.Command{
-	Use:     "stop ENVIRONMENT_NAME",
-	Short:   "Stop a running environment (a running Docker container)",
-	Args:    cobra.ExactArgs(1),
-	Version: rootCmd.Version,
-	Run:     StopCmd,
+// runningCmd represents the running command
+var runningCmd = &cobra.Command{
+	Use:   "running",
+	Short: "List running environments",
+	Long: `List all running Docker containers created by the container-helper.
+Any Docker containers not managed by the container-helper will be ignored.
+To see all running containers, run: docker ps`,
+	Run: RunningCmd,
 }
 
-func StopCmd(cmd *cobra.Command, args []string) {
-	envName := args[0]
+func RunningCmd(cmd *cobra.Command, args []string) {
 	cli, err := util.NewCliClient()
 	if err != nil {
 		fmt.Printf("error: cannot create new CLI ApiClient: %v\n", err)
@@ -47,33 +50,29 @@ func StopCmd(cmd *cobra.Command, args []string) {
 	}
 
 	envs := cli.Containers()
-
-	if _, ok := envs[envName]; ok {
-
-		c, _ := cli.Container(envName)
-		if c == nil {
-			fmt.Printf("%v is not running\n", envName)
-			os.Exit(1)
-		} else {
-			ctx := context.Background()
-
-			containerID := c.ID
-
-			err := cli.DockerClient().StopContainer(ctx, containerID, nil)
-			if err != nil {
-				fmt.Printf("container not running\n")
-			} else {
-				fmt.Printf("stopped container: %v\n", envName)
-				cli.DockerClient().RemoveContainer(ctx, envName)
-			}
-
-		}
-
-	} else {
-		fmt.Printf("environment does not exist: %v\n", envName)
-		os.Exit(1)
+	environmentNames := make([]filters.KeyValuePair, 0)
+	for name, _ := range envs {
+		environmentNames = append(environmentNames, filters.Arg("name", name))
 	}
+	f := filters.NewArgs(environmentNames...)
+	list := cli.DockerClient().GetRunning(f, false)
+
+	w := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', 0)
+	fmt.Fprintf(w, "ENVIRONMENT\tIMAGE NAME\tCREATED\n")
+	for _, info := range list {
+		now := time.Now().Unix()
+		elapsed := now - info.Created
+		var timeSinceCreated string
+		if elapsed >= 60 {
+			timeSinceCreated = fmt.Sprintf("%v minutes ago", elapsed/60)
+		} else {
+			timeSinceCreated = fmt.Sprintf("%v seconds ago", elapsed)
+		}
+		fmt.Fprintf(w, "%s\t%s\t%v\n", strings.TrimPrefix(info.Names[0], "/"), info.Image, timeSinceCreated)
+	}
+	w.Flush()
 }
+
 func init() {
-	rootCmd.AddCommand(stopCmd)
+	rootCmd.AddCommand(runningCmd)
 }

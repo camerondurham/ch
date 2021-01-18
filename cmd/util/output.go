@@ -53,6 +53,12 @@ func buildString(envName string, opts *ContainerOpts) string {
 				fmt.Fprintf(&b, printConfigNest1, "CapAdd", fmt.Sprintf("%s", v))
 			}
 		}
+
+		if len(opts.HostConfig.PortBindings) > 0 {
+			for k, v := range opts.HostConfig.PortBindings {
+				fmt.Fprintf(&b, printConfigNest1, "Port", fmt.Sprintf("%s:%s", v[0].HostPort, k.Port()))
+			}
+		}
 	}
 
 	return b.String()

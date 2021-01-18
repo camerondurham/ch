@@ -1,8 +1,11 @@
 package util
 
 import (
+	"errors"
 	"fmt"
 	"github.com/camerondurham/ch/cmd/streams"
+	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/strslice"
 	"github.com/docker/go-connections/nat"
 	"github.com/spf13/viper"
@@ -54,7 +57,8 @@ type ContainerClient interface {
 	In() *streams.In
 	Err() io.Writer
 	Containers() map[string]*ContainerOpts
-	Running() (map[string]string, error)
+	Container(envName string) (*types.Container, error)
+	ContainerIsRunning(envName string) bool
 	Validator() *Validator
 }
 
@@ -101,14 +105,19 @@ func SetEnvs(envs map[string]*ContainerOpts) {
 	viper.Set("envs", envs)
 }
 
-func (cli *Cli) Running() (running map[string]string, err error) {
-	if !viper.IsSet("running") {
-		return nil, ErrDoesNotExist
-	} else {
-		running = make(map[string]string)
-		err = viper.UnmarshalKey("running", &running)
-		return
+func (cli *Cli) Container(envName string) (*types.Container, error) {
+	f := filters.NewArgs(filters.Arg("name", envName))
+	c := cli.DockerClient().GetRunning(f, false)
+
+	if len(c) != 1 {
+		return nil, errors.New("environment not running")
 	}
+	return &c[0], nil
+}
+
+func (cli *Cli) ContainerIsRunning(envName string) bool {
+	c, err := cli.Container(envName)
+	return err == nil && c != nil
 }
 
 func (cli *Cli) Validator() *Validator {

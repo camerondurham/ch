@@ -58,16 +58,24 @@ func ShellCmd(cmd *cobra.Command, args []string) {
 	envs := cli.Containers()
 
 	if containerOpts, ok := envs[envName]; ok {
-		running, err := cli.Running()
-		containerID, ok := running[envName]
-		if !autostart && (err == util.ErrDoesNotExist || !ok) {
+
+		var containerID string
+
+		containerIsRunning := cli.ContainerIsRunning(envName)
+
+		if !autostart && !containerIsRunning {
 			fmt.Printf(getNotRunningMsg(envName))
 			os.Exit(1)
-		} else if err == util.ErrDoesNotExist || !ok {
-			util.DebugPrint("starting non-running container because autostart flag used\n")
-			startEnvironment(cli, containerOpts, envName)
-			running, err = cli.Running()
-			containerID, ok = running[envName]
+		} else if autostart && !containerIsRunning {
+			util.DebugPrint("starting non-containerIsRunning container because autostart flag used\n")
+			containerID = startEnvironment(cli, containerOpts, envName)
+		} else {
+			c, err := cli.Container(envName)
+			if err != nil {
+				fmt.Printf("error getting container for environment %s: %v", envName, err)
+				return
+			}
+			containerID = c.ID
 		}
 
 		util.DebugPrint(fmt.Sprintf("starting container: %v\n", containerID))

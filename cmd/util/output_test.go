@@ -1,6 +1,7 @@
 package util
 
 import (
+	"github.com/docker/go-connections/nat"
 	"testing"
 )
 
@@ -36,7 +37,7 @@ func Test_buildString(t *testing.T) {
 				opts: &ContainerOpts{
 					BuildOpts: &BuildOpts{
 						DockerfilePath: "tests\\Dockerfile.alpine",
-						Context:        ".",
+						Context:        "C:\\Users\\Cameron\\Projects\\ch\\scripts\\test-scripts",
 						Tag:            "alpine-cursed-test2",
 					},
 					HostConfig: &HostConfig{
@@ -46,18 +47,24 @@ func Test_buildString(t *testing.T) {
 					},
 				},
 			},
-			want: "Name:\talpine-cursed-test2\n\tDockerfile:\ttests\\Dockerfile.alpine\n\tContext:\t.\n\t    Tag:\talpine-cursed-test2\n\tVolume:\tC:\\Users\\Cameron\\Projects\\ch\\tests\\cursed folder:/var\n\tSecOpt:\tseccomp:unconfined\n\tCapAdd:\tSYS_PTRACE\n",
+			want: "Name:\talpine-cursed-test2\n\tDockerfile:\ttests\\Dockerfile.alpine\n\tContext:\tC:\\Users\\Cameron\\Projects\\ch\\scripts\\test-scripts\n\t    Tag:\talpine-cursed-test2\n\tVolume:\tC:\\Users\\Cameron\\Projects\\ch\\tests\\cursed folder:/var\n\tSecOpt:\tseccomp:unconfined\n\tCapAdd:\tSYS_PTRACE\n",
 		},
-
-		/*
-		   Name:	alpine-cursed-test2
-		   	Dockerfile:	tests\Dockerfile.alpine
-		   	Context:	.
-		   	    Tag:	alpine-cursed-test2
-		   	Volume:	C:\Users\Cameron\Projects\ch\tests\cursed folder:/var
-		   	SecOpt:	seccomp:unconfined
-		   	CapAdd:	SYS_PTRACE
-		*/
+		{
+			name: "Nonempty opts.PortBindings",
+			args: args{
+				envName: "csci350",
+				opts: &ContainerOpts{
+					PullOpts: &PullOpts{ImageName: "camerondurham/xv6-docker:latest"},
+					HostConfig: &HostConfig{
+						SecurityOpt: []string{"seccomp:unconfined"},
+						CapAdd:      []string{"SYS_PTRACE"},
+						PortBindings: map[nat.Port][]nat.PortBinding{
+							nat.Port("22"): {nat.PortBinding{HostPort: "22"}}},
+					},
+				},
+			},
+			want: "Name:\tcsci350\n\tImage:\tcamerondurham/xv6-docker:latest\n\tSecOpt:\tseccomp:unconfined\n\tCapAdd:\tSYS_PTRACE\n\tPort:\t22:22\n",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
