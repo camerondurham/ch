@@ -30,12 +30,6 @@ function get_release_url() {
   echo "https://github.com/$repo/releases/download/$version/$filename"
 }
 
-function append_path_to_file() {
-  local location=$1
-  local target_file=$2
-  echo "export PATH=\"\$PATH:$location\"" >> "$target_file"
-}
-
 function add_to_path() {
   local location=$1
   if [ ! -d "$location" ]; then
@@ -45,17 +39,11 @@ function add_to_path() {
 
   # add to current profile
   export PATH="$PATH:$location"
+  local export_command="export PATH=\"\$PATH:$location\""
 
-  if [ -e "$HOME/.bashrc" ] || [ "${SHELL##*/}" = "bash" ]; then
-    echo "Adding to $HOME/.bashrc"
-    append_path_to_file "$location" "$HOME/.bashrc"
-  elif [ -e "$HOME/.zshrc" ] || [ "${SHELL##*/}" = "zsh" ]; then
-    echo "Adding to $HOME/.zshrc"
-    append_path_to_file "$location" "$HOME/.zshrc"
-  else
-    echo -e "No $HOME/.bashrc or $HOME/.zshrc found...\nPlease add this line to your preferred shell profile (~/.bashrc, ~/.bash_profile, ~/.zshrc, ...):"
-    echo "    export PATH=\"\$PATH:$location\""
-    exit 1
+  if ! grep "$export_command" "$HOME/.profile" > /dev/null; then
+    echo "Adding path to ch to $HOME/.profile"
+    echo "$export_command" >> "$HOME/.profile"
   fi
 }
 
@@ -74,6 +62,9 @@ get_release_package "$release_url" "$HOME" "$zip_filename"
 # remove downloaded zip file
 rm -f "$HOME/$zip_filename"
 
-add_to_path "$HOME/${zip_filename%.*}"
+# add directory to path if not already already present
+if ! echo "$PATH" | grep ${zip_filename%.*} > /dev/null ; then
+  add_to_path "$HOME/${zip_filename%.*}"
+fi
 
 echo "Done! Try using ch with: ch --help"
