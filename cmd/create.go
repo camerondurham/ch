@@ -171,17 +171,22 @@ func CreateCmd(cmd *cobra.Command, args []string) {
 func init() {
 	rootCmd.AddCommand(createCmd)
 
-	createCmd.Flags().StringP("file", "f", "", "path to Dockerfile")
-	createCmd.Flags().StringP("image", "i", "", "image name to pull from DockerHub")
-	createCmd.Flags().StringArrayP("volume", "v", nil, "volume to mount to the working directory")
-	createCmd.Flags().StringArrayP("port", "p", nil, "bind host ports to container")
-	createCmd.Flags().String("shell", "/bin/sh", "default shell to use when logging into environment")
+	// Docker build options
+	createCmd.Flags().StringP("file", "f", "", "path to Dockerfile, should be relative to context flag")
 	createCmd.Flags().String("context", ".", "context to build Dockerfile")
 
+	// Docker pull options
+	createCmd.Flags().StringP("image", "i", "", "image name to pull from DockerHub")
+
+	// Docker run options
+	createCmd.Flags().StringArrayP("volume", "v", nil, "volume to mount to the working directory")
+	createCmd.Flags().StringArrayP("port", "p", nil, "bind host port(s) to container")
+	createCmd.Flags().String("shell", "/bin/sh", "default shell to use when logging into environment")
 	createCmd.Flags().StringArray("cap-add", nil, "special capacity to add to Docker Container (syscalls)")
 	createCmd.Flags().StringArray("security-opt", nil, "security options")
 	createCmd.Flags().Bool("privileged", false, "run container as privileged (full root/admin access)")
 
+	// ch options
 	createCmd.Flags().Bool("replace", false, "replace environment if it already exists")
 }
 
@@ -191,10 +196,11 @@ func parseContainerOpts(environmentName string, v util.Validate, cmdFlags *comma
 
 	if cmdFlags.file != "" {
 		if cmdFlags.context != "" {
+			contextAbsPath := v.GetAbs(cmdFlags.context)
 			return &util.ContainerOpts{
 				BuildOpts: &util.BuildOpts{
 					DockerfilePath: cmdFlags.file,
-					Context:        cmdFlags.context,
+					Context:        contextAbsPath,
 					Tag:            environmentName,
 				},
 				HostConfig: hostConfig,

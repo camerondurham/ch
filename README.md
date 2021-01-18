@@ -18,6 +18,13 @@ A simple Docker interface to manage multiple containerized development environme
 
 create docker environment, specify Dockerfile to build or image to pull
 
+**Supported Configuration:**
+
+- ports
+- bind mount volumes
+- privileged
+- security-opt
+
 ### start
 
 start docker container in background and save container id to config file
@@ -38,16 +45,16 @@ list all saved configs
 
 ```shell script
 # create environment
-ch create ENVIRONMENT_NAME {--file DOCKERFILE|--image DOCKER_IMAGE} [--volume PATH_TO_DIRECTORY] [--shell SHELL_CMD]
+ch create ENVIRONMENT_NAME {--file DOCKERFILE|--image DOCKER_IMAGE} [--volume PATH_TO_DIRECTORY] [--shell SHELL_CMD] [--port HOST:CONTAINER] [--security-opt SECURITY_OPT]
 
-ch create --file ./env/Dockerfile --shell /bin/bash --volume ./project/files/ --name cs104
+ch create --image usccsci104/docker --shell /bin/bash --volume ./project/files/ --name cs104
 
-# start container
-# [docker run]
+ch create csci350 --image camerondurham/xv6-docker:latest --shell /bin/bash --security-opt seccomp:unconfined --port 7776:22 --port 7777:7777 --port 25000:25000 --cap-add SYS_PTRACE --privileged --replace
+
+# start container - essentially docker run -d IMAGE 
 ch start cs104
 
-# get shell into environment
-#  [docker exec]
+# get shell into environment - essentially docker exec -it CONTAINER_NAME
 ch shell cs104
 
 # stop container
@@ -55,5 +62,4 @@ ch stop cs104
 
 # list all environments
 ch list
-
 ```
