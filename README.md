@@ -77,7 +77,7 @@ Where `csci104-work` is your homework folder in the current directory.
 ```shell
 ch create cs104 \
   --image usccsci104/docker \
-  --volume ./csci104-work \
+  --volume ./csci104-work:/work \
   --shell /bin/bash
 ```
 
@@ -88,7 +88,7 @@ Where `csci350-work` is your homework folder in the current directory.
 ```shell
 ch create csci350 \
   --image camerondurham/xv6-docker:latest \
-  --volume ./cs350-work \
+  --volume ./cs350-work:/xv6_docker \
   --security-opt seccomp:unconfined \
   --port 7776:22 \
   --port 7777:7777 \
