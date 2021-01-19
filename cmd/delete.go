@@ -48,7 +48,13 @@ func DeleteCmd(cmd *cobra.Command, args []string) {
 		log.Fatalf("cannot read config: %v", err)
 	}
 
-	if envs, err := removeEnvironment(envName, envs); err != nil {
+	cli, err := util.NewCliClient()
+	if err != nil {
+		fmt.Printf("error: cannot create new CLI ApiClient: %v\n", err)
+		os.Exit(1)
+	}
+
+	if envs, err := removeEnvironment(envName, envs, cli); err != nil {
 		fmt.Printf("error: %v\n", err)
 		os.Exit(1)
 	} else {
@@ -66,14 +72,8 @@ func init() {
 	rootCmd.AddCommand(deleteCmd)
 }
 
-func removeEnvironment(envName string, envs map[string]*util.ContainerOpts) (map[string]*util.ContainerOpts, error) {
+func removeEnvironment(envName string, envs map[string]*util.ContainerOpts, cli *util.Cli) (map[string]*util.ContainerOpts, error) {
 	if _, ok := envs[envName]; ok {
-
-		cli, err := util.NewCliClient()
-		if err != nil {
-			fmt.Printf("error: cannot create new CLI ApiClient: %v\n", err)
-			os.Exit(1)
-		}
 
 		if cli.ContainerIsRunning(envName) {
 			return envs, fmt.Errorf("environment [%s] is currently running! \nPlease stop the environment before deleting it.\n", envName)

@@ -62,11 +62,10 @@ func NewDockerServiceFromClient(cli DockerClient) *DockerService {
 }
 
 // GetRunning lists running containers like docker ps
-func (d *DockerService) GetRunning(filters filters.Args, print bool) []types.Container {
+func (d *DockerService) GetRunning(filters filters.Args, print bool) ([]types.Container, error) {
 	containers, err := d.ContainerList(context.Background(), types.ContainerListOptions{Filters: filters})
 	if err != nil {
-		fmt.Printf("failed to running containers\nerror: %v\n", err)
-		os.Exit(1)
+		return nil, fmt.Errorf("failed to get running containers\nerror: %v\n", err)
 	}
 
 	if print {
@@ -74,7 +73,7 @@ func (d *DockerService) GetRunning(filters filters.Args, print bool) []types.Con
 			fmt.Printf("%s %s\n", c.ID[:10], c.Image)
 		}
 	}
-	return containers
+	return containers, nil
 }
 
 // PullImage downloads a Docker image from Docker Hub

@@ -107,7 +107,11 @@ func SetEnvs(envs map[string]*ContainerOpts) {
 
 func (cli *Cli) Container(envName string) (*types.Container, error) {
 	f := filters.NewArgs(filters.Arg("name", envName))
-	c := cli.DockerClient().GetRunning(f, false)
+	c, err := cli.DockerClient().GetRunning(f, false)
+
+	if err != nil {
+		return nil, errors.New("failed to get running environments")
+	}
 
 	if len(c) != 1 {
 		return nil, errors.New("environment not running")
@@ -143,4 +147,19 @@ func NewCliClient() (*Cli, error) {
 	cliClient.validator = &Validator{}
 
 	return cliClient, nil
+}
+
+func NewCliClientWithDockerService(dockerClient DockerClient, dockerService *DockerService) *Cli {
+	cliClient := &Cli{}
+
+	cliClient.dockerAPIClient = NewDockerAPIService(*dockerService)
+	cliClient.dockerService = dockerService
+
+	stdin, stdout, stderr := term.StdStreams()
+	cliClient.in = streams.NewIn(stdin)
+	cliClient.out = streams.NewOut(stdout)
+	cliClient.err = stderr
+	cliClient.validator = &Validator{}
+
+	return cliClient
 }

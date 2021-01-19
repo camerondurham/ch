@@ -55,7 +55,11 @@ func RunningCmd(cmd *cobra.Command, args []string) {
 		environmentNames = append(environmentNames, filters.Arg("name", name))
 	}
 	f := filters.NewArgs(environmentNames...)
-	list := cli.DockerClient().GetRunning(f, false)
+	list, err := cli.DockerClient().GetRunning(f, false)
+	if err != nil {
+		fmt.Printf("%v", err)
+		os.Exit(1)
+	}
 
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', 0)
 	fmt.Fprintf(w, "ENVIRONMENT\tIMAGE NAME\tCREATED\n")
