@@ -12,7 +12,7 @@ A simple Docker interface to manage multiple containerized development environme
 
 <br>
 
-## Why?
+## What is this?
 
 What's the use case for this tool? Good question! This tool is designed to make it easier to use a specific, isolated development environment. For classes
 such as CSCI 104 and CSCI 350 at USC, the archaic way of writing code in the class was using a heavy Virtual Machine. A more less resource intensive
