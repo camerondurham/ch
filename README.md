@@ -51,9 +51,7 @@ list all running environments
 # create environment
 ch create ENVIRONMENT_NAME {--file DOCKERFILE|--image DOCKER_IMAGE} [--volume PATH_TO_DIRECTORY] [--shell SHELL_CMD] [--port HOST:CONTAINER] [--security-opt SECURITY_OPT]
 
-ch create --image usccsci104/docker --shell /bin/bash --volume ./project/files/ --name cs104
-
-ch create csci350 --image camerondurham/xv6-docker:latest --shell /bin/bash --security-opt seccomp:unconfined --port 7776:22 --port 7777:7777 --port 25000:25000 --cap-add SYS_PTRACE --privileged --replace
+ch create csci104 --image usccsci104/docker --shell /bin/bash --volume ./project/files/
 
 # start container - essentially docker run -d IMAGE 
 ch start cs104
@@ -69,4 +67,34 @@ ch list
 
 # list all running environments
 ch running
+```
+
+
+### Create the CSCI104 Environment
+
+Where `csci104-work` is your homework folder in the current directory.
+
+```shell
+ch create cs104 \
+  --image usccsci104/docker \
+  --volume ./csci104-work \
+  --shell /bin/bash
+```
+
+### Create the CSCI 350 Environment
+
+Where `csci350-work` is your homework folder in the current directory.
+
+```shell
+ch create csci350 \
+  --image camerondurham/xv6-docker:latest \
+  --volume ./cs350-work \
+  --security-opt seccomp:unconfined \
+  --port 7776:22 \
+  --port 7777:7777 \
+  --port 25000:25000 \
+  --cap-add SYS_PTRACE \
+  --shell /bin/bash \
+  --privileged
+
 ```
