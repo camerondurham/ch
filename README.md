@@ -12,6 +12,43 @@ A simple Docker interface to manage multiple containerized development environme
 
 <br>
 
+## Why?
+
+What's the use case for this tool? Good question! This tool is designed to make it easier to use a specific, isolated development environment. For classes
+such as CSCI 104 and CSCI 350 at USC, the archaic way of writing code in the class was using a heavy Virtual Machine. A more less resource intensive
+workflow involves setting using a Docker container with the class's compilers and development tools installed. `ch` offers a consistent interface to
+configure and access these environments. See below for the commands to create environments for these classes. All you have to do is run the command and
+the tool will download the required dependencies from DockerHub.
+
+### Create the CSCI104 Environment
+
+Where `csci104-work` is your homework folder in the current directory.
+
+```shell
+ch create cs104 \
+  --image usccsci104/docker \
+  --volume ./csci104-work:/work \
+  --shell /bin/bash
+```
+
+### Create the CSCI 350 Environment
+
+Where `csci350-work` is your homework folder in the current directory.
+
+```shell
+ch create csci350 \
+  --image camerondurham/cs350-docker:latest \
+  --volume ./cs350-work:/xv6_docker \
+  --security-opt seccomp:unconfined \
+  --port 7776:22 \
+  --port 7777:7777 \
+  --port 25000:25000 \
+  --cap-add SYS_PTRACE \
+  --shell /bin/bash \
+  --privileged
+
+```
+
 ## Commands
 
 ### create
@@ -70,31 +107,4 @@ ch running
 ```
 
 
-### Create the CSCI104 Environment
 
-Where `csci104-work` is your homework folder in the current directory.
-
-```shell
-ch create cs104 \
-  --image usccsci104/docker \
-  --volume ./csci104-work:/work \
-  --shell /bin/bash
-```
-
-### Create the CSCI 350 Environment
-
-Where `csci350-work` is your homework folder in the current directory.
-
-```shell
-ch create csci350 \
-  --image camerondurham/cs350-docker:latest \
-  --volume ./cs350-work:/xv6_docker \
-  --security-opt seccomp:unconfined \
-  --port 7776:22 \
-  --port 7777:7777 \
-  --port 25000:25000 \
-  --cap-add SYS_PTRACE \
-  --shell /bin/bash \
-  --privileged
-
-```
