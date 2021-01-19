@@ -87,7 +87,7 @@ Where `csci350-work` is your homework folder in the current directory.
 
 ```shell
 ch create csci350 \
-  --image camerondurham/xv6-docker:latest \
+  --image camerondurham/cs350-docker:latest \
   --volume ./cs350-work:/xv6_docker \
   --security-opt seccomp:unconfined \
   --port 7776:22 \
