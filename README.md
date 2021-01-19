@@ -26,6 +26,7 @@ Where `csci104-work` is your homework folder in the current directory. This envi
 is based on this repository: [csci104/docker](https://github.com/csci104/docker)
 
 ```shell
+# create the environment
 ch create cs104 \
   --image usccsci104/docker \
   --volume ./csci104-work:/work \
