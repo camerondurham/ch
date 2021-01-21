@@ -36,6 +36,16 @@ jobs:
           asset_path: ./dist/ch-darwin-amd64.zip
           asset_name: ch-darwin-amd64.zip
           asset_content_type: application/zip
+      - name: Upload Apple Silicon Release Asset
+        id: upload-apple-silicon-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+          asset_path: ./dist/ch-darwin-arm64.zip
+          asset_name: ch-darwin-arm64.zip
+          asset_content_type: application/zip
       - name: Upload Windows Release Asset
         id: upload-windows-release-asset
         uses: actions/upload-release-asset@v1

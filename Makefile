@@ -13,7 +13,7 @@ VERSION=`git tag --points-at HEAD`
 BUILD=`git rev-parse HEAD`
 PLATFORMS=darwin linux windows
 # removing 386 as a target architecture
-ARCHITECTURES=amd64
+ARCHITECTURES=amd64 arm64
 PACKAGE=github.com/camerondurham/ch/version
 
 # Setup linker flags option for build that interoperate with variable names in src code
@@ -29,6 +29,10 @@ build:
 build_all:
 	$(foreach GOOS, $(PLATFORMS),\
 	$(foreach GOARCH, $(ARCHITECTURES), $(shell mkdir -p dist/$(BINARY)-$(GOOS)-$(GOARCH); GOOS=$(GOOS) GOARCH=$(GOARCH) go build -v $(LDFLAGS) -o dist/$(BINARY)-$(GOOS)-$(GOARCH))))
+
+#m1:
+#	mkdir -p dist/ch-darwin-arm64
+#	GOOS=darwin GOARCH=arm64 go build -v $(LDFLAGS) -o dist/ch-darwin-arm64
 
 TO_ZIP_DIRS = $(filter %/, $(wildcard dist/*/))  	# Find all directories in static/projects
 TO_ZIP_NAMES = $(patsubst %/,%,$(TO_ZIP_DIRS))  	# Remove trailing /
