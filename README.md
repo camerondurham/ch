@@ -1,6 +1,3 @@
-# ch: container helper
-
-A simple Docker interface to manage multiple containerized development environments. Provides a simple shell environment for separate development environments designed to use for C++ development in CSCI 104 but portable enough to use whichever Docker container you choose.
 <div>
   <a href="github.com/camerondurham/ch">
     <img align="left" src="https://img.shields.io/github/v/release/camerondurham/ch?include_prereleases" />
@@ -23,6 +20,10 @@ A simple Docker interface to manage multiple containerized development environme
   </a>
 </div>
 <br>
+
+# ch: container helper
+
+A simple Docker interface to manage multiple containerized development environments. Provides a simple shell environment for separate development environments designed to use for C++ development in CSCI 104 but portable enough to use whichever Docker container you choose.
 
 ## What is this?
 
