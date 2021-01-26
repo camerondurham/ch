@@ -1,15 +1,27 @@
 # ch: container helper
 
 A simple Docker interface to manage multiple containerized development environments. Provides a simple shell environment for separate development environments designed to use for C++ development in CSCI 104 but portable enough to use whichever Docker container you choose.
+<div>
+  <a href="github.com/camerondurham/ch">
+    <img align="left" src="https://img.shields.io/github/v/release/camerondurham/ch?include_prereleases" />
+  </a>
 
-<a href="https://github.com/marketplace/actions/super-linter">
-  <img align="left" src="https://github.com/camerondurham/ch/workflows/Lint%20Code%20Base/badge.svg" />
-</a>
+  <a href="github.com/camerondurham/ch">
+    <img align="left" src="https://img.shields.io/github/go-mod/go-version/camerondurham/ch" />
+  </a>
 
-<a href="https://www.repostatus.org/#active">
-  <img align="left" src="https://www.repostatus.org/badges/latest/active.svg" alt="Project Status: Active – The project has reached a stable, usable state and is being actively developed." />
-</a>
+  <a href="https://github.com/marketplace/actions/super-linter">
+    <img align="left" src="https://github.com/camerondurham/ch/workflows/Lint%20Code%20Base/badge.svg" />
+  </a>
 
+  <a href="https://www.repostatus.org/#active">
+    <img align="left" src="https://www.repostatus.org/badges/latest/active.svg" alt="Project Status: Active – The project has reached a stable, usable state and is being actively developed." />
+  </a>
+  
+  <a href="https://github.com/camerondurham/ch">
+    <img align="left" src="https://img.shields.io/github/downloads/camerondurham/ch/total" />
+  </a>
+</div>
 <br>
 
 ## What is this?
