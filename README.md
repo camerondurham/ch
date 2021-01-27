@@ -56,7 +56,7 @@ Run in your preferred Terminal to download and run the install script for Unix:
 ```bash
  bash <(curl -s https://raw.githubusercontent.com/camerondurham/ch/main/scripts/install-ch.sh)
  ```
- 
+
  You can check out the source code [here](https://github.com/camerondurham/ch/blob/main/scripts/install-ch.sh).
 
 ### Create the CSCI104 Environment
