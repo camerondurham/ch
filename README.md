@@ -34,6 +34,27 @@ or if you're lucky, VMWare. A more efficient and arguably smoother workflow invo
 development tools installed. `ch` offers a consistent interface to configure and access these environments. See below for the commands to create
 environments for these classes. All you have to do is run the command and the tool will download the required dependencies from DockerHub.
 
+
+## Quick Start
+
+The fastest way to get started is to run the install scripts. You can do this via the command line this way:
+
+### Windows
+
+Run PowerShell as Admin and execute this command to download and run the install script for Windows:
+
+```powershell
+Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/camerondurham/ch/main/scripts/install-ch.ps1'))
+```
+
+### macOS/Linux
+
+Run in your preferred Terminal to download and run the install script for Unix:
+
+```bash
+ bash <(curl -s https://raw.githubusercontent.com/camerondurham/ch/main/scripts/install-ch.sh)
+ ```
+
 ### Create the CSCI104 Environment
 
 Where `csci104-work` is your homework folder in the current directory. This environment
