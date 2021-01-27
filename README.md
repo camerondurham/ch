@@ -47,6 +47,8 @@ Run PowerShell as Admin and execute this command to download and run the install
 Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/camerondurham/ch/main/scripts/install-ch.ps1'))
 ```
 
+You can check out the source code [here](https://github.com/camerondurham/ch/blob/main/scripts/install-ch.ps1) to make sure it's not doing anything sus.
+
 ### macOS/Linux
 
 Run in your preferred Terminal to download and run the install script for Unix:
@@ -54,6 +56,8 @@ Run in your preferred Terminal to download and run the install script for Unix:
 ```bash
  bash <(curl -s https://raw.githubusercontent.com/camerondurham/ch/main/scripts/install-ch.sh)
  ```
+ 
+ You can check out the source code [here](https://github.com/camerondurham/ch/blob/main/scripts/install-ch.sh).
 
 ### Create the CSCI104 Environment
 
