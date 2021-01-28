@@ -61,15 +61,14 @@ Run in your preferred Terminal to download and run the install script for Unix:
 
 ### Create the CSCI104 Environment
 
-Where `csci104-work` is your homework folder in the current directory. This environment
-is based on this repository: [csci104/docker](https://github.com/csci104/docker)
+Where `csci104-work` is your homework folder in the current directory.  Alternatively, you can provide the absolute path
+to wherever your homework is on your machine.
+
+This environment is based on this repository: [csci104/docker](https://github.com/csci104/docker)
 
 ```shell
 # create the environment
-ch create cs104 \
-  --image usccsci104/docker \
-  --volume ./csci104-work:/work \
-  --shell /bin/bash
+ch create cs104 --image usccsci104/docker --volume csci104-work:/work  --security-opt seccomp:unconfined --cap-add SYS_PTRACE --shell /bin/bash
   
 # autostart and open a shell into the container
 ch shell csci104 --force-start
@@ -77,21 +76,14 @@ ch shell csci104 --force-start
 
 ### Create the CSCI 350 Environment
 
-Where `csci350-work` is your homework folder in the current directory. This environment
-is based on the this repository: [camerondurham/cs350-docker](https://github.com/camerondurham/cs350-docker)
+Where `csci350-work` is your homework folder in the current directory. Alternatively, you can provide the absolute path
+to wherever your homework is on your machine.
+
+This environment is based on the this repository: [camerondurham/cs350-docker](https://github.com/camerondurham/cs350-docker)
 
 ```shell
 # create the environment
-ch create csci350 \
-  --image camerondurham/cs350-docker:latest \
-  --volume ./cs350-work:/xv6_docker \
-  --security-opt seccomp:unconfined \
-  --port 7776:22 \
-  --port 7777:7777 \
-  --port 25000:25000 \
-  --cap-add SYS_PTRACE \
-  --shell /bin/bash \
-  --privileged
+ch create csci350 --image camerondurham/cs350-docker:latest  --volume csci350-work:/xv6_docker --security-opt seccomp:unconfined --port 7776:22 --port 7777:7777 --port 25000:25000 --cap-add SYS_PTRACE --shell /bin/bash --privileged
 
 # autostart and open a shell into the container
 ch shell csci350 --force-start
