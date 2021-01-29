@@ -30,17 +30,23 @@ jobs:
       - name: Package
         run: make zip_exe
 
-      - name: Windows Artifacts
+      - name: Windows amd64
         uses: actions/upload-artifact@v2
         with:
           name: windows
-          path: ./dist/ch-*
+          path: ./dist/ch-windows-amd64.zip
 
-      - name: Linux Artifacts
+      - name: Linux amd64
         uses: actions/upload-artifact@v2
         with:
           name: linux
-          path: ./dist/ch-*
+          path: ./dist/ch-linux-amd64.zip
+
+      - name: Linux arm64
+        uses: actions/upload-artifact@v2
+        with:
+          name: linux
+          path: ./dist/ch-linux-arm64.zip
 
   macos-build:
     name: MacOS Build
@@ -62,11 +68,17 @@ jobs:
       - name: Package
         run: make zip_exe
 
-      - name: MacOS Artifacts
+      - name: MacOS amd64
         uses: actions/upload-artifact@v2
         with:
           name: macos
-          path: ./dist/ch-*
+          path: ./dist/ch-darwin-amd64.zip
+
+      - name: MacOS arm64
+        uses: actions/upload-artifact@v2
+        with:
+          name: macos
+          path: ./dist/ch-darwin-arm64.zip
 
   tagged-release:
 
@@ -81,19 +93,23 @@ jobs:
         with:
           path: ./artifacts
 
-      - name: Package Linux
+      - name: Copy files
         run: |
-          zip -j ./release/ch-linux-amd64.zip ./artifacts/ch-linux-amd64
-          zip -j ./release/ch-linux-arm64.zip ./artifacts/ch-linux-arm64
+          cp ./artifacts/*.zip ./release
 
-      - name: Package Windows
-        run: |
-          zip -j ./release/ch-windows-amd64.zip ./artifacts/ch-windows-amd64
-
-      - name: Package MacOS
-        run: |
-          zip -j ./release/ch-darwin-amd64.zip ./artifacts/ch-darwin-amd64
-          zip -j ./release/ch-darwin-arm64.zip ./artifacts/ch-darwin-arm64
+#      - name: Package Linux
+#        run: |
+#          zip -j ./release/ch-linux-amd64.zip ./artifacts/ch-linux-amd64
+#          zip -j ./release/ch-linux-arm64.zip ./artifacts/ch-linux-arm64
+#
+#      - name: Package Windows
+#        run: |
+#          zip -j ./release/ch-windows-amd64.zip ./artifacts/ch-windows-amd64
+#
+#      - name: Package MacOS
+#        run: |
+#          zip -j ./release/ch-darwin-amd64.zip ./artifacts/ch-darwin-amd64
+#          zip -j ./release/ch-darwin-arm64.zip ./artifacts/ch-darwin-arm64
 
       - name: Publish Release
         uses: "marvinpinto/action-automatic-releases@latest"
