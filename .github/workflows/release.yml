@@ -1,4 +1,4 @@
-name: Upload Release Asset
+name: Release Package
 on:
   push:
     # Sequence of patterns matched against refs/tags
@@ -33,19 +33,19 @@ jobs:
       - name: Windows amd64
         uses: actions/upload-artifact@v2
         with:
-          name: windows
+          name: ch-windows-amd64.zip
           path: ./dist/ch-windows-amd64.zip
 
       - name: Linux amd64
         uses: actions/upload-artifact@v2
         with:
-          name: linux
+          name: ch-linux-amd64.zip
           path: ./dist/ch-linux-amd64.zip
 
       - name: Linux arm64
         uses: actions/upload-artifact@v2
         with:
-          name: linux
+          name: ch-linux-arm64.zip
           path: ./dist/ch-linux-arm64.zip
 
   macos-build:
@@ -71,13 +71,13 @@ jobs:
       - name: MacOS amd64
         uses: actions/upload-artifact@v2
         with:
-          name: macos
+          name: ch-darwin-amd64.zip
           path: ./dist/ch-darwin-amd64.zip
 
       - name: MacOS arm64
         uses: actions/upload-artifact@v2
         with:
-          name: macos
+          name: ch-darwin-arm64.zip
           path: ./dist/ch-darwin-arm64.zip
 
   tagged-release:

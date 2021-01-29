@@ -53,7 +53,7 @@ debug: build_all
 $(ZIP_TARGETS):
 	cd $(basename $@)/.. && zip -FSr $(notdir $@) $(notdir $(basename $@))
 
-# edit .github/workflows/build-and-release.yml if this name changes
+# edit .github/workflows/release.yml if this name changes
 zip_exe: $(ZIP_TARGETS)
 
 install:

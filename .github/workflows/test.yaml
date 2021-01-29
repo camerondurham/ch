@@ -1,23 +1,56 @@
-name: Unit Test
-
-on: [push, pull_request]
+name: Build
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  unit-test:
-    strategy:
-      matrix:
-        go-version: [1.16]
-        stable: false
-        os: [ubuntu-latest, macos-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
+
+  linux-windows-build:
+    name: Linux & Windows Build
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+
+      - name: Go 1.16
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.16beta1
+        id: go
+
+      - name: Check out code into the Go module directory
         uses: actions/checkout@v2
 
-      - name: Setup Go
-        uses: actions/setup-go@v2
+      - name: Make Linux
+        run: export PATH=/home/runner/go/bin/:$PATH && make linux
+
+      - name: Make Windows
+        run: export PATH=/home/runner/go/bin/:$PATH && make windows
+
+      - name: Build
+        run: go build .
+
+      - name: Test
+        run: go test ./...
+
+  macos-build:
+    name: MacOS Build
+    runs-on: macos-latest
+    steps:
+
+      - name: Go 1.16
+        uses: actions/setup-go@v1
         with:
-          go-version: ${{ matrix.go-version }}
+          go-version: 1.16beta1
+        id: go
+
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v2
+
+      - name: Make Darwin
+        run: export PATH=/Users/runner/go/bin/:$PATH && make macos
 
       - name: Build
         run: go build .
