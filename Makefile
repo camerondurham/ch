@@ -30,6 +30,16 @@ build_all:
 	$(foreach GOOS, $(PLATFORMS),\
 	$(foreach GOARCH, $(ARCHITECTURES), $(shell mkdir -p dist/$(BINARY)-$(GOOS)-$(GOARCH); GOOS=$(GOOS) GOARCH=$(GOARCH) go build -v $(LDFLAGS) -o dist/$(BINARY)-$(GOOS)-$(GOARCH))))
 
+linux:
+	$(foreach GOARCH, $(ARCHITECTURES), $(shell mkdir -p dist/$(BINARY)-linux-$(GOARCH); GOOS=linux GOARCH=$(GOARCH) go build -v $(LDFLAGS) -o dist/$(BINARY)-linux-$(GOARCH)))
+
+windows:
+	mkdir -p dist/$(BINARY)-windows-amd64
+	GOOS=windows GOARCH=amd64 go build -v $(LDFLAGS) -o dist/$(BINARY)-windows-amd64
+
+darwin:
+	$(foreach GOARCH, $(ARCHITECTURES), $(shell mkdir -p dist/$(BINARY)-darwin-$(GOARCH); GOOS=darwin GOARCH=$(GOARCH) go build -v $(LDFLAGS) -o dist/$(BINARY)-darwin-$(GOARCH)))
+
 #m1:
 #	mkdir -p dist/ch-darwin-arm64
 #	GOOS=darwin GOARCH=arm64 go build -v $(LDFLAGS) -o dist/ch-darwin-arm64
