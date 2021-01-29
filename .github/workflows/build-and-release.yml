@@ -76,24 +76,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - run: mkdir -p ./dist && mkdir -p ./release
+      - run: mkdir -p ./artifacts && mkdir -p ./release
       - uses: actions/download-artifact@v2
         with:
-          path: ./dist
+          path: ./artifacts
 
       - name: Package Linux
         run: |
-          zip -j ./release/ch-linux-amd64.zip ./dist/ch-linux-amd64
-          zip -j ./release/ch-linux-arm64.zip ./dist/ch-linux-arm64
+          zip -j ./release/ch-linux-amd64.zip ./artifacts/ch-linux-amd64
+          zip -j ./release/ch-linux-arm64.zip ./artifacts/ch-linux-arm64
 
       - name: Package Windows
         run: |
-          zip -j ./release/ch-windows-amd64.zip ./dist/ch-windows-amd64
+          zip -j ./release/ch-windows-amd64.zip ./artifacts/ch-windows-amd64
 
       - name: Package MacOS
         run: |
-          zip -j ./release/ch-darwin-amd64.zip ./dist/ch-darwin-amd64
-          zip -j ./release/ch-darwin-arm64.zip ./dist/ch-darwin-arm64
+          zip -j ./release/ch-darwin-amd64.zip ./artifacts/ch-darwin-amd64
+          zip -j ./release/ch-darwin-arm64.zip ./artifacts/ch-darwin-arm64
 
       - name: Publish Release
         uses: "marvinpinto/action-automatic-releases@latest"
