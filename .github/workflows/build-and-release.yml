@@ -82,7 +82,7 @@ jobs:
           path: ./dist
 
       - name: Package Linux
-      - run: |
+        run: |
           zip -j ./release/ch-linux-amd64.zip ./dist/ch-linux-amd64
           zip -j ./release/ch-linux-arm64.zip ./dist/ch-linux-arm64
 
@@ -95,7 +95,7 @@ jobs:
           zip -j ./release/ch-darwin-amd64.zip ./dist/ch-darwin-amd64
           zip -j ./release/ch-darwin-arm64.zip ./dist/ch-darwin-arm64
 
-      - name: "Publish Release"
+      - name: Publish Release
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
