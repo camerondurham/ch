@@ -45,7 +45,7 @@ jobs:
         id: go
 
       - name: Make Darwin
-        run: export PATH=/Users/runner/go/bin/:$PATH && make darwin
+        run: export PATH=/Users/runner/go/bin/:$PATH && make macos
 
       - name: Package
         run: make zip_exe

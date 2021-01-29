@@ -37,12 +37,9 @@ windows:
 	mkdir -p dist/$(BINARY)-windows-amd64
 	GOOS=windows GOARCH=amd64 go build -v $(LDFLAGS) -o dist/$(BINARY)-windows-amd64
 
-darwin:
+macos:
 	$(foreach GOARCH, $(ARCHITECTURES), $(shell mkdir -p dist/$(BINARY)-darwin-$(GOARCH); GOOS=darwin GOARCH=$(GOARCH) go build -v $(LDFLAGS) -o dist/$(BINARY)-darwin-$(GOARCH)))
 
-#m1:
-#	mkdir -p dist/ch-darwin-arm64
-#	GOOS=darwin GOARCH=arm64 go build -v $(LDFLAGS) -o dist/ch-darwin-arm64
 
 TO_ZIP_DIRS = $(filter %/, $(wildcard dist/*/))  	# Find all directories in static/projects
 TO_ZIP_NAMES = $(patsubst %/,%,$(TO_ZIP_DIRS))  	# Remove trailing /
