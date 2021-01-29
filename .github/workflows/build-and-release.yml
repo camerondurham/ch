@@ -35,13 +35,13 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: windows
-          path: ./dist/ch-windows-*.zip
+          path: ./dist/ch-*
 
       - name: Linux Artifacts
         uses: actions/upload-artifact@v2
         with:
           name: linux
-          path: ./dist/ch-linux-*.zip
+          path: ./dist/ch-*
 
   macos-build:
     name: MacOS Build
@@ -67,7 +67,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: macos
-          path: ./dist/ch-*.zip
+          path: ./dist/ch-*
 
   tagged-release:
 
@@ -82,8 +82,19 @@ jobs:
         with:
           path: ./dist
 
+      - name: Package Linux
       - run: |
-          cp ./dist/*.zip ./release
+          zip -j ./release/ch-linux-amd64.zip ./dist/ch-linux-amd64
+          zip -j ./release/ch-linux-arm64.zip ./dist/ch-linux-arm64
+
+      - name: Package Windows
+        run: |
+          zip -j ./release/ch-windows-amd64.zip ./dist/ch-windows-amd64
+
+      - name: Package MacOS
+        run: |
+          zip -j ./release/ch-darwin-amd64.zip ./dist/ch-darwin-amd64
+          zip -j ./release/ch-darwin-arm64.zip ./dist/ch-darwin-arm64
 
       - name: "Publish Release"
         uses: "marvinpinto/action-automatic-releases@latest"
