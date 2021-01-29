@@ -7,62 +7,147 @@ on:
 name: Upload Release Asset
 
 jobs:
-  build:
-    name: Upload Release Asset
+
+  linux-windows-build:
+    name: Linux & Windows Build
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+
+      - name: Go 1.16
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.16beta1
+        id: go
+
+      - name: Check out code into the Go module directory
         uses: actions/checkout@v2
-      - name: Build project
-        run: |
-          make clean && make build_all && make zip_exe
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Make Linux
+        run: export PATH=/home/runner/go/bin/:$PATH && make linux
+
+      - name: Make Windows
+        run: export PATH=/home/runner/go/bin/:$PATH && make windows
+
+      - name: Package
+        run: make zip_exe
+
+      - name: Windows Artifacts
+        uses: actions/upload-artifact@v2
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          draft: false
+          name: windows
+          path: ./dist/ch-windows-*.zip
+
+      - name: Linux Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: linux
+          path: ./dist/ch-linux-*.zip
+
+  macos-build:
+    name: MacOS Build
+    runs-on: macos-latest
+    steps:
+
+      - name: Go 1.16
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.16beta1
+        id: go
+
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v2
+
+      - name: Make Darwin
+        run: export PATH=/Users/runner/go/bin/:$PATH && make macos
+
+      - name: Package
+        run: make zip_exe
+
+      - name: MacOS Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: macos
+          path: ./dist/ch-*.zip
+
+  tagged-release:
+
+    needs: [linux-windows-build, macos-build]
+
+    name: "Tagged Release"
+    runs-on: ubuntu-latest
+
+    steps:
+      - run: mkdir -p ./dist
+      - uses: actions/download-artifact@v2
+        with:
+          path: ./dist
+
+      - name: "Publish Release"
+        uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: false
-      - name: Upload Darwin Release Asset
-        id: upload-darwin-release-asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-          asset_path: ./dist/ch-darwin-amd64.zip
-          asset_name: ch-darwin-amd64.zip
-          asset_content_type: application/zip
-      - name: Upload Apple Silicon Release Asset
-        id: upload-apple-silicon-release-asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-          asset_path: ./dist/ch-darwin-arm64.zip
-          asset_name: ch-darwin-arm64.zip
-          asset_content_type: application/zip
-      - name: Upload Windows Release Asset
-        id: upload-windows-release-asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-          asset_path: ./dist/ch-windows-amd64.zip
-          asset_name: ch-windows-amd64.zip
-          asset_content_type: application/zip
-      - name: Upload Linux Release Asset
-        id: upload-linux-release-asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-          asset_path: ./dist/ch-linux-amd64.zip
-          asset_name: ch-linux-amd64.zip
-          asset_content_type: application/zip
+          files: |
+            ./dist/*.zip
+
+
+#jobs:
+#  build:
+#    name: Upload Release Asset
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v2
+#      - name: Build project
+#        run: |
+#          make clean && make build_all && make zip_exe
+#      - name: Create Release
+#        id: create_release
+#        uses: actions/create-release@v1
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#        with:
+#          tag_name: ${{ github.ref }}
+#          release_name: Release ${{ github.ref }}
+#          draft: false
+#          prerelease: false
+#      - name: Upload Darwin Release Asset
+#        id: upload-darwin-release-asset
+#        uses: actions/upload-release-asset@v1
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#        with:
+#          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+#          asset_path: ./dist/ch-darwin-amd64.zip
+#          asset_name: ch-darwin-amd64.zip
+#          asset_content_type: application/zip
+#      - name: Upload Apple Silicon Release Asset
+#        id: upload-apple-silicon-release-asset
+#        uses: actions/upload-release-asset@v1
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#        with:
+#          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+#          asset_path: ./dist/ch-darwin-arm64.zip
+#          asset_name: ch-darwin-arm64.zip
+#          asset_content_type: application/zip
+#      - name: Upload Windows Release Asset
+#        id: upload-windows-release-asset
+#        uses: actions/upload-release-asset@v1
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#        with:
+#          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+#          asset_path: ./dist/ch-windows-amd64.zip
+#          asset_name: ch-windows-amd64.zip
+#          asset_content_type: application/zip
+#      - name: Upload Linux Release Asset
+#        id: upload-linux-release-asset
+#        uses: actions/upload-release-asset@v1
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#        with:
+#          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+#          asset_path: ./dist/ch-linux-amd64.zip
+#          asset_name: ch-linux-amd64.zip
+#          asset_content_type: application/zip
