@@ -33,19 +33,19 @@ jobs:
       - name: Windows amd64
         uses: actions/upload-artifact@v2
         with:
-          name: ch-windows-amd64.zip
+          name: ch-windows-amd64
           path: ./dist/ch-windows-amd64.zip
 
       - name: Linux amd64
         uses: actions/upload-artifact@v2
         with:
-          name: ch-linux-amd64.zip
+          name: ch-linux-amd64
           path: ./dist/ch-linux-amd64.zip
 
       - name: Linux arm64
         uses: actions/upload-artifact@v2
         with:
-          name: ch-linux-arm64.zip
+          name: ch-linux-arm64
           path: ./dist/ch-linux-arm64.zip
 
   macos-build:
@@ -71,13 +71,13 @@ jobs:
       - name: MacOS amd64
         uses: actions/upload-artifact@v2
         with:
-          name: ch-darwin-amd64.zip
+          name: ch-darwin-amd64
           path: ./dist/ch-darwin-amd64.zip
 
       - name: MacOS arm64
         uses: actions/upload-artifact@v2
         with:
-          name: ch-darwin-arm64.zip
+          name: ch-darwin-arm64
           path: ./dist/ch-darwin-arm64.zip
 
   tagged-release:
@@ -95,7 +95,7 @@ jobs:
 
       - name: Copy files
         run: |
-          cp ./artifacts/*.zip ./release
+          cp ./artifacts/*/*.zip ./release
 
 #      - name: Package Linux
 #        run: |
