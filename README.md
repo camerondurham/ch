@@ -12,10 +12,6 @@
   <a href="https://github.com/marketplace/actions/super-linter">
     <img align="left" src="https://github.com/camerondurham/ch/workflows/Lint%20Code%20Base/badge.svg" />
   </a>
-
-  <a href="https://www.repostatus.org/#active">
-    <img align="left" src="https://www.repostatus.org/badges/latest/active.svg" alt="Project Status: Active – The project has reached a stable, usable state and is being actively developed." />
-  </a>
   
   <a href="https://github.com/camerondurham/ch">
     <img align="left" src="https://img.shields.io/github/downloads/camerondurham/ch/total" />
