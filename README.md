@@ -64,7 +64,7 @@ ch shell csci104 --force-start
 ### Create the CSCI 350 Environment
 
 Where `csci350-work` is your homework folder in the current directory. Alternatively, you can provide the absolute path
-to wherever your homework is on your machine.
+to wherever your homework is on your machine. For Windows, your volume command should look like `--volume "C:\Users\user\path\to\csci350:/work"`, on macOS your command should look like `--volume /Users/username/path/to/csci350:/work`.
 
 This environment is based on the this repository: [camerondurham/cs350-docker](https://github.com/camerondurham/cs350-docker)
 
