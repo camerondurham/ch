@@ -65,7 +65,8 @@ func NewDockerServiceFromClient(cli DockerClient) *DockerService {
 func (d *DockerService) GetRunning(filters filters.Args, print bool) ([]types.Container, error) {
 	containers, err := d.ContainerList(context.Background(), types.ContainerListOptions{Filters: filters})
 	if err != nil {
-		return nil, fmt.Errorf("failed to get running containers\nerror: %v\n", err)
+		DebugPrint(fmt.Sprintf("error listing docker containers: %v", err))
+		return nil, fmt.Errorf("failed to get running containers\nplease verify that Docker is running")
 	}
 
 	if print {
@@ -109,7 +110,6 @@ func (d *DockerService) BuildImageWithContext(ctx context.Context, dockerfile st
 	}
 
 	// TODO: use ioutil.TempFile
-	//contextTarball := fmt.Sprintf("/tmp/%s.tar", filepath.Base(contextPath))
 	dir, err := ioutil.TempDir("", "docker-context")
 	if err != nil {
 		return fmt.Errorf("error creating TempDir: %v", err)
