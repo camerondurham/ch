@@ -26,6 +26,7 @@ import (
 	"fmt"
 	"github.com/camerondurham/ch/cmd/util"
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/errdefs"
 	"github.com/spf13/cobra"
 	"os"
 )
@@ -84,14 +85,31 @@ func startEnvironment(client *util.Cli, containerOpts *util.ContainerOpts, envNa
 
 	hostConfig := createHostConfig(containerOpts)
 
-	resp, err := client.DockerClient().CreateContainer(ctx,
-		containerConfig,
-		envName,
-		hostConfig)
+	retry := 3
+	success := false
+	var resp container.ContainerCreateCreatedBody
+	var err error
 
-	if err != nil {
-		fmt.Printf("error creating container: %v\n", err)
-		os.Exit(1)
+	for i := 0; !success && i < retry; i++ {
+		resp, err = client.DockerClient().CreateContainer(ctx,
+			containerConfig,
+			envName,
+			hostConfig)
+
+		if err != nil {
+
+			if errdefs.IsConflict(err) {
+				err = client.DockerClient().RemoveContainer(ctx, envName)
+				if err != nil {
+					util.DebugPrint(fmt.Sprintf("error removing container: %v", err))
+				}
+			} else {
+				fmt.Printf("unexpected error creating container: %v\n", err)
+				os.Exit(1)
+			}
+		} else {
+			success = true
+		}
 	}
 
 	client.DockerClient().StartContainer(ctx, resp.ID)

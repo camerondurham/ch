@@ -192,10 +192,10 @@ func (d *DockerService) CreateContainer(ctx context.Context, config *container.C
 // RemoveContainer delete container
 func (d *DockerService) RemoveContainer(ctx context.Context, containerName string) error {
 
-	DebugPrint(fmt.Sprintf("removing container[%s]", containerName))
+	DebugPrint(fmt.Sprintf("removing container [%s]", containerName))
 
 	if err := d.ContainerRemove(context.Background(), containerName, types.ContainerRemoveOptions{}); err != nil {
-		DebugPrint(fmt.Sprint("error removing container: ", err))
+		DebugPrint(fmt.Sprintf("error removing container: %v", err))
 		return err
 	} else {
 		return nil

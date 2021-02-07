@@ -64,7 +64,10 @@ func StopCmd(cmd *cobra.Command, args []string) {
 				fmt.Printf("container not running\n")
 			} else {
 				fmt.Printf("stopped container: %v\n", envName)
-				cli.DockerClient().RemoveContainer(ctx, envName)
+				err = cli.DockerClient().RemoveContainer(ctx, envName)
+				if err != nil {
+					util.DebugPrint(fmt.Sprintf("error removing container: %v", err))
+				}
 			}
 
 		}
