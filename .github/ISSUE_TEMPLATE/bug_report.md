@@ -22,9 +22,9 @@ A clear and concise description of what you expected to happen.
 If applicable, add screenshots to help explain your problem.
 
 **Desktop (please complete the following information):**
- - OS: [e.g. MacOS, Windows]
- - Docker Platform (Windows Only) [e.g. Hyper-V, WSL2]
- - Version [e.g. v0.1.9-beta]
+- OS: [e.g. MacOS, Windows]
+- Docker Platform (Windows Only) [e.g. Hyper-V, WSL2]
+- Version [e.g. v0.1.9-beta]
 
 **Additional context**
 Add any other context about the problem here.
