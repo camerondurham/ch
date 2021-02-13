@@ -49,3 +49,15 @@ Change package name:
 # change module name in all files
  find . -type f \( -name '*.go' -o -name '*.mod' \) -exec sed -i -e "s;container-helper;ch;g" {} +
 ```
+
+
+## Releasing New Versions
+
+> Note: This is mainly a reminder for me since
+> I can't remember how on Earth to git tag stuff sometimes!
+
+
+```shell
+# releasing a new version
+git tag -a v1.4 -m "Version notes here"
+```
