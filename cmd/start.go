@@ -73,7 +73,7 @@ func init() {
 	rootCmd.AddCommand(startCmd)
 }
 
-func startEnvironment(client *util.Cli, containerOpts *util.ContainerOpts, envName string) (containerID string) {
+func startEnvironment(client util.ContainerClient, containerOpts *util.ContainerOpts, envName string) (containerID string) {
 
 	ctx := context.Background()
 
@@ -99,22 +99,34 @@ func startEnvironment(client *util.Cli, containerOpts *util.ContainerOpts, envNa
 		if err != nil {
 
 			if errdefs.IsConflict(err) {
+				// handle conflicting containers by removing them
 				err = client.DockerClient().RemoveContainer(ctx, envName)
 				if err != nil {
-					util.DebugPrint(fmt.Sprintf("error removing container: %v", err))
+					util.DebugPrint(fmt.Sprintf("error removing container: %v\n", err))
+				}
+			} else if errdefs.IsNotFound(err) {
+				// handle if user has removed image by rebuilding or re-pulling image
+				err = initializeImage(ctx, client, containerOpts)
+				if err != nil {
+					util.DebugPrint(fmt.Sprintf("error recreating or pulling image: %v\n", err))
 				}
 			} else {
 				fmt.Printf("unexpected error creating container: %v\n", err)
 				os.Exit(1)
 			}
+
 		} else {
 			success = true
 		}
 	}
 
-	client.DockerClient().StartContainer(ctx, resp.ID)
+	err = client.DockerClient().StartContainer(ctx, resp.ID)
+	if err != nil {
+		fmt.Printf("WARNING: error encountered starting container\n")
+		util.DebugPrint(fmt.Sprintf("%v", err))
+	}
 	fmt.Printf("[%v] started...\n", envName)
-	util.DebugPrint(fmt.Sprintf("containerID:\n%v", resp.ID))
+	util.DebugPrint(fmt.Sprintf("containerID:\n%v\n", resp.ID))
 
 	containerID = resp.ID
 	return

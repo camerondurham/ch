@@ -72,7 +72,7 @@ func init() {
 	rootCmd.AddCommand(deleteCmd)
 }
 
-func removeEnvironment(envName string, envs map[string]*util.ContainerOpts, cli *util.Cli) (map[string]*util.ContainerOpts, error) {
+func removeEnvironment(envName string, envs map[string]*util.ContainerOpts, cli util.ContainerClient) (map[string]*util.ContainerOpts, error) {
 	if _, ok := envs[envName]; ok {
 
 		if cli.ContainerIsRunning(envName) {

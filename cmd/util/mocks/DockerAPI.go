@@ -107,3 +107,31 @@ func (mr *MockDockerAPIMockRecorder) ContainerExecInspect(ctx, execID interface{
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ContainerExecInspect", reflect.TypeOf((*MockDockerAPI)(nil).ContainerExecInspect), ctx, execID)
 }
+
+// ContainerExecResize mocks base method
+func (m *MockDockerAPI) ContainerExecResize(ctx context.Context, execID string, options types.ResizeOptions) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ContainerExecResize", ctx, execID, options)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ContainerExecResize indicates an expected call of ContainerExecResize
+func (mr *MockDockerAPIMockRecorder) ContainerExecResize(ctx, execID, options interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ContainerExecResize", reflect.TypeOf((*MockDockerAPI)(nil).ContainerExecResize), ctx, execID, options)
+}
+
+// ContainerResize mocks base method
+func (m *MockDockerAPI) ContainerResize(ctx context.Context, containerID string, options types.ResizeOptions) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ContainerResize", ctx, containerID, options)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ContainerResize indicates an expected call of ContainerResize
+func (mr *MockDockerAPIMockRecorder) ContainerResize(ctx, containerID, options interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ContainerResize", reflect.TypeOf((*MockDockerAPI)(nil).ContainerResize), ctx, containerID, options)
+}

@@ -43,6 +43,25 @@ func Test_createHostConfig(t *testing.T) {
 				CapAdd:      []string{"SYS_PTRACE"},
 			},
 		},
+		{
+			name: "Has Multiple SecurityOpt, CapAdd",
+			args: args{
+				containerOpts: &util.ContainerOpts{
+					HostConfig: &util.HostConfig{
+						Binds:       []string{"/home/cam/projects:/work"},
+						SecurityOpt: []string{"seccomp:unconfined", "seccomp:perf_event_open"},
+						Privileged:  true,
+						CapAdd:      []string{"SYS_PTRACE", "NET_ADMIN"},
+					},
+				},
+			},
+			want: &container.HostConfig{
+				Binds:       []string{"/home/cam/projects:/work"},
+				Privileged:  true,
+				SecurityOpt: []string{"seccomp:unconfined", "seccomp:perf_event_open"},
+				CapAdd:      []string{"SYS_PTRACE", "NET_ADMIN"},
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

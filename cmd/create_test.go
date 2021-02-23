@@ -1,10 +1,15 @@
 package cmd
 
 import (
+	"context"
+	"fmt"
 	"github.com/camerondurham/ch/cmd/util"
 	"github.com/camerondurham/ch/cmd/util/mocks"
+	"github.com/docker/docker/api/types"
 	"github.com/golang/mock/gomock"
+	"io/ioutil"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -357,6 +362,68 @@ func Test_parseContainerOpts(t *testing.T) {
 			}
 			if got != nil && !reflect.DeepEqual(*got, *tt.want) {
 				t.Errorf("parseContainerOpts() got = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_initializeImage(t *testing.T) {
+	type args struct {
+		ctx  context.Context
+		cli  *util.Cli
+		opts *util.ContainerOpts
+	}
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	m := mocks.NewMockDockerClient(ctrl)
+
+	stringReader := strings.NewReader("")
+	stringReadCloser := ioutil.NopCloser(stringReader)
+	//mv := mocks.NewMockValidate(ctrl)
+	m.EXPECT().ImageBuild(gomock.Any(), gomock.Any(), gomock.Any()).Return(types.ImageBuildResponse{}, fmt.Errorf("error")).AnyTimes()
+	m.EXPECT().ImagePull(gomock.Any(), gomock.Any(), gomock.Any()).Return(stringReadCloser, nil).AnyTimes()
+
+	d := util.NewDockerServiceFromClient(m)
+
+	cli := util.NewCliClientWithDockerService(m, d)
+
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+		{
+			name: "ImageBuild with error",
+			args: args{
+				ctx: context.Background(),
+				cli: cli,
+				opts: &util.ContainerOpts{
+					BuildOpts: &util.BuildOpts{
+						DockerfilePath: "path",
+					}},
+			},
+			wantErr: true,
+		},
+		{
+			name: "ImagePull no error",
+			args: args{
+				ctx: context.Background(),
+				cli: cli,
+				opts: &util.ContainerOpts{
+					PullOpts: &util.PullOpts{
+						ImageName: "usccsci104/docker",
+					},
+				},
+			},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := initializeImage(tt.args.ctx, tt.args.cli, tt.args.opts); (err != nil) != tt.wantErr {
+				t.Errorf("initializeImage() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}
