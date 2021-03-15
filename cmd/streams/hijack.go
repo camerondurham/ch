@@ -86,7 +86,16 @@ func (h *HijackedIOStreamer) setupInput() (restore func(), err error) {
 	var restoreOnce sync.Once
 	restore = func() {
 		restoreOnce.Do(func() {
-			restoreTerminal(h.Streams, h.InputStream)
+			// this function executes when user exits shell by typing `exit` or `^D`
+			if err = restoreTerminal(h.Streams, h.InputStream); err != nil {
+				debugPrint("error restoring terminal")
+			} else {
+				// Goroutine does not exit if this doesn't explicitly terminate the program.
+				// Pending investigation, this should terminate the program once the user exits terminal.
+				// Terminating here should be safe as the open file descriptor (stdin) is restored, resources
+				// have already been restored at this point.
+				os.Exit(0)
+			}
 		})
 	}
 
