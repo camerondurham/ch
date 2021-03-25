@@ -12,7 +12,7 @@
   <a href="https://github.com/marketplace/actions/super-linter">
     <img align="left" src="https://github.com/camerondurham/ch/workflows/Lint%20Code%20Base/badge.svg" />
   </a>
-  
+
   <a href="https://github.com/camerondurham/ch">
     <img align="left" src="https://img.shields.io/github/downloads/camerondurham/ch/total" />
   </a>
@@ -21,6 +21,23 @@
 
 
 A simple Docker interface to manage multiple containerized development environments. Provides a simple shell environment for separate development environments designed to use for C++ development in CSCI 104 but portable enough to use whichever Docker container you choose.
+
+
+- [ch: container helper](#ch-container-helper)
+  - [Quick Start](#quick-start)
+    - [Windows](#windows)
+    - [macOS/Linux](#macoslinux)
+    - [Create the CSCI104 Environment](#create-the-csci104-environment)
+    - [Create the CSCI 350 Environment](#create-the-csci-350-environment)
+  - [What is this?](#what-is-this)
+  - [Commands](#commands)
+    - [create](#create)
+    - [start](#start)
+    - [shell](#shell)
+    - [stop](#stop)
+    - [list](#list)
+    - [running](#running)
+  - [More Examples](#more-examples)
 
 ## Quick Start
 
@@ -56,7 +73,7 @@ This environment is based on this repository: [csci104/docker](https://github.co
 ```shell
 # create the environment
 ch create cs104 --image usccsci104/docker --volume csci104-work:/work  --security-opt seccomp:unconfined --cap-add SYS_PTRACE --shell /bin/bash
-  
+
 # autostart and open a shell into the container
 ch shell csci104 --force-start
 ```
@@ -126,7 +143,7 @@ ch create ENVIRONMENT_NAME {--file DOCKERFILE|--image DOCKER_IMAGE} [--volume PA
 
 ch create csci104 --image usccsci104/docker --shell /bin/bash --volume ./project/files/
 
-# start container - essentially docker run -d IMAGE 
+# start container - essentially docker run -d IMAGE
 ch start cs104
 
 # get shell into environment - essentially docker exec -it CONTAINER_NAME
