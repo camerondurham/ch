@@ -20,7 +20,8 @@
 <br>
 
 
-A simple Docker interface to manage multiple containerized development environments. Provides a simple shell environment for separate development environments designed to use for C++ development in CSCI 104 but portable enough to use whichever Docker container you choose.
+A simple Docker interface to manage multiple containerized development environments. Provides a simple shell environment for separate development environments designed to use for C++ development in CSCI 104 but portable enough to use whichever Docker container you choose. Of course, this repo would not be possible
+without the reference of [docker/cli](https://github.com/docker/cli) which is how I learned how to use the Docker Engine API.
 
 
 - [ch: container helper](#ch-container-helper)
