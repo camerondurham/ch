@@ -73,7 +73,7 @@ func StopCmd(cmd *cobra.Command, args []string) {
 		}
 
 	} else {
-		fmt.Printf("environment does not exist: %v\n", envName)
+		util.PrintEnvNotFoundMsg(envName)
 		os.Exit(1)
 	}
 }

@@ -159,6 +159,7 @@ func CreateCmd(cmd *cobra.Command, args []string) {
 	}
 
 	util.PrintConfig(name, opts)
+	util.PrintStartHelpMessage(name)
 }
 func init() {
 	rootCmd.AddCommand(createCmd)

@@ -101,6 +101,17 @@ func GetEnvs() (envs map[string]*ContainerOpts, err error) {
 	return
 }
 
+func PrintEnvNotFoundMsg(envName string) {
+	fmt.Printf("no such environment: %v\n", envName)
+	envs, err := GetEnvs()
+	if err == nil {
+		fmt.Printf("\nAvailable environments:\n\n")
+		for k, _ := range envs {
+			fmt.Printf("\t%s\n", k)
+		}
+	}
+}
+
 func SetEnvs(envs map[string]*ContainerOpts) {
 	viper.Set("envs", envs)
 }

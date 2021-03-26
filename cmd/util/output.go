@@ -20,6 +20,10 @@ func PrintConfig(envName string, opts *ContainerOpts) {
 	fmt.Println(buildString(envName, opts))
 }
 
+func PrintStartHelpMessage(envName string) {
+	fmt.Printf("\nStart this environment with: \n\tch start %s\n", envName)
+}
+
 func buildString(envName string, opts *ContainerOpts) string {
 	var b strings.Builder
 

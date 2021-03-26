@@ -64,7 +64,7 @@ func StartCmd(cmd *cobra.Command, args []string) {
 		}
 		startEnvironment(cli, containerOpts, envName)
 	} else {
-		fmt.Printf("no such environment: %v\n", envName)
+		util.PrintEnvNotFoundMsg(envName)
 		os.Exit(1)
 	}
 }
