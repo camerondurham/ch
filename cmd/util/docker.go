@@ -5,7 +5,6 @@ import (
 	"bufio"
 	"bytes"
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/camerondurham/ch/cmd/streams"
@@ -101,7 +100,7 @@ func (d *DockerService) PullImage(ctx context.Context, out *streams.Out, imageNa
 }
 
 // BuildImageWithContext accepts a build context path and relative Dockerfile path
-func (d *DockerService) BuildImageWithContext(ctx context.Context, dockerfile string, contextDirPath string, imageTagName string) (err error) {
+func (d *DockerService) BuildImageWithContext(ctx context.Context, out *streams.Out, contextDirPath string, imageTagName string, dockerfile string) (err error) {
 	contextPath := contextDirPath
 	contextPath = d.validator.GetAbs(contextPath)
 
@@ -137,43 +136,20 @@ func (d *DockerService) BuildImageWithContext(ctx context.Context, dockerfile st
 		return err
 	}
 
-	type BuildOutput struct {
-		Stream      string       `json:"stream"`
-		ErrorDetail *ErrorDetail `json:"errorDetail"`
-		Error       string       `json:"error,omitempty"`
-	}
-
 	defer buildResponse.Body.Close()
 
 	DebugPrint(buildResponse.OSType)
 
 	rd := bufio.NewReader(buildResponse.Body)
 
-	var retErr error
-
-	for {
-
-		// there must be a better way than parsing the output to figure out if a build failed??
-		str, err := rd.ReadString('\n')
-		if err == io.EOF {
-			retErr = nil
-			break
-		} else {
-			var msg BuildOutput
-
-			err = json.Unmarshal([]byte(str), &msg)
-
-			if err != nil {
-				DebugPrint(fmt.Sprintf("error unmarshalling str: [%s] \n error: %v", str, err))
-			}
-
-			if msg.Error != "" {
-				retErr = fmt.Errorf("error building image:\n%v", msg.ErrorDetail.Message)
-				break
-			}
-		}
+	if err := jsonmessage.DisplayJSONMessagesToStream(rd, out, nil); err != nil {
+		DebugPrint("\nFailed to build image")
+		return fmt.Errorf("\n%v\n", err)
+	} else {
+		fmt.Println()
 	}
-	return retErr
+
+	return nil
 }
 
 // CreateContainer create container with name
