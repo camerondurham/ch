@@ -24,22 +24,6 @@ A simple Docker interface to manage multiple containerized development environme
 without the reference of [docker/cli](https://github.com/docker/cli) which is how I learned how to use the Docker Engine API.
 
 
-- [ch: container helper](#ch-container-helper)
-  - [Quick Start](#quick-start)
-    - [Windows](#windows)
-    - [macOS/Linux](#macoslinux)
-    - [Create the CSCI104 Environment](#create-the-csci104-environment)
-    - [Create the CSCI 350 Environment](#create-the-csci-350-environment)
-  - [What is this?](#what-is-this)
-  - [Commands](#commands)
-    - [create](#create)
-    - [start](#start)
-    - [shell](#shell)
-    - [stop](#stop)
-    - [list](#list)
-    - [running](#running)
-  - [More Examples](#more-examples)
-
 ## Quick Start
 
 The fastest way to get started is to run the install scripts. You can do this via the command line this way:
