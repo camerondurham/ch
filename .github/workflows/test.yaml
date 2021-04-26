@@ -10,7 +10,7 @@ on:
 jobs:
 
   linux-windows-build:
-    name: Linux & Windows Build
+  name: Linux & Windows Test
     runs-on: ubuntu-latest
     steps:
 
@@ -36,7 +36,7 @@ jobs:
         run: go test ./...
 
   macos-build:
-    name: MacOS Build
+    name: MacOS Test
     runs-on: macos-latest
     steps:
 

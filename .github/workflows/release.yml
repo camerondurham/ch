@@ -97,20 +97,6 @@ jobs:
         run: |
           cp ./artifacts/*/*.zip ./release
 
-#      - name: Package Linux
-#        run: |
-#          zip -j ./release/ch-linux-amd64.zip ./artifacts/ch-linux-amd64
-#          zip -j ./release/ch-linux-arm64.zip ./artifacts/ch-linux-arm64
-#
-#      - name: Package Windows
-#        run: |
-#          zip -j ./release/ch-windows-amd64.zip ./artifacts/ch-windows-amd64
-#
-#      - name: Package MacOS
-#        run: |
-#          zip -j ./release/ch-darwin-amd64.zip ./artifacts/ch-darwin-amd64
-#          zip -j ./release/ch-darwin-arm64.zip ./artifacts/ch-darwin-arm64
-
       - name: Publish Release
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
