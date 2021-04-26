@@ -10,7 +10,7 @@ on:
 jobs:
 
   linux-windows-build:
-  name: Linux & Windows Test
+    name: Linux & Windows Test
     runs-on: ubuntu-latest
     steps:
 
