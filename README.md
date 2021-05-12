@@ -1,4 +1,8 @@
-# ch: container helper
+<div align="center">
+<img src="https://i.imgur.com/09ac72P.gif" />
+</div>
+
+# `ch` container helper
 
 <div>
   <a href="github.com/camerondurham/ch">
@@ -20,8 +24,7 @@
 <br>
 
 
-A simple Docker interface to manage multiple containerized development environments. Provides a simple shell environment for separate development environments designed to use for C++ development in CSCI 104 but portable enough to use whichever Docker container you choose. Of course, this repo would not be possible
-without the reference of [docker/cli](https://github.com/docker/cli) which is how I learned how to use the Docker Engine API.
+`ch` is a command-line interface for using Docker containers as development environment. The tool provides a simple Docker interface to manage multiple containerized development environments. Like the `docker exec -it`, the CLI has a shell environment. This was designed to generalize how we develop C++ code in CSCI 104 to be portable enough to use whichever Docker container you choose. Of course, this project would not be possible without the reference of [docker/cli](https://github.com/docker/cli) which is how I learned how to use the Docker Engine API.
 
 
 ## Quick Start
@@ -57,7 +60,7 @@ This environment is based on this repository: [csci104/docker](https://github.co
 
 ```shell
 # create the environment
-ch create cs104 --image usccsci104/docker --volume csci104-work:/work  --security-opt seccomp:unconfined --cap-add SYS_PTRACE --shell /bin/bash
+ch create csci104 --image usccsci104/docker:20.04 --volume csci104-work:/work  --security-opt seccomp:unconfined --cap-add SYS_PTRACE --shell /bin/bash
 
 # autostart and open a shell into the container
 ch shell csci104 --force-start
