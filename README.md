@@ -1,8 +1,9 @@
+# `ch` container helper
+
 <div align="center">
-<img src="https://i.imgur.com/09ac72P.gif" />
+<img alt="cute GIF of the Docker whale icon with rainbows trailing behind it" src="https://i.imgur.com/09ac72P.gif" />
 </div>
 
-# `ch` container helper
 
 <div>
   <a href="github.com/camerondurham/ch">
@@ -146,4 +147,3 @@ ch list
 # list all running environments
 ch running
 ```
-

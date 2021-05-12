@@ -22,12 +22,10 @@ type DockerAPI interface {
 }
 
 type DockerAPIService struct {
-	//client client.APIClient
 	client DockerAPI
 	cc     client.APIClient
 }
 
-// TODO: improve this interface
 func NewDockerAPIService(client DockerService) *DockerAPIService {
 	return &DockerAPIService{client: client.cc}
 }

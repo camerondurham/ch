@@ -40,7 +40,7 @@ type DockerService struct {
 	validator *Validator
 }
 
-// Docker Build Response
+// ErrorDetail Docker Build Response
 type ErrorDetail struct {
 	Code    int    `json:",string"`
 	Message string `json:"message"`

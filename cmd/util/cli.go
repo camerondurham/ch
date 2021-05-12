@@ -40,7 +40,7 @@ type ContainerOpts struct {
 	Shell      string
 }
 
-// TODO: add config/env settings to use Cli in other commands
+// Cli TODO: add config/env settings to use Cli in other commands
 type Cli struct {
 	in              *streams.In
 	out             *streams.Out
