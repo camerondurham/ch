@@ -1,9 +1,10 @@
 # `ch` container helper
 
 <div align="center">
-<img alt="cute GIF of the Docker whale icon with rainbows trailing behind it" src="https://i.imgur.com/09ac72P.gif" />
+    <img alt="cute GIF of the Docker whale icon with rainbows trailing behind it" src="https://i.imgur.com/09ac72P.gif" />
 </div>
 
+<br>
 
 <div>
   <a href="github.com/camerondurham/ch">
@@ -22,8 +23,8 @@
     <img align="left" src="https://img.shields.io/github/downloads/camerondurham/ch/total" />
   </a>
 </div>
-<br>
 
+<br>
 
 `ch` is a command-line interface for using Docker containers as development environment. The tool provides a simple Docker interface to manage multiple containerized development environments. Like the `docker exec -it`, the CLI has a shell environment. This was designed to generalize how we develop C++ code in CSCI 104 to be portable enough to use whichever Docker container you choose. Of course, this project would not be possible without the reference of [docker/cli](https://github.com/docker/cli) which is how I learned how to use the Docker Engine API.
 
