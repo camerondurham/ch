@@ -43,19 +43,19 @@ Please make sure that your machine meets the requirements for Docker Desktop:
 <a href="https://docs.docker.com/docker-for-windows/install/" target="_blank">Windows host:</a>
 
 - Windows 10 64-bit: (Build 18362 or later)
-    - WSL2 container backend
+  - WSL2 container backend
 
 <a href="https://docs.docker.com/docker-for-mac/install/" target="_blank">Mac host:</a>
 
 - Intel:
-    - Mac hardware must be a 2010 or newer model
-    - macOS must be version 10.13 or newer
-    - 4 GB RAM minimum
+  - Mac hardware must be a 2010 or newer model
+  - macOS must be version 10.13 or newer
+  - 4 GB RAM minimum
 - Apple Silicon (i.e. M1 chip):
-    - Rosetta emulated terminal
-        - for instructions on how to setup a Rosetta emulated terminal, see
-          <a href="https://osxdaily.com/2020/11/18/how-run-homebrew-x86-terminal-apple-silicon-mac/" target="_blank">instructions here</a>
-          to run Terminal through Rosetta.
+  - Rosetta emulated terminal
+    - for instructions on how to setup a Rosetta emulated terminal, see
+      <a href="https://osxdaily.com/2020/11/18/how-run-homebrew-x86-terminal-apple-silicon-mac/" target="_blank">instructions here</a>
+      to run Terminal through Rosetta.
 
 ### Step 0: Install WSL2 (Windows only)
 
