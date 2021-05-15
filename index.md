@@ -35,117 +35,14 @@ development tools installed. `ch` offers a consistent interface to configure and
 environments for these classes.
 
 
-## Commands
+## Getting Started
 
-### `ch create`
+See the [getting started](installation.md) to install and setup `ch`.
 
-create docker environment, specify Dockerfile to build or image to pull
 
-```txt
-Usage:
-  ch create ENVIRONMENT_NAME {--file DOCKERFILE|--image DOCKER_IMAGE} [--volume PATH_TO_DIRECTORY] [--shell SHELL_CMD] [[--cap-add cap1] ...] [[--security-opt secopt1] ...] [flags]
+## Documentation
 
-Flags:
-      --cap-add stringArray        special capacity to add to Docker Container (syscalls)
-      --context string             context to build Dockerfile (default ".")
-  -f, --file string                path to Dockerfile, should be relative to context flag
-  -h, --help                       help for create
-  -i, --image string               image name to pull from DockerHub
-  -p, --port stringArray           bind host port(s) to container
-      --privileged                 run container as privileged (full root/admin access)
-      --replace                    replace environment if it already exists
-      --security-opt stringArray   security options
-      --shell string               default shell to use when logging into environment (default "/bin/sh")
-      --version                    version for create
-  -v, --volume stringArray         volume to mount to the working directory
-
-```
-
-### `ch start`
-
-start docker container in background and save container id to config file
-
-```txt
-Usage:
-  ch start ENVIRONMENT_NAME [flags]
-Flags:
-  -h, --help      help for start
-  -v, --version   version for start
-```
-
-### `ch shell`
-
-run docker shell in docker environment
-
-```txt
-Usage:
-  ch shell ENVIRONMENT_NAME [flags]
-
-Flags:
-  -f, --force-start   autostart the environment if not running
-  -h, --help          help for shell
-  -v, --version       version for shell
-```
-
-### `ch stop`
-
-stop running container/environment
-
-```txt
-Usage:
-  ch stop ENVIRONMENT_NAME [flags]
-
-Flags:
-  -h, --help      help for stop
-  -v, --version   version for stop
-```
-
-### `ch list`
-
-list all saved configs
-
-```txt
-Usage:
-  ch list [ENVIRONMENT_NAME] [flags]
-
-Flags:
-  -h, --help      help for list
-  -v, --version   version for list
-```
-
-### `ch running`
-
-list all running environments
-
-```txt
-Usage:
-  ch running
-```
-
-## More Examples
-
-```shell script
-# create environment
-ch create ENVIRONMENT_NAME {--file DOCKERFILE|--image DOCKER_IMAGE} [--volume PATH_TO_DIRECTORY] [--shell SHELL_CMD] [--port HOST:CONTAINER] [--security-opt SECURITY_OPT]
-
-ch create csci104 --image usccsci104/docker --shell /bin/bash --volume ./project/files/
-
-# start container - essentially docker run -d IMAGE
-ch start cs104
-
-# get shell into environment - essentially docker exec -it CONTAINER_NAME
-ch shell cs104
-
-# stop container
-ch stop cs104
-
-# list all environments
-ch list
-
-# list all running environments
-ch running
-```
-
+See the [docs](docs.md) to install.
 
 <!-- ### Jekyll Themes
 
