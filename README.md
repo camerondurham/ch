@@ -223,7 +223,7 @@ Flags:
 
 list all running environments
 
-```
+```txt
 Usage:
   ch running
 ```
