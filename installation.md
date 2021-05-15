@@ -76,7 +76,7 @@ to wherever your homework is on your machine.
 
 This environment is based on this repository: [csci104/docker](https://github.com/csci104/docker)
 
-```shell
+```bash
 # create the environment
 ch create csci104 --image usccsci104/docker:20.04 --volume csci104-work:/work  --security-opt seccomp:unconfined --cap-add SYS_PTRACE --shell /bin/bash
 
@@ -91,7 +91,7 @@ to wherever your homework is on your machine. For Windows, your volume command s
 
 This environment is based on the this repository: [camerondurham/cs350-docker](https://github.com/camerondurham/cs350-docker)
 
-```shell
+```bash
 # create the environment
 ch create csci350 --image camerondurham/cs350-docker:latest  --volume csci350-work:/xv6_docker --security-opt seccomp:unconfined --port 7776:22 --port 7777:7777 --port 25000:25000 --cap-add SYS_PTRACE --shell /bin/bash --privileged
 
@@ -101,7 +101,7 @@ ch shell csci350 --force-start
 
 ## More Examples
 
-```shell
+```bash
 
 # create environment
 ch create ENVIRONMENT_NAME {--file DOCKERFILE|--image DOCKER_IMAGE} [--volume PATH_TO_DIRECTORY] [--shell SHELL_CMD] [--port HOST:CONTAINER] [--security-opt SECURITY_OPT]
