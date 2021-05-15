@@ -33,11 +33,46 @@ whichever Docker container you choose. Of course, this project would not be poss
 of [docker/cli](https://github.com/docker/cli) which is how I learned how to use the Docker Engine API.
 
 
-## Quick Start
+## Installation
 
-The fastest way to get started is to run the install scripts. You can do this via the command line this way:
+### Prerequisites
 
-### Windows
+
+Please make sure that your machine meets the requirements for Docker Desktop:
+
+<a href="https://docs.docker.com/docker-for-windows/install/" target="_blank">Windows host:</a>
+
+- Windows 10 64-bit: (Build 18362 or later)
+    - WSL2 container backend
+
+<a href="https://docs.docker.com/docker-for-mac/install/" target="_blank">Mac host:</a>
+
+- Intel:
+    - Mac hardware must be a 2010 or newer model
+    - macOS must be version 10.13 or newer
+    - 4 GB RAM minimum
+- Apple Silicon (i.e. M1 chip):
+    - Rosetta emulated terminal
+        - for instructions on how to setup a Rosetta emulated terminal, see
+          <a href="https://osxdaily.com/2020/11/18/how-run-homebrew-x86-terminal-apple-silicon-mac/" target="_blank">instructions here</a>
+          to run Terminal through Rosetta.
+
+### Step 0: Install WSL2 (Windows only)
+
+If you are using macOS or Linux operating system, you can skip this section.
+If you are running Windows, you must install the Windows Subsystem for Linux 2 (WSL2) before installing Docker.
+
+Follow the instructions below to install WSL2 on your machine: <a href="https://docs.microsoft.com/windows/wsl/install-win10" target="_blank">Windows Subsystem for Linux Installation Guide</a>
+
+### Step 1: Install Docker
+
+Install Docker Desktop from <a href="https://www.docker.com/products/docker-desktop" target="_blank">the website</a>.
+
+### Step 2: Install `ch`
+
+Run the following commands below to download and run the install script for your operating system.
+
+#### Windows
 
 Run PowerShell as Admin and execute this command to download and run the install script for Windows:
 
@@ -47,7 +82,9 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManage
 
 You can check out the source code [here](https://github.com/camerondurham/ch/blob/main/scripts/install-ch.ps1).
 
-### macOS/Linux
+You may need to restart your machine or log out so `ch` is added to your `Path`.
+
+#### macOS/Linux
 
 Run in your preferred Terminal to download and run the install script for Unix:
 
@@ -57,7 +94,15 @@ Run in your preferred Terminal to download and run the install script for Unix:
 
  You can check out the source code [here](https://github.com/camerondurham/ch/blob/main/scripts/install-ch.sh).
 
-### Create the CSCI104 Environment
+Depending on your default shell (usually `bash` or `zsh`), you will have to source your `~/.bashrc` or `~/.zshrc` to add
+`ch` to your `PATH`.
+
+### Step 3: Setup Your First Environment
+
+See [commands documentation](#commands) or the [example commands](#more-examples) for how to create your first
+environment.
+
+#### Create the CSCI104 Environment
 
 Where `csci104-work` is your homework folder in the current directory.  Alternatively, you can provide the absolute path
 to wherever your homework is on your machine.
@@ -72,7 +117,7 @@ ch create csci104 --image usccsci104/docker:20.04 --volume csci104-work:/work  -
 ch shell csci104 --force-start
 ```
 
-### Create the CSCI 350 Environment
+#### Create the CSCI 350 Environment
 
 Where `csci350-work` is your homework folder in the current directory. Alternatively, you can provide the absolute path
 to wherever your homework is on your machine. For Windows, your volume command should look like `--volume "C:\Users\user\path\to\csci350:/work"`, on macOS your command should look like `--volume /Users/username/path/to/csci350:/work`.
@@ -90,44 +135,98 @@ ch shell csci350 --force-start
 ## What is this?
 
 What's the use case for this tool? Good question! This tool is designed to make it easier to use a specific, isolated development environment. For classes
-such as CSCI 104 and CSCI 350 at USC, the legacy way of writing code in the class was using a large VM image inside Virtual Box,
+such as [CSCI 104](https://bytes.usc.edu/cs104/) (Data Structures and Algorithms) and CSCI 350 (Operating Systems) at USC, the legacy way of writing code in the class was using a large VM image inside Virtual Box,
 or if you're lucky, VMWare. A more efficient and arguably smoother workflow involves setting using a Docker container with the class's compilers and
 development tools installed. `ch` offers a consistent interface to configure and access these environments. See below for the commands to create
-environments for these classes. All you have to do is run the command and the tool will download the required dependencies from DockerHub.
+environments for these classes.
 
 
 ## Commands
 
-### create
+### `ch create`
 
 create docker environment, specify Dockerfile to build or image to pull
 
-**Supported Configuration:**
+```txt
+Usage:
+  ch create ENVIRONMENT_NAME {--file DOCKERFILE|--image DOCKER_IMAGE} [--volume PATH_TO_DIRECTORY] [--shell SHELL_CMD] [[--cap-add cap1] ...] [[--security-opt secopt1] ...] [flags]
 
-- ports
-- bind mount volumes
-- privileged
-- security-opt
+Flags:
+      --cap-add stringArray        special capacity to add to Docker Container (syscalls)
+      --context string             context to build Dockerfile (default ".")
+  -f, --file string                path to Dockerfile, should be relative to context flag
+  -h, --help                       help for create
+  -i, --image string               image name to pull from DockerHub
+  -p, --port stringArray           bind host port(s) to container
+      --privileged                 run container as privileged (full root/admin access)
+      --replace                    replace environment if it already exists
+      --security-opt stringArray   security options
+      --shell string               default shell to use when logging into environment (default "/bin/sh")
+      --version                    version for create
+  -v, --volume stringArray         volume to mount to the working directory
 
-### start
+```
+
+### `ch start`
 
 start docker container in background and save container id to config file
 
-### shell
+```txt
+Usage:
+  ch start ENVIRONMENT_NAME [flags]
+Flags:
+  -h, --help      help for start
+  -v, --version   version for start
+```
+
+### `ch shell`
 
 run docker shell in docker environment
 
-### stop
+```txt
+Usage:
+  ch shell ENVIRONMENT_NAME [flags]
+
+Flags:
+  -f, --force-start   autostart the environment if not running
+  -h, --help          help for shell
+  -v, --version       version for shell
+```
+
+### `ch stop`
 
 stop running container/environment
 
-### list
+```txt
+Usage:
+  ch stop ENVIRONMENT_NAME [flags]
+
+Flags:
+  -h, --help      help for stop
+  -v, --version   version for stop
+```
+
+### `ch list`
 
 list all saved configs
 
-### running
+```txt
+Usage:
+  ch list [ENVIRONMENT_NAME] [flags]
+
+Flags:
+  -h, --help      help for list
+  -v, --version   version for list
+```
+
+### `ch running`
 
 list all running environments
+
+```
+Usage:
+  ch running
+```
 
 ## More Examples
 
