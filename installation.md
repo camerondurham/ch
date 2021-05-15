@@ -101,7 +101,8 @@ ch shell csci350 --force-start
 
 ## More Examples
 
-```shell script
+```shell
+
 # create environment
 ch create ENVIRONMENT_NAME {--file DOCKERFILE|--image DOCKER_IMAGE} [--volume PATH_TO_DIRECTORY] [--shell SHELL_CMD] [--port HOST:CONTAINER] [--security-opt SECURITY_OPT]
 
