@@ -18,11 +18,31 @@ import (
 // createCmd represents the create command
 var (
 	createCmd = &cobra.Command{
-		Use:   "create ENVIRONMENT_NAME {--file DOCKERFILE|--image DOCKER_IMAGE} [--volume PATH_TO_DIRECTORY] [--shell SHELL_CMD] [[--cap-add cap1] ...] [[--security-opt secopt1] ...]",
+		Use:   "create ENVIRONMENT_NAME {--file DOCKERFILE |--image DOCKER_IMAGE } [OPTIONS]",
 		Short: "Create docker environment config",
 		Long: `Create docker environment config with new name.
 	Will look for your Dockerfile in the current directory
-	if you do not explicitly set --file.`,
+	if you do not explicitly set --file.
+	
+	To create environment from a Dockerfile, use:
+
+		--file DOCKERFILE			Path to Dockerfile. If context is used, filepath must be relative to that path.
+		--context PATH				Context to use when building the Docker image
+
+	To create an environment from a pre-built Docker image, use:
+
+		--image DOCKER_IMAGE
+
+	You can use the following options:
+
+		--replace					Replace existing named environment, if one exists
+		--volume list				Bind mount a volume
+		--shell PATH				Command to run for shell (i.e. /bin/sh, /bin/bash)
+		--cap-add CAPABILITY		Add Linux capability (i.e. SYS_PTRACE)
+		--security-opt	OPT			Add security configuration (i.e. "seccomp=unconfined")
+		--port NUMBER				Expose port from container to host
+		--privileged				Give container extended privileges on host (use carefully!)
+`,
 		Args:    cobra.MinimumNArgs(1),
 		Version: rootCmd.Version,
 		Run:     CreateCmd,

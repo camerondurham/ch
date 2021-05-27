@@ -17,7 +17,8 @@ var runningCmd = &cobra.Command{
 	Short: "List running environments",
 	Long: `List all running Docker containers created by the container-helper.
 Any Docker containers not managed by the container-helper will be ignored.
-To see all running containers, run: docker ps`,
+To see all running containers, run: 
+	docker ps`,
 	Run: RunningCmd,
 }
 
