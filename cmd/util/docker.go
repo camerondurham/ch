@@ -94,7 +94,12 @@ func (d *DockerService) PullImage(ctx context.Context, out *streams.Out, imageNa
 		} `json:"progressDetail"`
 	}
 
-	defer imagePullOutput.Close()
+	defer func(imagePullOutput io.ReadCloser) {
+		err := imagePullOutput.Close()
+		if err != nil {
+			DebugPrint(fmt.Sprintf("error closing pull output reader: %v", err))
+		}
+	}(imagePullOutput)
 
 	return jsonmessage.DisplayJSONMessagesToStream(imagePullOutput, out, nil)
 }
@@ -108,12 +113,16 @@ func (d *DockerService) BuildImageWithContext(ctx context.Context, out *streams.
 		return errors.New(fmt.Sprintf("context path does not exist: %v", contextPath))
 	}
 
-	// TODO: use ioutil.TempFile
 	dir, err := ioutil.TempDir("", "docker-context")
 	if err != nil {
 		return fmt.Errorf("error creating TempDir: %v", err)
 	}
-	defer os.RemoveAll(dir)
+	defer func(path string) {
+		err := os.RemoveAll(path)
+		if err != nil {
+			DebugPrint(fmt.Sprintf("error removing all directories: %v", err))
+		}
+	}(dir)
 	contextTarball := filepath.Join(dir, "context.tar")
 
 	DebugPrint(fmt.Sprintf("dockerfile context file: %s\n", contextPath))
@@ -136,7 +145,12 @@ func (d *DockerService) BuildImageWithContext(ctx context.Context, out *streams.
 		return err
 	}
 
-	defer buildResponse.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			DebugPrint(fmt.Sprintf("error closing body reader: %v", err))
+		}
+	}(buildResponse.Body)
 
 	DebugPrint(buildResponse.OSType)
 

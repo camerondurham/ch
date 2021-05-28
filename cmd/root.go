@@ -85,6 +85,8 @@ func checkCliVersion() {
 				version.PkgVersion,
 				latestVersion,
 				RepositoryUrl)
+		} else {
+			util.DebugPrint(fmt.Sprintf("local package version: %s\nlatest version: %s\nversion_check: %s", version.PkgVersion, latestVersion, v))
 		}
 	}
 }
