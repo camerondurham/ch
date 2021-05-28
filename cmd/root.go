@@ -37,11 +37,11 @@ var rootCmd = &cobra.Command{
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
+	// TODO: only check if user didn't specify they don't want upgrade reminders
 	latestVersion, err := util.GetLatestVersion(util.GetRequest)
 	if err != nil {
 		util.DebugPrint(fmt.Sprintf("ignoring version check since error occured when retrieving latest version: %v\n", err))
-	}
-	if latestVersion != version.PkgVersion {
+	} else if version.PkgVersion != "" && latestVersion != version.PkgVersion {
 		fmt.Printf("A new version of ch is available!\n"+
 			"You are running version %s but the latest version is %s."+
 			"\nSee %s instructions on upgrading.\n",
@@ -49,6 +49,7 @@ func Execute() {
 			latestVersion,
 			RepositoryUrl)
 	}
+
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
