@@ -21,9 +21,9 @@ jobs:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v2
 
-      - name: Linux/Windows exit if not from main branch
-        if: endsWith(github.ref, 'main') == false
-        run: exit -1
+#      - name: Linux/Windows exit if not from main branch
+#        if: endsWith(github.ref, 'main') == false
+#        run: exit -1
 
       - name: Make Linux
         run: export PATH=/home/runner/go/bin/:$PATH && make linux
@@ -66,9 +66,9 @@ jobs:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v2
 
-      - name: MacOS exit if not from main branch
-        if: endsWith(github.ref, 'main') == false
-        run: exit -1
+#      - name: MacOS exit if not from main branch
+#        if: endsWith(github.ref, 'main') == false
+#        run: exit -1
 
       - name: Make Darwin
         run: export PATH=/Users/runner/go/bin/:$PATH && make macos
