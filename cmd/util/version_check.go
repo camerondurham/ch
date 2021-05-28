@@ -3,13 +3,15 @@ package util
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/camerondurham/ch/version"
 	"io"
 	"net/http"
 )
 
 const (
-	Repository = "camerondurham/ch"
-	ApiPath    = "https://api.github.com/repos/%s/releases/latest"
+	RepositoryUrl = "https://github.com/camerondurham/ch"
+	Repository    = "camerondurham/ch"
+	ApiPath       = "https://api.github.com/repos/%s/releases/latest"
 )
 
 type callback func(string) (map[string]interface{}, error)
@@ -52,4 +54,21 @@ func GetRequest(url string) (map[string]interface{}, error) {
 	}
 
 	return data, nil
+}
+
+func CheckLatestVersion() {
+	latestVersion, err := GetLatestVersion(GetRequest)
+	if err != nil {
+		DebugPrint(fmt.Sprintf("ignoring version check since error occured when retrieving latest version: %v\n", err))
+	} else if version.PkgVersion != "" && latestVersion != version.PkgVersion {
+		fmt.Printf(
+			"\tA new version of ch is available!\n"+
+				"\tYou are running version %s but the latest version is %s.\n"+
+				"\tSee %s instructions on upgrading.\n",
+			version.PkgVersion,
+			latestVersion,
+			RepositoryUrl)
+	} else {
+		DebugPrint(fmt.Sprintf("local package version: %s\nlatest version: %s\n", version.PkgVersion, latestVersion))
+	}
 }

@@ -23,6 +23,9 @@ To see all running containers, run:
 }
 
 func RunningCmd(cmd *cobra.Command, args []string) {
+
+	util.CheckLatestVersion()
+
 	cli, err := util.NewCliClient()
 	if err != nil {
 		fmt.Printf("error: cannot create new CLI ApiClient: %v\n", err)
@@ -42,7 +45,10 @@ func RunningCmd(cmd *cobra.Command, args []string) {
 	}
 
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', 0)
+
+	// TODO: only print if something is actually running
 	fmt.Fprintf(w, "ENVIRONMENT\tIMAGE NAME\tCREATED\n")
+
 	for _, info := range list {
 		now := time.Now().Unix()
 		elapsed := now - info.Created
