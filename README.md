@@ -15,6 +15,10 @@
     <img align="left" src="https://img.shields.io/github/go-mod/go-version/camerondurham/ch" />
   </a>
 
+  <a href="github.com/camerondurham/ch">
+    <img align="left" src="https://img.shields.io/github/workflow/status/camerondurham/ch/Build" />
+  </a>
+    
   <a href="https://github.com/marketplace/actions/super-linter">
     <img align="left" src="https://github.com/camerondurham/ch/workflows/Lint%20Code%20Base/badge.svg" />
   </a>
