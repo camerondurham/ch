@@ -66,6 +66,10 @@ jobs:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v2
 
+      - name: Exit if not from main branch
+        if: endsWith(github.ref, 'main') == false
+        run: exit -1
+
       - name: Make Darwin
         run: export PATH=/Users/runner/go/bin/:$PATH && make macos
 
