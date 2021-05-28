@@ -104,7 +104,7 @@ func GetEnvs() (envs map[string]*ContainerOpts, err error) {
 
 // GetConfigOpts retrieves optional settings from ~/.ch.yaml
 func GetConfigOpts() (opts map[string]string, err error) {
-	if !viper.IsSet("envs") {
+	if !viper.IsSet("opts") {
 		return nil, ErrDoesNotExist
 	}
 	opts = make(map[string]string)
