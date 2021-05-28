@@ -28,7 +28,7 @@ var rootCmd = &cobra.Command{
 
 func Execute() {
 
-	checkCliVersion()
+	optionalVersionCheck()
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
@@ -68,25 +68,33 @@ func initConfig() {
 	}
 }
 
-func checkCliVersion() {
+func optionalVersionCheck() {
 	opts, err := util.GetConfigOpts()
 
 	if err != nil {
 		util.DebugPrint(fmt.Sprintf("error reading environment file: %v", err))
-	} else if v, ok := opts["version_check"]; !ok || v == "true" {
-		latestVersion, err := util.GetLatestVersion(util.GetRequest)
-		if err != nil {
-			util.DebugPrint(fmt.Sprintf("ignoring version check since error occured when retrieving latest version: %v\n", err))
-		} else if version.PkgVersion != "" && latestVersion != version.PkgVersion {
-			fmt.Printf(
-				"\tA new version of ch is available!\n"+
-					"\tYou are running version %s but the latest version is %s.\n"+
-					"\tSee %s instructions on upgrading.\n",
-				version.PkgVersion,
-				latestVersion,
-				RepositoryUrl)
-		} else {
-			util.DebugPrint(fmt.Sprintf("local package version: %s\nlatest version: %s\nversion_check: %s", version.PkgVersion, latestVersion, v))
-		}
+		checkLatestVersion()
+	}
+	if v, ok := opts["version_check"]; !ok || v == "true" {
+		checkLatestVersion()
+	} else {
+		util.DebugPrint(fmt.Sprintf("local package version: %s\nlatest version: %s\n", version.PkgVersion, v))
+	}
+}
+
+func checkLatestVersion() {
+	latestVersion, err := util.GetLatestVersion(util.GetRequest)
+	if err != nil {
+		util.DebugPrint(fmt.Sprintf("ignoring version check since error occured when retrieving latest version: %v\n", err))
+	} else if version.PkgVersion != "" && latestVersion != version.PkgVersion {
+		fmt.Printf(
+			"\tA new version of ch is available!\n"+
+				"\tYou are running version %s but the latest version is %s.\n"+
+				"\tSee %s instructions on upgrading.\n",
+			version.PkgVersion,
+			latestVersion,
+			RepositoryUrl)
+	} else {
+		util.DebugPrint(fmt.Sprintf("local package version: %s\nlatest version: %s\n", version.PkgVersion, latestVersion))
 	}
 }
