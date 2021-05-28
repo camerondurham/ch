@@ -61,3 +61,17 @@ Change package name:
 # releasing a new version
 git tag -a v1.4 -m "Version notes here"
 ```
+
+To delete tagging mistakes locally:
+
+```shell
+# delete local tag
+git tag -d tagname
+```
+
+To delete remote tags:
+
+```shell
+# delete a tag already pushed to github
+git push --delete origin tagname
+```
