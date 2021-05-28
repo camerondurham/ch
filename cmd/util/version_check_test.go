@@ -1,33 +1,9 @@
 package util
 
-import "testing"
-
-func TestGetLatestVersion(t *testing.T) {
-	tests := []struct {
-		name    string
-		want    string
-		wantErr bool
-	}{
-		// TODO: remove this test after API gets bumped. I'm too lazy to handle mocking right now.
-		{
-			name:    "Nominal: basic testing",
-			want:    "v0.2.2",
-			wantErr: false,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := GetLatestVersion()
-			if (err != nil) != tt.wantErr {
-				t.Errorf("GetLatestVersion() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if got != tt.want {
-				t.Errorf("GetLatestVersion() got = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
+import (
+	"fmt"
+	"testing"
+)
 
 func TestLatestVersion(t *testing.T) {
 	type args struct {
@@ -53,6 +29,53 @@ func TestLatestVersion(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := LatestVersion(tt.args.repository); got != tt.want {
 				t.Errorf("LatestVersion() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestGetLatestVersion(t *testing.T) {
+	type args struct {
+		getRequest callback
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    string
+		wantErr bool
+	}{
+		{
+			name: "Nominal",
+			args: args{
+				getRequest: func(s string) (map[string]interface{}, error) {
+					return map[string]interface{}{
+						"tag_name": "v0.2.2",
+					}, nil
+				},
+			},
+			want:    "v0.2.2",
+			wantErr: false,
+		},
+		{
+			name: "Error",
+			args: args{
+				getRequest: func(s string) (map[string]interface{}, error) {
+					return nil, fmt.Errorf("error making GET request")
+				},
+			},
+			want:    "",
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := GetLatestVersion(tt.args.getRequest)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetLatestVersion() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("GetLatestVersion() got = %v, want %v", got, tt.want)
 			}
 		})
 	}

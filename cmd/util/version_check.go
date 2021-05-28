@@ -12,14 +12,16 @@ const (
 	ApiPath    = "https://api.github.com/repos/%s/releases/latest"
 )
 
+type callback func(string) (map[string]interface{}, error)
+
 func LatestVersion(repository string) string {
 	return fmt.Sprintf(ApiPath, repository)
 }
 
-func GetLatestVersion() (string, error) {
+func GetLatestVersion(getRequest callback) (string, error) {
 
 	url := LatestVersion(Repository)
-	data, err := GetRequest(url)
+	data, err := getRequest(url)
 	if err != nil {
 		DebugPrint(fmt.Sprintf("error making GET request: %v", err))
 		return "", err
