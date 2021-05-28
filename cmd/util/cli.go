@@ -91,6 +91,7 @@ func (cli *Cli) Containers() map[string]*ContainerOpts {
 	return envs
 }
 
+// GetEnvs retrieves the environments managed by ch from ~/.ch.yaml
 func GetEnvs() (envs map[string]*ContainerOpts, err error) {
 	if !viper.IsSet("envs") {
 		return nil, ErrDoesNotExist
@@ -98,6 +99,16 @@ func GetEnvs() (envs map[string]*ContainerOpts, err error) {
 
 	envs = make(map[string]*ContainerOpts)
 	err = viper.UnmarshalKey("envs", &envs)
+	return
+}
+
+// GetConfigOpts retrieves optional settings from ~/.ch.yaml
+func GetConfigOpts() (opts map[string]string, err error) {
+	if !viper.IsSet("envs") {
+		return nil, ErrDoesNotExist
+	}
+	opts = make(map[string]string)
+	err = viper.UnmarshalKey("opts", &opts)
 	return
 }
 

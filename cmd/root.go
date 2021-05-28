@@ -28,19 +28,7 @@ var rootCmd = &cobra.Command{
 
 func Execute() {
 
-	// TODO: only check if user didn't specify they don't want upgrade reminders
-	latestVersion, err := util.GetLatestVersion(util.GetRequest)
-	if err != nil {
-		util.DebugPrint(fmt.Sprintf("ignoring version check since error occured when retrieving latest version: %v\n", err))
-	} else if version.PkgVersion != "" && latestVersion != version.PkgVersion {
-		fmt.Printf(
-			"\tA new version of ch is available!\n"+
-				"\tYou are running version %s but the latest version is %s.\n"+
-				"\tSee %s instructions on upgrading.\n",
-			version.PkgVersion,
-			latestVersion,
-			RepositoryUrl)
-	}
+	checkCliVersion()
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
@@ -77,5 +65,26 @@ func initConfig() {
 
 	if err := viper.ReadInConfig(); err == nil {
 		util.DebugPrint(fmt.Sprint("Using config file:", viper.ConfigFileUsed()))
+	}
+}
+
+func checkCliVersion() {
+	opts, err := util.GetConfigOpts()
+
+	if err != nil {
+		util.DebugPrint(fmt.Sprintf("error reading environment file: %v", err))
+	} else if v, ok := opts["version_check"]; !ok || v == "true" {
+		latestVersion, err := util.GetLatestVersion(util.GetRequest)
+		if err != nil {
+			util.DebugPrint(fmt.Sprintf("ignoring version check since error occured when retrieving latest version: %v\n", err))
+		} else if version.PkgVersion != "" && latestVersion != version.PkgVersion {
+			fmt.Printf(
+				"\tA new version of ch is available!\n"+
+					"\tYou are running version %s but the latest version is %s.\n"+
+					"\tSee %s instructions on upgrading.\n",
+				version.PkgVersion,
+				latestVersion,
+				RepositoryUrl)
+		}
 	}
 }
