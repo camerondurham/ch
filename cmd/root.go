@@ -74,8 +74,7 @@ func optionalVersionCheck() {
 	if err != nil {
 		util.DebugPrint(fmt.Sprintf("error reading environment file: %v", err))
 		checkLatestVersion()
-	}
-	if v, ok := opts["version_check"]; !ok || v == "true" {
+	} else if v, ok := opts["version_check"]; !ok || v == "true" {
 		checkLatestVersion()
 	} else {
 		util.DebugPrint(fmt.Sprintf("local package version: %s\nlatest version: %s\n", version.PkgVersion, v))
