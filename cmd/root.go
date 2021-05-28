@@ -42,9 +42,10 @@ func Execute() {
 	if err != nil {
 		util.DebugPrint(fmt.Sprintf("ignoring version check since error occured when retrieving latest version: %v\n", err))
 	} else if version.PkgVersion != "" && latestVersion != version.PkgVersion {
-		fmt.Printf("A new version of ch is available!\n"+
-			"You are running version %s but the latest version is %s."+
-			"\nSee %s instructions on upgrading.\n",
+		fmt.Printf(
+			"\tA new version of ch is available!\n"+
+				"\tYou are running version %s but the latest version is %s.\n"+
+				"\tSee %s instructions on upgrading.\n",
 			version.PkgVersion,
 			latestVersion,
 			RepositoryUrl)
