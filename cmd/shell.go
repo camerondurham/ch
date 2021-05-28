@@ -17,7 +17,7 @@ const (
 // shellCmd represents the shell command
 var shellCmd = &cobra.Command{
 	Use:     "shell ENVIRONMENT_NAME",
-	Short:   "Start a shell in an environment",
+	Short:   "get a shell in a running Docker environment",
 	Args:    cobra.ExactArgs(1),
 	Version: rootCmd.Version,
 	Run:     ShellCmd,

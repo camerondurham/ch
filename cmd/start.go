@@ -13,7 +13,7 @@ import (
 // startCmd represents the start command
 var startCmd = &cobra.Command{
 	Use:     "start ENVIRONMENT_NAME",
-	Short:   "start environment in the background",
+	Short:   "start a Docker environment in the background",
 	Args:    cobra.ExactArgs(1),
 	Version: rootCmd.Version,
 	Run:     StartCmd,

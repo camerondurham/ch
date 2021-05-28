@@ -13,7 +13,7 @@ import (
 var (
 	deleteCmd = &cobra.Command{
 		Use:     "delete ENVIRONMENT_NAME",
-		Short:   "deletes a given config",
+		Short:   "deletes a Docker environment from your config file (~/.ch.yaml)",
 		Args:    cobra.MinimumNArgs(1),
 		Version: rootCmd.Version,
 		Run:     DeleteCmd,

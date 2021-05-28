@@ -11,7 +11,7 @@ import (
 // stopCmd represents the stop command
 var stopCmd = &cobra.Command{
 	Use:     "stop ENVIRONMENT_NAME",
-	Short:   "Stop a running environment (a running Docker container)",
+	Short:   "stop a running Docker environment",
 	Args:    cobra.ExactArgs(1),
 	Version: rootCmd.Version,
 	Run:     StopCmd,
