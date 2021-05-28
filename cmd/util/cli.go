@@ -40,6 +40,10 @@ type ContainerOpts struct {
 	Shell      string
 }
 
+type CliOpts struct {
+	CheckVersion bool
+}
+
 // Cli TODO: add config/env settings to use Cli in other commands
 type Cli struct {
 	in              *streams.In
@@ -103,11 +107,11 @@ func GetEnvs() (envs map[string]*ContainerOpts, err error) {
 }
 
 // GetConfigOpts retrieves optional settings from ~/.ch.yaml
-func GetConfigOpts() (opts map[string]string, err error) {
+func GetConfigOpts() (opts map[string]*CliOpts, err error) {
 	if !viper.IsSet("opts") {
 		return nil, ErrDoesNotExist
 	}
-	opts = make(map[string]string)
+	opts = make(map[string]*CliOpts)
 	err = viper.UnmarshalKey("opts", &opts)
 	return
 }
