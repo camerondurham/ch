@@ -1,11 +1,5 @@
 # `ch` container helper
 
-<div align="center">
-    <img alt="cute GIF of the Docker whale icon with rainbows trailing behind it" src="https://i.imgur.com/09ac72P.gif" />
-</div>
-
-<br>
-
 <div>
   <a href="github.com/camerondurham/ch">
     <img align="left" src="https://img.shields.io/github/v/release/camerondurham/ch?include_prereleases" />
