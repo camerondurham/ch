@@ -1,5 +1,8 @@
 package streams
 
+// This was lazily used from https://github.com/docker/cli due to library conflicts. 
+// All code here is a direct creation of the developers/contributors to this repo not myself.
+
 // TODO: move this package to lib or utils folder
 
 import (
