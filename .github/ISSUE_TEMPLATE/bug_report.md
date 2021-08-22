@@ -21,7 +21,7 @@ Steps to reproduce the behavior:
 
 List what you have tried to do so resolve the issue.
 If you are encountering an issue with installation, you should look at the
-[csci104/docker Troubleshooting wiki](https://github.com/csci104/docker/wiki/Troubleshooting) 
+[csci104/docker Troubleshooting wiki](https://github.com/csci104/docker/wiki/Troubleshooting)
 before creating an issue.
 
 **Screenshots**
