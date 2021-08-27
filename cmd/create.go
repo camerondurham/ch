@@ -114,7 +114,7 @@ func CreateCmd(cmd *cobra.Command, args []string) {
 		os.Exit(1)
 	}
 
-	err = initializeImage(ctx, cli, opts)
+	err = util.BuildOrPullContainerImage(ctx, cli, opts)
 
 	if err != nil {
 		fmt.Printf("Cannot create new environment. Error from Dockerfile build:\n%v\n", err)
@@ -212,20 +212,6 @@ func parseContainerOpts(environmentName string, v util.Validate, cmdFlags *comma
 	}
 
 	return nil, errorCreateImageFieldsNotPresent
-}
-
-func initializeImage(ctx context.Context, cli util.ContainerClient, opts *util.ContainerOpts) error {
-	if opts.BuildOpts != nil {
-		return cli.DockerClient().BuildImageWithContext(ctx,
-			cli.Out(),
-			opts.BuildOpts.Context,
-			opts.BuildOpts.Tag,
-			opts.BuildOpts.DockerfilePath)
-	} else {
-		return cli.DockerClient().PullImage(ctx,
-			cli.Out(),
-			opts.PullOpts.ImageName)
-	}
 }
 
 func parseHostConfig(shellCmdArg string, privileged bool, capAddArgs []string, secOptArgs []string, v util.Validate, volNameArgs []string, portOpts []string) (hostConfig *util.HostConfig, shellCmd string) {

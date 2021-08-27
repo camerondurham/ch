@@ -1,6 +1,7 @@
 package util
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"github.com/camerondurham/ch/cmd/streams"
@@ -127,6 +128,11 @@ func PrintEnvNotFoundMsg(envName string) {
 	}
 }
 
+func PrintDockerClientStartupError(err error) {
+	fmt.Printf("error creating Docker client: are you sure Docker is running?\n")
+	fmt.Printf("ERROR: %v\n", err)
+}
+
 func SetEnvs(envs map[string]*ContainerOpts) {
 	viper.Set("envs", envs)
 }
@@ -188,4 +194,18 @@ func NewCliClientWithDockerService(dockerClient DockerClient, dockerService *Doc
 	cliClient.validator = &Validator{}
 
 	return cliClient
+}
+
+func BuildOrPullContainerImage(ctx context.Context, cli ContainerClient, opts *ContainerOpts) error {
+	if opts.BuildOpts != nil {
+		return cli.DockerClient().BuildImageWithContext(ctx,
+			cli.Out(),
+			opts.BuildOpts.Context,
+			opts.BuildOpts.Tag,
+			opts.BuildOpts.DockerfilePath)
+	} else {
+		return cli.DockerClient().PullImage(ctx,
+			cli.Out(),
+			opts.PullOpts.ImageName)
+	}
 }

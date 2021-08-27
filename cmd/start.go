@@ -30,7 +30,7 @@ func StartCmd(cmd *cobra.Command, args []string) {
 
 	cli, err := util.NewCliClient()
 	if err != nil {
-		fmt.Printf("error: cannot create new CLI ApiClient: %v\n", err)
+		util.PrintDockerClientStartupError(err)
 		os.Exit(1)
 	}
 
@@ -85,7 +85,7 @@ func startEnvironment(client util.ContainerClient, containerOpts *util.Container
 				}
 			} else if errdefs.IsNotFound(err) {
 				// handle if user has removed image by rebuilding or re-pulling image
-				err = initializeImage(ctx, client, containerOpts)
+				err = util.BuildOrPullContainerImage(ctx, client, containerOpts)
 				if err != nil {
 					util.DebugPrint(fmt.Sprintf("error recreating or pulling image: %v\n", err))
 				}
