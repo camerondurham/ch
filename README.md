@@ -238,6 +238,10 @@ Usage:
 # create environment
 ch create ENVIRONMENT_NAME {--file DOCKERFILE|--image DOCKER_IMAGE} [--volume PATH_TO_DIRECTORY] [--shell SHELL_CMD] [--port HOST:CONTAINER] [--security-opt SECURITY_OPT]
 
+# create an environment with a non-dockerhub image
+ch create al2 --image public.ecr.aws/amazonlinux/amazonlinux:2 --shell /bin/bash --volume ./project/files
+
+# create a csci104 docker image
 ch create csci104 --image usccsci104/docker --shell /bin/bash --volume ./project/files/
 
 # start container - essentially docker run -d IMAGE
