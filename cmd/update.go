@@ -10,7 +10,7 @@ import (
 
 // updateCmd represents the update command
 var updateCmd = &cobra.Command{
-	Use:     "update",
+	Use:     "update [ENVIRONMENT_NAME]",
 	Short:   "download or rebuild environment's image",
 	Args:    cobra.MinimumNArgs(1),
 	Version: rootCmd.Version,
