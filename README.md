@@ -266,6 +266,9 @@ ch shell cs104
 # stop container
 ch stop cs104
 
+# update docker image for environment
+ch update csci104
+
 # list all environments
 ch list
 
