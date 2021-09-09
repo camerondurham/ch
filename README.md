@@ -24,9 +24,13 @@
 
 <br>
 
-`ch` is a command-line interface for using Docker containers as development environment. The tool provides a simple
-Docker interface to manage multiple containerized development environments. Like the `docker exec -it`, the CLI has a
-shell environment. This was designed to generalize how we develop C++ code in CSCI 104 to be portable enough to use
+`ch` is a command-line interface for using Docker containers as development environment and easily enter and exit
+a container shell to compile and debug code. The tool provides a simple Docker interface to manage configuration
+for multiple environments in a `~/.ch.yaml` (macOS/Linux) or `%userprofile%\.ch.yaml` (windows) file.
+`ch` mimics the the `docker exec -it` command for its shell environment and supports the same but not all flags as
+docker or docker-compose.
+
+This was designed to generalize how we develop C++ code in CSCI 104 to be portable enough to use
 whichever Docker container you choose. Of course, this project would not be possible without the reference
 of [docker/cli](https://github.com/docker/cli) for examples of how to use the Docker Engine API.
 
