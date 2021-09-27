@@ -29,11 +29,8 @@ jobs:
       - name: Make Windows
         run: export PATH=/home/runner/go/bin/:$PATH && make windows
 
-      - name: Build
-        run: go build .
-
-      - name: Test
-        run: go test ./...
+      - name: Build and Test
+        run: make test
 
   macos-build:
     name: MacOS Test
@@ -52,8 +49,5 @@ jobs:
       - name: Make Darwin
         run: export PATH=/Users/runner/go/bin/:$PATH && make macos
 
-      - name: Build
-        run: go build .
-
-      - name: Test
-        run: go test ./...
+      - name: Build and Test
+        run: make test

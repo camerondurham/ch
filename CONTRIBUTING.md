@@ -2,6 +2,18 @@
 
 ## Development
 
+### Development Environment
+
+It is highly recommended to use GoLand from JetBrains for development. If you are a student,
+you can use GoLand for free with an educational licence.
+
+1. Install go locally or let GoLand install for you
+2. Sync dependencies (this can likely be done if you simply `go build`, or simply let GoLand install for you)
+3. Build, test, code, and repeat
+
+On a Linux/macOS machine, you should be able to use `make` command to build, test, and package the repository.
+
+
 ### Adding New Commands
 
 Install cobra dependencies: (required to generate new commands)

@@ -30,6 +30,9 @@ build_all:
 	$(foreach GOOS, $(PLATFORMS),\
 	$(foreach GOARCH, $(ARCHITECTURES), $(shell mkdir -p dist/$(BINARY)-$(GOOS)-$(GOARCH); GOOS=$(GOOS) GOARCH=$(GOARCH) go build -v $(LDFLAGS) -o dist/$(BINARY)-$(GOOS)-$(GOARCH))))
 
+test: build
+	go test ./...
+
 linux:
 	$(foreach GOARCH, $(ARCHITECTURES), $(shell mkdir -p dist/$(BINARY)-linux-$(GOARCH); GOOS=linux GOARCH=$(GOARCH) go build -v $(LDFLAGS) -o dist/$(BINARY)-linux-$(GOARCH)))
 
