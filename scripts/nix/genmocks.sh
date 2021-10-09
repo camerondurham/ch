@@ -3,7 +3,7 @@
 go install github.com/golang/mock/mockgen@v1.6.0
 
 
-cd ../cmd/util
+cd ../../cmd/util || echo "failed to change dirs"; exit
 
 mockgen -source ./docker_api.go -package=mocks -destination ./mocks/DockerAPI.go DockerAPI
 mockgen -source ./docker.go -package=mocks -destination ./mocks/DockerClient.go DockerClient
