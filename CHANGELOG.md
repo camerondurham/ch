@@ -11,3 +11,4 @@ This changelog is for upcoming release `v0.3.4`. Anyone who builds `ch` from sou
     - install script relies on `unzip` command on Unix which is installed by default on macOS
     - if `unzip` command fails, script prints out how to install on Debian-based and Arch-based distros
 - dependency upgrades for `containerd` security vulnerabilities
+- upgrade from go `1.16` to `1.17`
