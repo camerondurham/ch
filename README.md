@@ -236,21 +236,6 @@ Usage:
   ch running
 ```
 
-<!--
-  unreleased feature: uncomment for v0.3.4
-### `ch update`
-
-update an environment's image
-
-If you specified a Dockerfile when using `ch create`, this will re-build that image.
-If you specified a remote container registry when using `ch create`, it will try
-to re-pull the image from that path.
-
-```txt
-Usage:
-  ch update [ENVIRONMENT_NAME]
-```
--->
 ## More Examples
 
 ```shell script
