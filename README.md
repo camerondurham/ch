@@ -236,6 +236,8 @@ Usage:
   ch running
 ```
 
+<!--
+  unreleased feature: uncomment for v0.3.4
 ### `ch update`
 
 update an environment's image
@@ -248,7 +250,7 @@ to re-pull the image from that path.
 Usage:
   ch update [ENVIRONMENT_NAME]
 ```
-
+-->
 ## More Examples
 
 ```shell script
