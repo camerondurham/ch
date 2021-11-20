@@ -62,12 +62,10 @@ func CheckLatestVersion() {
 		DebugPrint(fmt.Sprintf("ignoring version check since error occured when retrieving latest version: %v\n", err))
 	} else if version.PkgVersion != "" && latestVersion != version.PkgVersion {
 		fmt.Printf(
-			"\tA new version of ch is available!\n"+
-				"\tYou are running version %s but the latest version is %s.\n"+
-				"\tSee %s instructions on upgrading.\n",
+			"\tYou are running version %s but the latest version is %s.\n"+
+				"\tRun `ch upgrade` for upgrade instructions.\n",
 			version.PkgVersion,
-			latestVersion,
-			RepositoryUrl)
+			latestVersion)
 	} else {
 		DebugPrint(fmt.Sprintf("local package version: %s\nlatest version: %s\n", version.PkgVersion, latestVersion))
 	}
