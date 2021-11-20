@@ -1,9 +1,6 @@
 # CHANGELOG
 
-## v0.3.4 (unreleased)
-
-**NOTE**:
-This changelog is for upcoming release `v0.3.4`. Anyone who builds `ch` from source has these updates but the binary has not been released yet.
+## v0.3.4
 
 - `ch update` command
   - will re-build or re-pull the latest image for the environment
