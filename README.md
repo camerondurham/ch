@@ -117,28 +117,44 @@ to wherever your homework is on your machine.
 
 This environment is based on this repository: [csci104/docker](https://github.com/csci104/docker)
 
-```shell
-# create the environment
-ch create csci104 --image usccsci104/docker:20.04 --volume csci104-work:/work  --security-opt seccomp:unconfined --cap-add SYS_PTRACE --shell /bin/bash
-
-# autostart and open a shell into the container
-ch shell csci104 --force-start
-```
-
+1. use `ch create` to create and save the environment settings
+    ```bash
+    ch create csci104 \
+        --image usccsci104/docker:20.04 \
+        --volume csci104-work:/work  \
+        --security-opt seccomp:unconfined \
+        --cap-add SYS_PTRACE \
+        --shell /bin/bash
+    ```
+1. start the environment with a terminal session
+    ```bash
+    ch shell csci104 --force-start
+    ```
+    
 #### Create the CSCI 350 Environment
 
-Where `csci350-work` is your homework folder in the current directory. Alternatively, you can provide the absolute path
+The commands here assume `csci350-work` is your homework folder in the current directory. Alternatively, you can provide the absolute path
 to wherever your homework is on your machine. For Windows, your volume command should look like `--volume "C:\Users\user\path\to\csci350:/work"`, on macOS your command should look like `--volume /Users/username/path/to/csci350:/work`.
 
 This environment is based on the this repository: [camerondurham/cs350-docker](https://github.com/camerondurham/cs350-docker)
 
-```shell
-# create the environment
-ch create csci350 --image camerondurham/cs350-docker:latest  --volume csci350-work:/xv6_docker --security-opt seccomp:unconfined --port 7776:22 --port 7777:7777 --port 25000:25000 --cap-add SYS_PTRACE --shell /bin/bash --privileged
-
-# autostart and open a shell into the container
-ch shell csci350 --force-start
-```
+1. use `ch create` to create and save the environment settings
+    ```bash
+    ch create csci350 \
+        --image camerondurham/cs350-docker:latest \
+        --volume csci350-work:/xv6_docker \
+        --security-opt seccomp:unconfined \
+        --port 7776:22 \
+        --port 7777:7777 \
+        --port 25000:25000 \
+        --cap-add SYS_PTRACE \
+        --shell /bin/bash \
+        --privileged
+    ```
+1. start the environment with a terminal session
+    ```bash
+    ch shell csci350 --force-start
+    ```
 
 ## What is this?
 
@@ -181,10 +197,7 @@ start docker container in background and save container id to config file
 
 ```txt
 Usage:
-  ch start ENVIRONMENT_NAME [flags]
-Flags:
-  -h, --help      help for start
-  -v, --version   version for start
+  ch start ENVIRONMENT_NAME
 ```
 
 ### `ch shell`
@@ -197,8 +210,6 @@ Usage:
 
 Flags:
   -f, --force-start   autostart the environment if not running
-  -h, --help          help for shell
-  -v, --version       version for shell
 ```
 
 ### `ch stop`
@@ -207,11 +218,7 @@ stop running container/environment
 
 ```txt
 Usage:
-  ch stop ENVIRONMENT_NAME [flags]
-
-Flags:
-  -h, --help      help for stop
-  -v, --version   version for stop
+  ch stop ENVIRONMENT_NAME
 ```
 
 ### `ch list`
@@ -220,11 +227,7 @@ list all saved configs
 
 ```txt
 Usage:
-  ch list [ENVIRONMENT_NAME] [flags]
-
-Flags:
-  -h, --help      help for list
-  -v, --version   version for list
+  ch list [ENVIRONMENT_NAME]
 ```
 
 ### `ch running`
