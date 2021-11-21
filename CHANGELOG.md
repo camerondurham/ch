@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.3.5
+
+- remove "latest version" checks from other commands (`ch list` and `ch running`)
+- add "latest version" check logic to `ch upgrade` command
+
 ## v0.3.4
 
 - `ch update` command
