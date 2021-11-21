@@ -24,11 +24,8 @@
 
 <br>
 
-`ch` is a command-line interface for using Docker containers as development environment and easily enter and exit
-a container shell to compile and debug code. The tool provides a simple Docker interface to manage configuration
-for multiple environments in a `~/.ch.yaml` (macOS/Linux) or `%userprofile%\.ch.yaml` (windows) file.
-`ch` mimics the the `docker exec -it` command for its shell environment and supports the same but not all flags as
-docker or docker-compose.
+`ch` is a command-line interface for using Docker containers as development environment. It enables users to setup a complex
+container configuration once (saved in `~/.ch.yaml` on macOS/Linux) and the easily access the environment with a few commands.
 
 This was designed to generalize how we develop C++ code in CSCI 104 to be portable enough to use
 whichever Docker container you choose. Of course, this project would not be possible without the reference
@@ -130,7 +127,7 @@ This environment is based on this repository: [csci104/docker](https://github.co
     ```bash
     ch shell csci104 --force-start
     ```
-    
+
 #### Create the CSCI 350 Environment
 
 The commands here assume `csci350-work` is your homework folder in the current directory. Alternatively, you can provide the absolute path
