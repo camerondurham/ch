@@ -17,8 +17,6 @@ var listCmd = &cobra.Command{
 
 func ListCmd(cmd *cobra.Command, args []string) {
 
-	util.CheckLatestVersion()
-
 	envName := ""
 	if len(args) > 0 {
 		envName = args[0]

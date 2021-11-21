@@ -27,8 +27,8 @@ func TestLatestVersion(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := LatestVersion(tt.args.repository); got != tt.want {
-				t.Errorf("LatestVersion() = %v, want %v", got, tt.want)
+			if got := GetGithubAPILatestReleaseURL(tt.args.repository); got != tt.want {
+				t.Errorf("GetGithubAPILatestReleaseURL() = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -69,7 +69,7 @@ func TestGetLatestVersion(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := GetLatestVersion(tt.args.getRequest)
+			got, err := GetLatestVersion(tt.args.getRequest, "https://github.com/camerondurham/ch")
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GetLatestVersion() error = %v, wantErr %v", err, tt.wantErr)
 				return
