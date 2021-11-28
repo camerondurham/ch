@@ -82,7 +82,7 @@ version=$(get_latest_release $repository)
 architecture=$(uname -m)
 operating_system=$(uname)
 zip_filename=
-if [ "$operating_system" = "Linux" ] && ( [ "$architecture" = "x86_64" ] || [ "$architecture" = "x86-64" ] ); then
+if [ "$operating_system" = "Linux" ] && { [ "$architecture" = "x86_64" ] || [ "$architecture" = "x86-64" ]; } then
     zip_filename="ch-linux-amd64.zip"
 elif [ "$operating_system" = "Linux" ] && [ "$architecture" = "aarch64" ]; then
     # aarch64 is supposedly the same as arm64 and containerd treats them the
