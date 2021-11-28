@@ -135,7 +135,7 @@ This environment is based on the this repository: [camerondurham/cs350-docker](h
 1. use `ch create` to create and save the environment settings
     ```bash
     ch create csci350 \
-        --image camerondurham/cs350-docker:latest \
+        --image camerondurham/cs350-docker:v1 \
         --volume csci350-work:/xv6_docker \
         --security-opt seccomp:unconfined \
         --port 7776:22 \
