@@ -68,7 +68,7 @@ Follow the instructions below to install WSL2 on your machine: <a href="https://
 
 ### Step 1: Install Docker
 
-Install Docker Desktop from <a href="https://www.docker.com/products/docker-desktop" target="_blank">the website</a>.
+Install Docker Desktop from <a href="https://www.docker.com/products/docker-desktop" target="_blank">the site</a>.
 
 ### Step 2: Install `ch`
 
@@ -187,7 +187,7 @@ Flags:
 
 ### `ch start`
 
-start docker container in background and save container id to config file
+start docker container in background and save container ID to config file
 
 ```txt
 Usage:
