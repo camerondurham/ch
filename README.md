@@ -202,7 +202,7 @@ Usage:
 
 delete an environment from your `.ch.yaml` config file
 
-```
+```txt
 Usage:
   ch delete ENVIRONMENT_NAME [flags]
 ```
