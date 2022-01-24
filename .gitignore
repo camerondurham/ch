@@ -17,3 +17,4 @@
 ch
 .vscode
 dist/
+.DS_Store

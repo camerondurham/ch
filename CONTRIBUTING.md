@@ -18,8 +18,8 @@ On a Linux/macOS machine, you should be able to use `make` command to build, tes
 
 Install cobra dependencies: (required to generate new commands)
 
-```shell script
-go get github.com/spf13/cobra/cobra
+```
+go install github.com/spf13/cobra/cobra@v1.3.0
 ```
 
 Add new cobra command
