@@ -18,13 +18,13 @@ On a Linux/macOS machine, you should be able to use `make` command to build, tes
 
 Install cobra dependencies: (required to generate new commands)
 
-```shell script
-go get github.com/spf13/cobra/cobra
+```bash
+go install github.com/spf13/cobra/cobra@v1.3.0
 ```
 
 Add new cobra command
 
-```shell script
+```bash
 # add new subcommand
 cobra add <child command> -p <parent command>
 cobra add childCommand -p 'parentCommand'
@@ -36,7 +36,7 @@ Add or adjust `~/.cobra.yaml` file for your name, license, year, etc. [Docs](htt
 
 Go Module:
 
-```shell script
+```bash
 # you don't have to run this since we already have a go.mod and go.sum file
 go mod init github.com/<name>/<repo-name>
 
@@ -57,7 +57,7 @@ When writing instructions in the CLI and in the README, please follow syntax rec
 
 Change package name:
 
-```shell script
+```bash
 # change module name in all files
  find . -type f \( -name '*.go' -o -name '*.mod' \) -exec sed -i -e "s;container-helper;ch;g" {} +
 ```
@@ -69,21 +69,21 @@ Change package name:
 > I can't remember how on Earth to git tag stuff sometimes!
 
 
-```shell
+```bash
 # releasing a new version
 git tag -a v1.4 -m "Version notes here"
 ```
 
 To delete tagging mistakes locally:
 
-```shell
+```bash
 # delete local tag
 git tag -d tagname
 ```
 
 To delete remote tags:
 
-```shell
+```bash
 # delete a tag already pushed to github
 git push --delete origin tagname
 ```

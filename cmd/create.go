@@ -4,26 +4,31 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
+	"os"
+	"path/filepath"
+	"strings"
+
 	"github.com/camerondurham/ch/cmd/util"
 	"github.com/docker/go-connections/nat"
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"log"
-	"os"
-	"path/filepath"
-	"strings"
 )
 
 // createCmd represents the create command
 var (
 	createCmd = &cobra.Command{
-		Use:   "create ENVIRONMENT_NAME {--file DOCKERFILE |--image DOCKER_IMAGE } [OPTIONS]",
+		Use:   "create ENVIRONMENT_NAME [FLAGS] {--file DOCKERFILE |--image DOCKER_IMAGE } [OPTIONS]",
 		Short: "create docker environment config",
 		Long: `Create docker environment config with new name.
+
+	You can use the following flag to replace an environment name if it already exists:
+		--replace					Replace existing named environment, if one exists already.
+
 	Will look for your Dockerfile in the current directory
 	if you do not explicitly set --file.
-	
+
 	To create environment from a Dockerfile, use:
 
 		--file DOCKERFILE			Path to Dockerfile. If context is used, filepath must be relative to that path.
@@ -35,7 +40,6 @@ var (
 
 	You can use the following options:
 
-		--replace					Replace existing named environment, if one exists
 		--volume list				Bind mount a volume
 		--shell PATH				Command to run for shell (i.e. /bin/sh, /bin/bash)
 		--cap-add CAPABILITY		Add Linux capability (i.e. SYS_PTRACE)

@@ -128,15 +128,19 @@ This environment is based on this repository: [csci104/docker](https://github.co
 #### Create the CSCI 350 Environment
 
 The commands here assume `csci350-work` is your homework folder in the current directory. Alternatively, you can provide the absolute path
-to wherever your homework is on your machine. For Windows, your volume command should look like `--volume "C:\Users\user\path\to\csci350:/work"`, on macOS your command should look like `--volume /Users/username/path/to/csci350:/work`.
+to wherever your homework is on your machine. For Windows, your volume command should look like `--volume "C:\Users\user\path\to\csci350:/xv6_docker"`, on macOS your command should look like `--volume /Users/username/path/to/csci350:/xv6_docker`.
 
 This environment is based on the this repository: [camerondurham/cs350-docker](https://github.com/camerondurham/cs350-docker)
 
-1. use `ch create` to create and save the environment settings
+1. find the absolute path to your `csci350` directory where you keep your homework (see [Filepaths in terminal](https://github.com/csci104/docker#filepaths-in-the-terminal) wiki from csci104/docker if you are having issues)
+    1. (macOS/Linux) navigate to your directory in the terminal and run `pwd`, the output should be something like `/Users/username/path/to/csci350`
+    2. (Windows Powershell) navigate to the directory in Powershell and run `Get-Location`, you will want the output like `C:\Users\Username\path\to\csci350`
+
+1. use `ch create` to create and save the environment settings, replacing `PATH_TO_YOUR_WORKDIR` with the path from step 1.
     ```bash
     ch create csci350 \
         --image camerondurham/cs350-docker:v1 \
-        --volume csci350-work:/xv6_docker \
+        --volume PATH_TO_YOUR_WORKDIR:/xv6_docker \
         --security-opt seccomp:unconfined \
         --port 7776:22 \
         --port 7777:7777 \
@@ -185,6 +189,24 @@ Flags:
 
 ```
 
+### `ch list`
+
+list all saved configs
+
+```txt
+Usage:
+  ch list [ENVIRONMENT_NAME]
+```
+
+### `ch delete`
+
+delete an environment from your `.ch.yaml` config file
+
+```txt
+Usage:
+  ch delete ENVIRONMENT_NAME [flags]
+```
+
 ### `ch start`
 
 start docker container in background and save container ID to config file
@@ -215,14 +237,6 @@ Usage:
   ch stop ENVIRONMENT_NAME
 ```
 
-### `ch list`
-
-list all saved configs
-
-```txt
-Usage:
-  ch list [ENVIRONMENT_NAME]
-```
 
 ### `ch running`
 
@@ -231,6 +245,24 @@ list all running environments
 ```txt
 Usage:
   ch running
+```
+
+### `ch update`
+
+update your Docker image to the latest version or rebuild the container
+
+```txt
+Usage:
+  ch update [ENVIRONMENT_NAME] [flags]
+```
+
+### `ch upgrade`
+
+check if you are running the latest version of `ch` and print install commands if an upgrade is available
+
+```txt
+Usage:
+  ch upgrade
 ```
 
 ## More Examples
