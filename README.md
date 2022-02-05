@@ -29,7 +29,7 @@ container configuration once (saved in `~/.ch.yaml` on macOS/Linux) and the easi
 
 This was designed to generalize how we develop C++ code in CSCI 104 to be portable enough to use
 whichever Docker container you choose. Of course, this project would not be possible without the reference
-of [docker/cli](https://github.com/docker/cli/test/bad/link) for examples of how to use the Docker Engine [API](cmd/test/bad/link.js).
+of [docker/cli](https://github.com/docker/cli) for examples of how to use the Docker Engine API.
 
 ## Installation
 
