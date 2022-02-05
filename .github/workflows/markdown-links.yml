@@ -5,8 +5,8 @@ on:
     branches:
       - "*"
   schedule:
-    # run every Sunday at 9:00AM (see https://pubs.opengroup.org/onlinepubs/9699919799/utilities/crontab.html#tag_20_25_07)
-    - cron: "0 9 0 * *"
+  # run every Sunday at 9:00AM (see https://pubs.opengroup.org/onlinepubs/9699919799/utilities/crontab.html#tag_20_25_07)
+  - cron: "0 9 0 * *"
 
 jobs:
   markdown-link-check:
