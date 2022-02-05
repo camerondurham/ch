@@ -31,7 +31,6 @@ This was designed to generalize how we develop C++ code in CSCI 104 to be portab
 whichever Docker container you choose. Of course, this project would not be possible without the reference
 of [docker/cli](https://github.com/docker/cli) for examples of how to use the Docker Engine API.
 
-
 ## Installation
 
 You can follow the installation instructions below to install
