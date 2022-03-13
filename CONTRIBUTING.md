@@ -30,7 +30,7 @@ cobra add <child command> -p <parent command>
 cobra add childCommand -p 'parentCommand'
 ```
 
-Add or adjust `~/.cobra.yaml` file for your name, license, year, etc. [Docs](https://github.com/spf13/cobra/blob/master/cobra/README.md)
+Add or adjust `~/.cobra.yaml` file for your name, license, year, etc. See CLI usage in the [docs](https://github.com/spf13/cobra/#usage) for details.
 
 ### Working with Go Modules
 
