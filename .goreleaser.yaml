@@ -41,6 +41,7 @@ brews:
       owner: camerondurham
       name: homebrew-tap
       branch: main
+      token: "{{ .Env.TAP_GITHUB_TOKEN }}"
     url_template: "http://github.com/camerondurham/ch/releases/{{ .Tag }}/{{ .ArtifactName }}"
     commit_author:
       name: goreleaserbot
