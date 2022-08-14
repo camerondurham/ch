@@ -42,7 +42,7 @@ brews:
       name: homebrew-tap
       branch: main
       token: "{{ .Env.TAP_GITHUB_TOKEN }}"
-    url_template: "http://github.com/camerondurham/ch/releases/{{ .Tag }}/{{ .ArtifactName }}"
+    # url_template: "http://github.com/camerondurham/ch/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
     commit_author:
       name: goreleaserbot
       email: bot@goreleaser.com
