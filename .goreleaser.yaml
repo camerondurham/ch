@@ -15,6 +15,9 @@ builds:
     ldflags:
       - -X github.com/camerondurham/ch/version.PkgVersion={{ .Version }}
       - -X github.com/camerondurham/ch/version.GitRevision={{ .ShortCommit }}
+    archives:
+      - id: zip
+        format: zip
 
   - id: windows
     goos:
@@ -25,6 +28,9 @@ builds:
     ldflags:
       - -X github.com/camerondurham/ch/version.PkgVersion={{ .Version }}
       - -X github.com/camerondurham/ch/version.GitRevision={{ .ShortCommit }}
+    archives:
+      - id: zip
+        format: zip
 
 
 release:
