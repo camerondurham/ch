@@ -87,6 +87,15 @@ You may need to restart your machine or log out so `ch` is added to your `Path`.
 
 #### macOS/Linux
 
+**Option 1: (recommended: use homebrew):**
+
+```bash
+brew tap camerondurham/tap
+brew install camerondurham/tap/ch
+```
+
+**Option 2 (run a bash script):**
+
 Run in your preferred Terminal to download and run the install script for Unix:
 
 ```bash
