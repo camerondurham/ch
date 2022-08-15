@@ -44,19 +44,10 @@ development environment.
 
 Please make sure that your machine meets the requirements for Docker:
 
-<a href="https://docs.docker.com/docker-for-windows/install/" target="_blank">Windows host:</a>
+- <a href="https://docs.docker.com/docker-for-windows/install/" target="_blank">Windows host requirements</a>
 
-- Windows 10 64-bit: (Build 18362 or later)
-  - WSL2 container backend
+- <a href="https://docs.docker.com/docker-for-mac/install/" target="_blank">Mac host requirements </a>
 
-<a href="https://docs.docker.com/docker-for-mac/install/" target="_blank">Mac host:</a>
-
-- Intel:
-  - Mac hardware must be a 2010 or newer model
-  - macOS must be version 10.13 or newer
-  - 4 GB RAM minimum
-- Apple Silicon (e.g. M1,M1X chip):
-  - No requirements
 
 ### Step 0: Install WSL2 (Windows only)
 
@@ -73,19 +64,11 @@ Install Docker Desktop from <a href="https://www.docker.com/products/docker-desk
 
 Run the following commands below to download and run the install script for your operating system.
 
-#### Windows
-
-Run PowerShell as Admin and execute this command to download and run the install script for Windows:
-
-```powershell
-Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/camerondurham/ch/main/scripts/install-ch.ps1'))
-```
-
-You can check out the source code [here](https://github.com/camerondurham/ch/blob/main/scripts/install-ch.ps1).
-
-You may need to restart your machine or log out so `ch` is added to your `Path`.
+The install script just downloads the latest release from this repository, unpacks, and adds the `ch` binary to your path.
 
 #### macOS/Linux
+
+If you run macOS or a Linux OS, follow this section to install the `ch` binary.
 
 **Option 1: (recommended: use homebrew):**
 
@@ -106,6 +89,23 @@ Run in your preferred Terminal to download and run the install script for Unix:
 
 Depending on your default shell (usually `bash` or `zsh`), you will have to source your `~/.bashrc` or `~/.zshrc` to add
 `ch` to your `PATH`.
+
+-----
+
+#### Windows
+
+If you use Windows, follow this section to install the `ch` binary.
+
+Run PowerShell as Admin and execute this command to download and run the install script for Windows:
+
+```powershell
+Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/camerondurham/ch/main/scripts/install-ch.ps1'))
+```
+
+You can check out the source code [here](https://github.com/camerondurham/ch/blob/main/scripts/install-ch.ps1).
+
+You may need to restart your machine or log out so `ch` is added to your `Path`.
+
 
 ### Step 3: Setup Your First Environment
 
