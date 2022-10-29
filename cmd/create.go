@@ -23,29 +23,29 @@ var (
 		Short: "create docker environment config",
 		Long: `Create docker environment config with new name.
 
-	You can use the following flag to replace an environment name if it already exists:
-		--replace					Replace existing named environment, if one exists already.
+  You can use the following flag to replace an environment name if it already exists:
+    --replace                           Replace any existing environment with the same name
 
-	Will look for your Dockerfile in the current directory
-	if you do not explicitly set --file.
+  Will look for your Dockerfile in the current directory
+  if you do not explicitly set --file.
 
-	To create environment from a Dockerfile, use:
+  To create environment from a Dockerfile, use:
 
-		--file DOCKERFILE			Path to Dockerfile. If context is used, filepath must be relative to that path.
-		--context PATH				Context to use when building the Docker image
+    --file DOCKERFILE                    Path to Dockerfile. If context is used, filepath must be relative to that path.
+    --context PATH                       Context to use when building the Docker image
 
-	To create an environment from a pre-built Docker image, use:
+  To create an environment from a pre-built Docker image, use:
 
-		--image DOCKER_IMAGE
+  	--image DOCKER_IMAGE
 
-	You can use the following options:
+  You can use the following options:
 
-		--volume list				Bind mount a volume
-		--shell PATH				Command to run for shell (i.e. /bin/sh, /bin/bash)
-		--cap-add CAPABILITY		Add Linux capability (i.e. SYS_PTRACE)
-		--security-opt	OPT			Add security configuration (i.e. "seccomp=unconfined")
-		--port NUMBER				Expose port from container to host
-		--privileged				Give container extended privileges on host (use carefully!)
+    --volume HOST_PATH:CONTAINER_PATH    Bind mount a volume (e.g. $PWD:/home )
+    --shell PATH                         Command to run for shell (e.g. /bin/sh, /bin/bash)
+    --cap-add CAPABILITY                 Add Linux capability (e.g. SYS_PTRACE)
+    --security-opt	OPT			             Add security configuration (e.g. "seccomp=unconfined")
+    --port NUMBER                        Expose port from container to host
+    --privileged                         Give container extended privileges on host (use carefully!)
 `,
 		Args:    cobra.MinimumNArgs(1),
 		Version: rootCmd.Version,
