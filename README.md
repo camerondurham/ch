@@ -10,7 +10,7 @@
   </a>
 
   <a href="github.com/camerondurham/ch">
-    <img align="left" src="https://img.shields.io/github/workflow/status/camerondurham/ch/Build" />
+    <img align="left" src="https://github.com/camerondurham/ch/actions/workflows/test.yml/badge.svg" href="https://github.com/camerondurham/ch/actions/workflows/test.yml" />
   </a>
 
   <a href="https://github.com/marketplace/actions/super-linter">
