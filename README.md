@@ -31,7 +31,7 @@ This was designed to generalize how we develop C++ code in CSCI 104 to be portab
 whichever Docker container you choose. Of course, this project would not be possible without the reference
 of [docker/cli](https://github.com/docker/cli) for examples of how to use the Docker Engine API.
 
-**2023-05-13 Update** 
+**2023-05-13 Update**
 
 This project This was built before I knew anything about [Nix](https://nixos.org) or [nix-shell](https://nixos.wiki/wiki/Development_environment_with_nix-shell). I've realized those tools are far superior for addressing this problem where a specific compiler and debugging tools are required.
 
