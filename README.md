@@ -9,16 +9,16 @@
     <img align="left" src="https://img.shields.io/github/go-mod/go-version/camerondurham/ch" />
   </a>
 
-  <a href="github.com/camerondurham/ch">
-    <img align="left" src="https://github.com/camerondurham/ch/actions/workflows/test.yml/badge.svg" href="https://github.com/camerondurham/ch/actions/workflows/test.yml" />
-  </a>
-
-  <a href="https://github.com/marketplace/actions/super-linter">
-    <img align="left" src="https://github.com/camerondurham/ch/workflows/Lint%20Code%20Base/badge.svg" />
-  </a>
-
   <a href="https://github.com/camerondurham/ch">
     <img align="left" src="https://img.shields.io/github/downloads/camerondurham/ch/total" />
+  </a>
+
+  <a>
+    <img align="left" src="https://img.shields.io/badge/maintenance-passively--maintained-yellowgreen.svg"/>
+  </a>
+
+  <a href="github.com/camerondurham/ch">
+    <img align="left" src="https://github.com/camerondurham/ch/actions/workflows/test.yml/badge.svg" href="https://github.com/camerondurham/ch/actions/workflows/test.yml" />
   </a>
 </div>
 
@@ -30,6 +30,10 @@ container configuration once (saved in `~/.ch.yaml` on macOS/Linux) and the easi
 This was designed to generalize how we develop C++ code in CSCI 104 to be portable enough to use
 whichever Docker container you choose. Of course, this project would not be possible without the reference
 of [docker/cli](https://github.com/docker/cli) for examples of how to use the Docker Engine API.
+
+**2023-05-13 Update** 
+
+This project This was built before I knew anything about [Nix](https://nixos.org) or [nix-shell](https://nixos.wiki/wiki/Development_environment_with_nix-shell). I've realized those tools are far superior for addressing this problem where a specific compiler and debugging tools are required.
 
 ## Installation
 
@@ -70,14 +74,14 @@ The install script just downloads the latest release from this repository, unpac
 
 If you run macOS or a Linux OS, follow this section to install the `ch` binary.
 
-**Option 1: (recommended: use homebrew):**
+**Option 1: (recommended for macOS/Linux) use homebrew**
 
 ```bash
 brew tap camerondurham/tap
 brew install camerondurham/tap/ch
 ```
 
-**Option 2 (run a bash script):**
+**Option 2: run a bash script**
 
 Run in your preferred Terminal to download and run the install script for Unix:
 
