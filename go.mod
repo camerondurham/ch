@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/Microsoft/go-winio v0.5.2 // indirect
-	github.com/docker/docker v20.10.24+incompatible
+	github.com/docker/docker v20.10.27+incompatible
 	github.com/docker/go-connections v0.4.0
 	github.com/golang/mock v1.5.0
 	github.com/mitchellh/go-homedir v1.1.0
