@@ -77,8 +77,10 @@ func (d *DockerService) GetRunning(filters filters.Args, print bool) ([]types.Co
 }
 
 // PullImage downloads a Docker image from Docker Hub
-func (d *DockerService) PullImage(ctx context.Context, out *streams.Out, imageName string) error {
-	imagePullOutput, err := d.ImagePull(ctx, imageName, types.ImagePullOptions{})
+func (d *DockerService) PullImage(ctx context.Context, out *streams.Out, imageName string, platform string) error {
+	imagePullOutput, err := d.ImagePull(ctx, imageName, types.ImagePullOptions{
+		Platform: platform,
+	})
 
 	if err != nil {
 		return err

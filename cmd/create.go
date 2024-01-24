@@ -58,6 +58,7 @@ var (
 type commandFlags struct {
 	file         string
 	image        string
+	platform	 string
 	volume       []string
 	shell        string
 	context      string
@@ -74,6 +75,7 @@ func CreateCmd(cmd *cobra.Command, args []string) {
 	name := args[0]
 	file, _ := cmd.Flags().GetString("file")
 	imageName, _ := cmd.Flags().GetString("image")
+	platform, _ := cmd.Flags().GetString("platform")
 	volumeArgs, _ := cmd.Flags().GetStringArray("volume")
 	shellCmdArgs, _ := cmd.Flags().GetString("shell")
 	contextDir, _ := cmd.Flags().GetString("context")
@@ -86,6 +88,7 @@ func CreateCmd(cmd *cobra.Command, args []string) {
 	cmdFlags := &commandFlags{
 		file:         file,
 		image:        imageName,
+		platform: 	  platform,
 		volume:       volumeArgs,
 		shell:        shellCmdArgs,
 		context:      contextDir,
@@ -173,6 +176,7 @@ func init() {
 
 	// Docker pull options
 	createCmd.Flags().StringP("image", "i", "", "image name to pull from DockerHub")
+	createCmd.Flags().String("platform", "", "platform for image (e.g. linux/amd64)")
 
 	// Docker run options
 	createCmd.Flags().StringArrayP("volume", "v", nil, "volume to mount to the working directory")
@@ -206,13 +210,18 @@ func parseContainerOpts(environmentName string, v util.Validate, cmdFlags *comma
 			return nil, errorBuildImageFieldsNotPresent
 		}
 	} else if cmdFlags.image != "" {
-		return &util.ContainerOpts{
+		containerOpts := &util.ContainerOpts{
 			PullOpts: &util.PullOpts{
 				ImageName: cmdFlags.image,
 			},
 			HostConfig: hostConfig,
 			Shell:      shellCmd,
-		}, nil
+		}
+		if cmdFlags.platform != "" {
+			containerOpts.PullOpts.Platform = cmdFlags.platform
+		}
+
+		return containerOpts, nil
 	}
 
 	return nil, errorCreateImageFieldsNotPresent

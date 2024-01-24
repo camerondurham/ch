@@ -45,13 +45,11 @@ development environment.
 
 ### Prerequisites
 
-
 Please make sure that your machine meets the requirements for Docker:
 
 - <a href="https://docs.docker.com/docker-for-windows/install/" target="_blank">Windows host requirements</a>
 
 - <a href="https://docs.docker.com/docker-for-mac/install/" target="_blank">Mac host requirements </a>
-
 
 ### Step 0: Install WSL2 (Windows only)
 
@@ -87,14 +85,14 @@ Run in your preferred Terminal to download and run the install script for Unix:
 
 ```bash
  bash <(curl -s https://raw.githubusercontent.com/camerondurham/ch/main/scripts/install-ch.sh)
- ```
+```
 
- You can check out the source code [here](https://github.com/camerondurham/ch/blob/main/scripts/install-ch.sh).
+You can check out the source code [here](https://github.com/camerondurham/ch/blob/main/scripts/install-ch.sh).
 
 Depending on your default shell (usually `bash` or `zsh`), you will have to source your `~/.bashrc` or `~/.zshrc` to add
 `ch` to your `PATH`.
 
------
+---
 
 #### Windows
 
@@ -110,7 +108,6 @@ You can check out the source code [here](https://github.com/camerondurham/ch/blo
 
 You may need to restart your machine or log out so `ch` is added to your `Path`.
 
-
 ### Step 3: Setup Your First Environment
 
 See [commands documentation](#commands) or the [example commands](#more-examples) for how to create your first
@@ -118,24 +115,24 @@ environment.
 
 #### Create the CSCI104 Environment
 
-Where `csci104-work` is your homework folder in the current directory.  Alternatively, you can provide the absolute path
+Where `csci104-work` is your homework folder in the current directory. Alternatively, you can provide the absolute path
 to wherever your homework is on your machine.
 
 This environment is based on this repository: [csci104/docker](https://github.com/csci104/docker)
 
 1. use `ch create` to create and save the environment settings
-    ```bash
-    ch create csci104 \
-        --image usccsci104/docker:20.04 \
-        --volume csci104-work:/work  \
-        --security-opt seccomp:unconfined \
-        --cap-add SYS_PTRACE \
-        --shell /bin/bash
-    ```
+   ```bash
+   ch create csci104 \
+       --image usccsci104/docker:20.04 \
+       --volume csci104-work:/work  \
+       --security-opt seccomp:unconfined \
+       --cap-add SYS_PTRACE \
+       --shell /bin/bash
+   ```
 1. start the environment with a terminal session
-    ```bash
-    ch shell csci104 --force-start
-    ```
+   ```bash
+   ch shell csci104 --force-start
+   ```
 
 #### Create the CSCI 350 Environment
 
@@ -145,26 +142,28 @@ to wherever your homework is on your machine. For Windows, your volume command s
 This environment is based on the this repository: [camerondurham/cs350-docker](https://github.com/camerondurham/cs350-docker)
 
 1. find the absolute path to your `csci350` directory where you keep your homework (see [Filepaths in terminal](https://github.com/csci104/docker#filepaths-in-the-terminal) wiki from csci104/docker if you are having issues)
-    1. (macOS/Linux) navigate to your directory in the terminal and run `pwd`, the output should be something like `/Users/username/path/to/csci350`
-    2. (Windows Powershell) navigate to the directory in Powershell and run `Get-Location`, you will want the output like `C:\Users\Username\path\to\csci350`
+
+   1. (macOS/Linux) navigate to your directory in the terminal and run `pwd`, the output should be something like `/Users/username/path/to/csci350`
+   2. (Windows Powershell) navigate to the directory in Powershell and run `Get-Location`, you will want the output like `C:\Users\Username\path\to\csci350`
 
 1. use `ch create` to create and save the environment settings, replacing `PATH_TO_YOUR_WORKDIR` with the path from step 1.
-    ```bash
-    ch create csci350 \
-        --image camerondurham/cs350-docker:v1 \
-        --volume PATH_TO_YOUR_WORKDIR:/xv6_docker \
-        --security-opt seccomp:unconfined \
-        --port 7776:22 \
-        --port 7777:7777 \
-        --port 25000:25000 \
-        --cap-add SYS_PTRACE \
-        --shell /bin/bash \
-        --privileged
-    ```
+   ```bash
+   ch create csci350 \
+       --image camerondurham/cs350-docker:v1 \
+       --volume PATH_TO_YOUR_WORKDIR:/xv6_docker \
+       --security-opt seccomp:unconfined \
+       --port 7776:22 \
+       --port 7777:7777 \
+       --port 25000:25000 \
+       --cap-add SYS_PTRACE \
+       --shell /bin/bash \
+       --privileged
+       --platform linux/amd64
+   ```
 1. start the environment with a terminal session
-    ```bash
-    ch shell csci350 --force-start
-    ```
+   ```bash
+   ch shell csci350 --force-start
+   ```
 
 ## What is this?
 
@@ -173,7 +172,6 @@ such as [CSCI 104](https://bytes.usc.edu/cs104/) (Data Structures and Algorithms
 or if you're lucky, VMWare. A more efficient and arguably smoother workflow involves setting using a Docker container with the class's compilers and
 development tools installed. `ch` offers a consistent interface to configure and access these environments. See below for the commands to create
 environments for these classes.
-
 
 ## Commands
 
@@ -198,6 +196,7 @@ Flags:
       --shell string               default shell to use when logging into environment (default "/bin/sh")
       --version                    version for create
   -v, --volume stringArray         volume to mount to the working directory
+      --platform                   platform for image (e.g. linux/amd64, default is local platform)
 
 ```
 
@@ -248,7 +247,6 @@ stop running container/environment
 Usage:
   ch stop ENVIRONMENT_NAME
 ```
-
 
 ### `ch running`
 
