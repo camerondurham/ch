@@ -157,7 +157,7 @@ This environment is based on the this repository: [camerondurham/cs350-docker](h
        --port 25000:25000 \
        --cap-add SYS_PTRACE \
        --shell /bin/bash \
-       --privileged
+       --privileged \
        --platform linux/amd64
    ```
 1. start the environment with a terminal session
