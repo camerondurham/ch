@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v0.3.7
+
+- Add `--platform` flag to specify which platform to pull when creating environment (thanks to @a-harhar!)
+
+## v0.3.6
+
+- Dependabot and README changes
+
 ## v0.3.5
 
 - remove "latest version" checks from other commands (`ch list` and `ch running`)
