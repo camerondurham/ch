@@ -24,6 +24,7 @@ type BuildOpts struct {
 
 type PullOpts struct {
 	ImageName string
+	Platform  string
 }
 
 type HostConfig struct {
@@ -206,6 +207,7 @@ func BuildOrPullContainerImage(ctx context.Context, cli ContainerClient, opts *C
 	} else {
 		return cli.DockerClient().PullImage(ctx,
 			cli.Out(),
-			opts.PullOpts.ImageName)
+			opts.PullOpts.ImageName,
+			opts.PullOpts.Platform)
 	}
 }
